@@ -1231,7 +1231,7 @@ function currentEntry(){return GCUR||GAL[GAL.length-1]}
 /* ---- metadata line: GPS + city + time, printed as a draggable text on the poster ---- */
 let META=null;
 const hhmm=d=>String(d.getHours()).padStart(2,"0")+":"+String(d.getMinutes()).padStart(2,"0");
-function metaLine(M){const parts=[];if(M.lat!=null){parts.push(Math.abs(M.lat).toFixed(4)+"\u00B0 "+(M.lat>=0?"N":"S"),Math.abs(M.lon).toFixed(4)+"\u00B0 "+(M.lon>=0?"E":"W"));if(M.city)parts.push(M.city.toUpperCase())}else parts.push(M.denied?"LOCATION OFF":"LOCATING");parts.push(M.time);return parts.join("\n")}
+function metaLine(M){const parts=[];if(M.lat!=null){parts.push(Math.abs(M.lat).toFixed(4)+"\u00B0 "+(M.lat>=0?"N":"S")+", "+Math.abs(M.lon).toFixed(4)+"\u00B0 "+(M.lon>=0?"E":"W"));if(M.city)parts.push(M.city.toUpperCase())}else parts.push(M.denied?"LOCATION OFF":"LOCATING");return parts.join("\n")}
 function metaText(M,st){const g=st.col&&st.col.ground&&st.col.ground.l,rgb=hex3(g&&g.length===7?g:"#ffffff"),dark=(rgb[0]*.3+rgb[1]*.59+rgb[2]*.11)<120;return{t:metaLine(M),x:.5,y:.05,s:.024,c:dark?"#ffffff":INK,al:"left",plate:false,meta:true,w:800,lh:1.22,ls:"0.05em",anchor:true}}
 function applyMeta(M){M.sts.forEach(st=>{const t=st.texts.find(x=>x.meta);if(t&&!t.manual){t.t=metaLine(M);st.rev++}});if(ST&&M.sts.includes(ST)&&cur==="poster"){try{refresh(false);if(TOOL==="col"&&PART==="info")buildPanel()}catch(e){}}}
 async function geocode(M){const get=async u=>{const c=new AbortController(),to=setTimeout(()=>c.abort(),6000);try{const r=await fetch(u,{signal:c.signal});return r.ok?await r.json():null}catch(e){return null}finally{clearTimeout(to)}};

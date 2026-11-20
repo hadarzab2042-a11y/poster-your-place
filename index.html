@@ -723,9 +723,20 @@ canvas{position:absolute;left:0;top:0;width:402px;height:874px;pointer-events:no
 #poster #roombtn{left:106px!important;right:auto!important;top:545px!important}
 #poster #nextbtn{left:auto!important;right:var(--ds-m)!important}
 /* feed is a sheet: rounded top with a handle, home visible behind */
-#feed{clip-path:inset(36px 0 0 0 round 26px 26px 0 0);background:#fff}
+#feed{background:#fff}
 #feed .ptab{display:none}
 #feed:after{content:"";position:absolute;left:50%;top:54px;width:44px;height:4px;margin-left:-22px;border-radius:2px;background:var(--ink);z-index:70;pointer-events:none}
+
+/* ===== round 5: every screen after Perfect is a rounded sheet over home, one tab on the island ===== */
+:root{--ds-sheet-top:60px;--ds-sheet-r:38px}
+#done,#buy,#room,#share,#hist,#merch,#order,#feed{clip-path:inset(var(--ds-sheet-top) 0 0 0 round var(--ds-sheet-r) var(--ds-sheet-r) 0 0)!important}
+.ptab,#feed:after{display:none!important}
+#gtab{position:absolute;left:147px;top:40px;width:108px;height:27px;background:#000;border-radius:0 0 19px 19px;z-index:61;display:grid;place-items:end center;padding-bottom:3px;pointer-events:none;opacity:0;transition:opacity .25s}
+#gtab.on{opacity:1}
+#gtab svg{width:20px;height:20px;fill:none;stroke:#fff;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
+#fpeek{border-radius:var(--ds-sheet-r) var(--ds-sheet-r) 0 0!important}
+#gedge{position:absolute;left:0;right:0;top:var(--ds-sheet-top);height:40px;border-radius:var(--ds-sheet-r) var(--ds-sheet-r) 0 0;box-shadow:0 -3px 12px rgba(0,0,0,.14);z-index:39;pointer-events:none;opacity:0;transition:opacity .25s}
+#gedge.on{opacity:1}
 </style>
 </head>
 <body>
@@ -1794,15 +1805,17 @@ addEventListener("pointerup",()=>{sw=null});
  requestAnimationFrame(loop)})();
 let PULL=false;
 (function(){const IDS=["cam","done","buy","feed","room","share","hist","merch","order"],hm=$("#home");
- IDS.forEach(id=>{const s=document.getElementById(id);if(!s)return;if(id!=="cam"){const t=document.createElement("div");t.className="ptab";t.innerHTML='<svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg>';s.appendChild(t)}
-  let y0=null,dy=0,act=false;
-  s.addEventListener("pointerdown",ev=>{if(cur!==id)return;const r=s.getBoundingClientRect();if((ev.clientY-r.top)/SC>120)return;y0=ev.clientY;dy=0;act=false;try{s.setPointerCapture(ev.pointerId)}catch(e){}});
-  s.addEventListener("pointermove",ev=>{if(y0===null)return;dy=Math.max(0,(ev.clientY-y0)/SC);if(dy>8&&!act){act=true;PULL=true;homeInit(true);hm.classList.add("on");s.style.zIndex=40}if(act){s.style.transition="none";s.style.transform="translateY("+dy+"px)"}});
-  const end=()=>{if(y0===null)return;y0=null;if(!act)return;act=false;const go_=dy>140;
-   if(go_){s.style.transition="transform .4s cubic-bezier(.65,0,.25,1)";s.style.transform="translateY(104%)";later(()=>{PULL=false;s.style.transition="";s.style.transform="";s.style.zIndex="";go("home",true)},420)}
-   else{s.style.transition="transform .35s cubic-bezier(.22,1,.36,1)";s.style.transform="none";later(()=>{PULL=false;if(cur===id)hm.classList.remove("on");s.style.transition="";s.style.transform="";s.style.zIndex=""},360)}};
-  s.addEventListener("pointerup",end);s.addEventListener("pointercancel",end)});
- setInterval(()=>{if(cur==="feed"){hm.classList.add("on");PULL=true}else if(PULL&&cur!=="home"&&!document.querySelector(".scr[style*=translate]")){PULL=false}},200);
+ const gt=document.createElement("div");gt.id="gtab";gt.innerHTML='<svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg>';$("#isl").parentNode.appendChild(gt);const ge=document.createElement("div");ge.id="gedge";$("#isl").parentNode.appendChild(ge);
+ let s=null,y0=null,dy=0,act=false;
+ const sheeted=()=>IDS.includes(cur)&&cur!=="cam";
+ ph.addEventListener("pointerdown",ev=>{if(!IDS.includes(cur))return;const r=ph.getBoundingClientRect();const y=(ev.clientY-r.top)/SC;if(y>120)return;s=document.getElementById(cur);y0=ev.clientY;dy=0;act=false});
+ addEventListener("pointermove",ev=>{if(y0===null)return;dy=Math.max(0,(ev.clientY-y0)/SC);if(dy>8&&!act){act=true;PULL=true;homeInit(true);hm.classList.add("on");s.style.zIndex=40}if(act){s.style.transition="none";s.style.transform="translateY("+dy+"px)"}});
+ const end=()=>{if(y0===null)return;y0=null;if(!act)return;act=false;const el=s,id=el.id;
+  if(dy>140){el.style.transition="transform .4s cubic-bezier(.65,0,.25,1)";el.style.transform="translateY(104%)";later(()=>{PULL=false;el.style.transition="";el.style.transform="";el.style.zIndex="";go("home",true)},420)}
+  else{el.style.transition="transform .35s cubic-bezier(.22,1,.36,1)";el.style.transform="none";later(()=>{PULL=false;if(cur===id&&id==="cam")hm.classList.remove("on");el.style.transition="";el.style.transform="";el.style.zIndex=""},360)}};
+ addEventListener("pointerup",end);addEventListener("pointercancel",end);
+ /* home stays behind every sheet, and one tab hangs from the island */
+ setInterval(()=>{const sh=sheeted();gt.classList.toggle("on",sh);ge.classList.toggle("on",sh);if(sh){hm.classList.add("on");PULL=true}else if(cur!=="home"&&!act){PULL=false}},200);
  /* feed tab peeking at the bottom of home, from the second visit on */
  const pk=document.createElement("div");pk.id="fpeek";hm.appendChild(pk);let pkN=-1;
  setInterval(()=>{const mine=GAL.filter(e=>!e.seed);const on=mine.length>0;hm.classList.toggle("peek",on);

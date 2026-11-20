@@ -1139,13 +1139,14 @@ function geom(st){let fw=FMT[st.fmt][1],fh=FMT[st.fmt][2];if(st.land){const t=fw
  return{fw,fh,fr,mt,W:fw+2*fr,H:fh+2*fr,aw:fw-2*mt,ah:fh-2*mt}}
 /* ---- signed-distance texture of the photographed shape, unit coords [-TR,TR] ---- */
 const TEX={key:"",N:256,R:7,D:null};
-function getTex(st){if(TEX.key===st.id)return TEX;const N=TEX.N,R=TEX.R,D=new Float32Array(N*N),P=st.poly,n=P.length;
+const TEXC=new Map();
+function getTex(st){if(TEX.key===st.id)return TEX;const ck=st.id+"|"+st.poly.length,hit=TEXC.get(ck);if(hit&&hit.poly===st.poly){TEX.D=hit.D;TEX.key=st.id;return TEX}const N=TEX.N,R=TEX.R,D=new Float32Array(N*N),P=st.poly,n=P.length;
  for(let j=0;j<N;j++){const y=-R+(j+.5)*2*R/N;for(let i=0;i<N;i++){const x=-R+(i+.5)*2*R/N;let md=1e9,ins=false;
   for(let k=0,m=n-1;k<n;m=k++){const ax=P[m][0],ay=P[m][1],bx=P[k][0],by=P[k][1];
    if(((ay>y)!==(by>y))&&(x<(bx-ax)*(y-ay)/(by-ay)+ax))ins=!ins;
    const ex=bx-ax,ey=by-ay,t=clamp(((x-ax)*ex+(y-ay)*ey)/(ex*ex+ey*ey||1),0,1),dx=x-(ax+ex*t),dy=y-(ay+ey*t),d=dx*dx+dy*dy;if(d<md)md=d}
   D[j*N+i]=ins?-Math.sqrt(md):Math.sqrt(md)}}
- TEX.D=D;TEX.key=st.id;return TEX}
+ TEX.D=D;TEX.key=st.id;TEXC.set(ck,{D,poly:st.poly});if(TEXC.size>48)TEXC.delete(TEXC.keys().next().value);return TEX}
 function texS(x,y){const N=TEX.N,R=TEX.R,fx=clamp((x+R)/(2*R)*N-.5,0,N-1.001),fy=clamp((y+R)/(2*R)*N-.5,0,N-1.001),i=fx|0,j=fy|0,ax=fx-i,ay=fy-j,k=j*N+i,D=TEX.D;
  return D[k]*(1-ax)*(1-ay)+D[k+1]*ax*(1-ay)+D[k+N]*(1-ax)*ay+D[k+N+1]*ax*ay}
 const hash2=(a,b,s)=>{let h=(a*374761393+b*668265263+s*2147483647)|0;h=(h^(h>>>13))*1274126177|0;return((h^(h>>>16))>>>0)/4294967296};
@@ -1258,22 +1259,8 @@ function refresh(low){if(!ST||cur!=="poster")return;const box=$("#stagebox"),pf=
  if(!pvw){pf.style.border="0";pf.style.width="402px";pm.style.padding="0";pm.style.background="#fff";cw=402;ch=621}
  else{const bw=box.clientWidth,bh=box.clientHeight,g=geom(ST),sc=Math.min((bw-34)/g.W,(bh-34)/g.H);
   pf.style.border=(g.fr*sc)+"px solid "+(g.fr>0?ST.frame.c:"transparent");pf.style.width=g.fw*sc+"px";pm.style.padding=(g.mt*sc)+"px";pm.style.background=g.mt>0?ST.mat.c:"#fff";cw=g.aw*sc;ch=g.ah*sc;pad=g.mt*sc}
- art.style.width=cw+"px";art.style.height=ch+"px";const q=low?.5:Math.min(dpr,Math.sqrt(650000/(cw*ch)));
- renderArt(ST,Math.max(8,Math.round(cw*q)),Math.max(8,Math.round(ch*q)),art);ART.cw=cw;ART.ch=ch;ART.pad=pad;try{glassBtns()}catch(e){}try{const g0=hex3(ST.col.ground.l);$("#poster").style.setProperty("--bkc",(.299*g0[0]+.587*g0[1]+.114*g0[2])/255<.5?"#fff":"#000");const yy=hex3(C.Y);$("#poster").style.setProperty("--nx",Math.hypot(g0[0]-yy[0],g0[1]-yy[1],g0[2]-yy[2])<90?C.P:C.Y)}catch(e){}selBox()}
-/* clear glass lenses under the two floating poster buttons: they magnify and bend the poster behind them */
-function glassBtns(){return;const art=$("#art");if(!art||!art.width)return;const S=dpr,R=34,list=[["#pglassA",336,88],["#pglassB",336,573]],k0=art.width/402;
- const sg=art.getContext("2d");
- for(const[id,cx,cy]of list){const gc=$(id);if(!gc)continue;const D=Math.round((R*2+8)*S);if(gc.width!==402*S){gc.width=402*S;gc.height=874*S}
-  const g=gc.getContext("2d");g.setTransform(1,0,0,1,0,0);g.clearRect(0,0,gc.width,gc.height);if(pvw)continue;
-  const M=Math.ceil(R*2.8*k0),sx0=Math.max(0,Math.round(cx*k0-M)),sy0=Math.max(0,Math.round(cy*k0-M)),sx1=Math.min(art.width,Math.round(cx*k0+M)),sy1=Math.min(art.height,Math.round(cy*k0+M)),SW=sx1-sx0,SH=sy1-sy0;
-  if(SW<=0||SH<=0)continue;const src=sg.getImageData(sx0,sy0,SW,SH).data,RR=R*S,ccx=cx*S,ccy=cy*S,x0=Math.round(ccx-RR-2),y0=Math.round(ccy-RR-2),DD=Math.round(RR*2+4),out=g.createImageData(DD,DD),o=out.data;
-  for(let j=0;j<DD;j++)for(let i=0;i<DD;i++){const dx=i+x0-ccx,dy=j+y0-ccy,d=Math.hypot(dx,dy)/RR;if(d>1.01)continue;
-   const k=(d<.75?.3+.7*(d/.75)**1.7:1+(d-.75)*5.5),al=d>.985?Math.max(0,(1.01-d)/.025):1,veil=.02+.04*d**4,idx=(j*DD+i)*4;
-   for(let c=0;c<3;c++){const kk=k*(1+(c-1)*.06*d*d),sx=Math.round((ccx+dx*kk)/S*k0)-sx0,sy=Math.round((ccy+dy*kk)/S*k0)-sy0;let p=0;if(sx>=0&&sx<SW&&sy>=0&&sy<SH)p=src[(sy*SW+sx)*4+c];o[idx+c]=p+(255-p)*veil}
-   o[idx+3]=255*al}
-  const t=document.createElement("canvas");t.width=DD;t.height=DD;t.getContext("2d").putImageData(out,0,0);
-  g.save();g.shadowColor="rgba(0,0,0,.22)";g.shadowBlur=7*S;g.shadowOffsetY=3*S;g.fillStyle="rgba(255,255,255,.01)";g.beginPath();g.arc(ccx,ccy,RR,0,7);g.fill();g.restore();
-  g.drawImage(t,x0,y0);g.lineWidth=1.5;g.strokeStyle="rgba(255,255,255,.3)";g.beginPath();g.arc(ccx,ccy,RR-1,0,7);g.stroke();g.lineWidth=1.2;g.strokeStyle="rgba(30,28,29,.28)";g.beginPath();g.arc(ccx,ccy,RR+.5,0,7);g.stroke()}}
+ art.style.width=cw+"px";art.style.height=ch+"px";const q=low?.5:Math.min(dpr,Math.sqrt(520000/(cw*ch)));
+ renderArt(ST,Math.max(8,Math.round(cw*q)),Math.max(8,Math.round(ch*q)),art);ART.cw=cw;ART.ch=ch;ART.pad=pad;try{const g0=hex3(ST.col.ground.l);$("#poster").style.setProperty("--bkc",(.299*g0[0]+.587*g0[1]+.114*g0[2])/255<.5?"#fff":"#000");const yy=hex3(C.Y);$("#poster").style.setProperty("--nx",Math.hypot(g0[0]-yy[0],g0[1]-yy[1],g0[2]-yy[2])<90?C.P:C.Y)}catch(e){}selBox()}
 function selBox(){const e=$("#hsel");if(pvw||!ST||!TOOL){e.style.display="none";return}let x,y,w,h;
  if(isSh(SELL)){const o=shObj(SELL),r=o.s*Math.min(ART.cw,ART.ch)/2;x=o.x*ART.cw-r;y=o.y*ART.ch-r;w=h=2*r}
  else{const t=ST.texts[SELL];if(!t||!t.bb){e.style.display="none";return}x=t.bb.x*ART.cw-4;y=t.bb.y*ART.ch-3;w=t.bb.w*ART.cw+8;h=t.bb.h*ART.ch+6}
@@ -1473,11 +1460,14 @@ function feedInit(){if(FS)return;FS=[];const shp=[()=>blobShape(),()=>normPoly(S
   if(i%7===3||i%3===1&&i>5){const m=FMSG[(i*5+Math.floor(i/3))%FMSG.length];st.texts.push({t:m,x:[.34,.5,.62][i%3],y:[.22,.5,.78,.34][i%4],s:[.07,.09,.11,.08][i%4],c:[INK,"#E81878","#40A0D8","#F0E810"][i%4],al:i%2?"left":"right",plate:i%5!==0})}
   FS.push({st,shape:["Blobs","Arches","Leaves","Stars","Hexagons","Circles","Blobs"][i%7],k:i%4,n:FN[(i*7)%FN.length],t:i<20?(1+i)+"h":i<44?(Math.floor((i-18)/3)+1)+"d":(Math.floor((i-42)/4)+1)+"w"})}}
 function feedMine(){const e=currentEntry();return{st:e.st,k:3,n:"You",t:"Just now",mine:true,e}}
-function setTile(it,el,N,nm,mode){el.innerHTML="";const c=mode==="sq"?squareCanvas(it.st,N):mode==="pl"?posterCanvas(it.st,N):tileCanvas(it.st,it.k,N);c.style.cssText="width:100%;height:100%;display:block";el.appendChild(c);if(nm){const u=document.createElement("span");u.className="un";u.textContent="@"+(it.mine?"hadar.z":it.n.toLowerCase());el.appendChild(u)}}
+const PCC=new Map();
+function posterCached(st,N){const k=st.id+"|"+st.rev+"|"+N;let src=PCC.get(k);if(!src){src=posterCanvas(st,N);PCC.set(k,src);if(PCC.size>90)PCC.delete(PCC.keys().next().value)}
+ const c=document.createElement("canvas");c.width=src.width;c.height=src.height;c.getContext("2d").drawImage(src,0,0);return c}
+function setTile(it,el,N,nm,mode){el.innerHTML="";const c=mode==="sq"?squareCanvas(it.st,N):mode==="pl"?posterCached(it.st,N):tileCanvas(it.st,it.k,N);c.style.cssText="width:100%;height:100%;display:block";el.appendChild(c);if(nm){const u=document.createElement("span");u.className="un";u.textContent="@"+(it.mine?"hadar.z":it.n.toLowerCase());el.appendChild(u)}}
 function feedGrid(list,loadFirst,noName){const G=$("#fg");G.innerHTML="";const MW=document.createElement("div");MW.className="mw";G.appendChild(MW);const els=[];list.forEach((it,i)=>{const t=document.createElement("div");t.className="ft mas";t.style.aspectRatio=asp(it.st);t.setAttribute("role","button");t.setAttribute("aria-label","Open post");t.onclick=()=>feedOpen(list,i);MW.appendChild(t);els.push(t)});
  let n=loadFirst?1:0;const first=els[0];
  if(loadFirst&&first){first.classList.add("ld");first.innerHTML='<i class="sp"></i>';const myId=feedGrid.id=(feedGrid.id||0)+1;later(()=>{if(feedGrid.id!==myId)return;setTile(list[0],first,360,!noName,"pl");first.classList.remove("ld");first.classList.add("pop");later(postedBurst,300)},1700)}
- const step=()=>{if(feedGrid.stop!==G.dataset.s)return;let c=0;while(n<list.length&&c<3){setTile(list[n],els[n],300,!noName,"pl");n++;c++}if(n<list.length)setTimeout(step,24)};G.dataset.s=String(Math.random());feedGrid.stop=G.dataset.s;
+ const step=()=>{if(feedGrid.stop!==G.dataset.s)return;let c=0;while(n<list.length&&c<1){setTile(list[n],els[n],300,!noName,"pl");n++;c++}if(n<list.length)setTimeout(step,24)};G.dataset.s=String(Math.random());feedGrid.stop=G.dataset.s;
  if(!loadFirst)n=0;setTimeout(step,loadFirst?200:0)}
 function feedSet(mode){FV=mode;const f=$("#feed");f.classList.remove("edt");f.classList.remove("fp");f.classList.toggle("lst",mode==="list");f.classList.toggle("prof",mode==="mine");f.classList.remove("srch");$("#fsr").classList.remove("on")}
 let FBROWSE=false,FFROM="done";
@@ -1601,8 +1591,10 @@ function buyBack(){if(BUYFROM==="feed"){FEEDKEEP=true;go("feed")}else go("done")
 let FRT=0,FRS=.37,FRX=80,FRY=105,FRG=null;
 function feedLogoPose(){const w=$("#fT").offsetWidth||85,hh=$("#fT").offsetHeight||68;FRS=Math.max(w,hh)*.84/232;FRX=38+w/2;FRY=93+hh/2;const t=$("#fT");t.style.transform="none"}
 const eIO=k=>k<.5?4*k*k*k:1-Math.pow(-2*k+2,3)/2;
+let FRHID=null;
 function feedRing(dt){if(FV==="mine")return;const g=cvg("#fring");FRT+=dt;if(!FRG)feedLogoPose();
  if(FRG){const k=Math.min(1,(performance.now()-FRG.t0)/950),e=eIO(k);FRS=lerp(FRG.s0,1,e);FRX=lerp(FRG.x0,RC[0],e);FRY=lerp(FRG.y0,RC[1],e);$("#fT").style.transform="translate("+(5*e)+"px,"+(47*e)+"px)";if(k>=1&&!FRG.done){FRG.done=true;const ft=FRT,hm=$("#home"),fd=$("#feed");hm.style.transition=fd.style.transition="none";go("home",true);later(()=>{hm.style.transition=fd.style.transition=""},120);h0=performance.now()-(TF+ft)*1000}}
+ if(FRHID===null)FRHID=getComputedStyle(g.canvas).display==="none";if(FRHID)return;
  g.setTransform(dpr,0,0,dpr,0,0);g.clearRect(0,0,402,874);const ps=RPS0+FRT*.9,al=RAL+.18*Math.sin(FRT*.9),F=ringFrames(ps,al);
  g.setTransform(FRS*dpr,0,0,FRS*dpr,(FRX-RC[0]*FRS)*dpr,(FRY-RC[1]*FRS)*dpr);drawSnake(g,F,0,F[F.length-1].s,s=>RHW,false,FRG?(2*Math.round(lerp(10,6,eIO(Math.min(1,(performance.now()-FRG.t0)/950))))+1):21);g.setTransform(dpr,0,0,dpr,0,0)}
 $("#fringb").onclick=()=>{if(FRG)return;$("#feed").classList.add("leaving");feedLogoPose();FRG={t0:performance.now(),s0:FRS,x0:FRX,y0:FRY}};

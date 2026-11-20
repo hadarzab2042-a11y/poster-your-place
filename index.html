@@ -1231,8 +1231,8 @@ function currentEntry(){return GCUR||GAL[GAL.length-1]}
 /* ---- metadata line: GPS + city + time, printed as a draggable text on the poster ---- */
 let META=null;
 const hhmm=d=>String(d.getHours()).padStart(2,"0")+":"+String(d.getMinutes()).padStart(2,"0");
-function metaLine(M){const parts=[];if(M.lat!=null){parts.push(Math.abs(M.lat).toFixed(4)+"\u00B0 "+(M.lat>=0?"N":"S")+", "+Math.abs(M.lon).toFixed(4)+"\u00B0 "+(M.lon>=0?"E":"W"));if(M.city)parts.push(M.city.toUpperCase())}else parts.push(M.denied?"LOCATION OFF":"LOCATING");parts.push(M.time);return parts.join(" \u2014 ")}
-function metaText(M,st){const g=st.col&&st.col.ground&&st.col.ground.l,rgb=hex3(g&&g.length===7?g:"#ffffff"),dark=(rgb[0]*.3+rgb[1]*.59+rgb[2]*.11)<120;return{t:metaLine(M),x:.5,y:.05,s:.024,c:dark?"#ffffff":INK,al:"left",plate:false,meta:true,w:500,ls:"0.06em",anchor:true}}
+function metaLine(M){const parts=[];if(M.lat!=null){parts.push(Math.abs(M.lat).toFixed(4)+"\u00B0 "+(M.lat>=0?"N":"S"),Math.abs(M.lon).toFixed(4)+"\u00B0 "+(M.lon>=0?"E":"W"));if(M.city)parts.push(M.city.toUpperCase())}else parts.push(M.denied?"LOCATION OFF":"LOCATING");parts.push(M.time);return parts.join("\n")}
+function metaText(M,st){const g=st.col&&st.col.ground&&st.col.ground.l,rgb=hex3(g&&g.length===7?g:"#ffffff"),dark=(rgb[0]*.3+rgb[1]*.59+rgb[2]*.11)<120;return{t:metaLine(M),x:.5,y:.05,s:.024,c:dark?"#ffffff":INK,al:"left",plate:false,meta:true,w:800,lh:1.22,ls:"0.05em",anchor:true}}
 function applyMeta(M){M.sts.forEach(st=>{const t=st.texts.find(x=>x.meta);if(t&&!t.manual){t.t=metaLine(M);st.rev++}});if(ST&&M.sts.includes(ST)&&cur==="poster"){try{refresh(false);if(TOOL==="col"&&PART==="info")buildPanel()}catch(e){}}}
 async function geocode(M){const get=async u=>{const c=new AbortController(),to=setTimeout(()=>c.abort(),6000);try{const r=await fetch(u,{signal:c.signal});return r.ok?await r.json():null}catch(e){return null}finally{clearTimeout(to)}};
  let j=await get("https://api.bigdatacloud.net/data/reverse-geocode-client?latitude="+M.lat+"&longitude="+M.lon+"&localityLanguage=en"),c=j&&(j.city||j.locality||j.principalSubdivision);
@@ -1246,8 +1246,8 @@ function metaPanel(P,st){const t=st.texts.find(x=>x.meta);
  if(!t){const r=mkRow();r.appendChild(mkBtn("Add info line",false,()=>{const M=captureMeta(st);const nt=metaText(M,st);st.texts.push(nt);M.sts=[st];touch();buildPanel()}));P.appendChild(r);return}
  const sw=mkSw(SWT.map(s=>s[1]),t.c,c=>{t.c=c;touch();buildPanel()});
  const ci=document.createElement("input");ci.type="color";ci.className="mcus";ci.setAttribute("aria-label","Custom colour");ci.value=/^#[0-9a-f]{6}$/i.test(t.c)?t.c:"#1E1C1D";ci.oninput=e=>{t.c=e.target.value;st.rev++;lowRender()};ci.onchange=()=>{touch();buildPanel()};sw.appendChild(ci);P.appendChild(sw);
- const r=mkRow(),inp=document.createElement("input");inp.type="text";inp.className="minp";inp.value=t.t;inp.setAttribute("aria-label","Edit info line");inp.setAttribute("autocomplete","off");
- inp.oninput=e=>{t.t=e.target.value.toUpperCase()||" ";t.manual=true;st.rev++;lowRender()};inp.onchange=()=>{touch()};r.appendChild(inp);
+ const r=mkRow(),inp=document.createElement("input");inp.type="text";inp.className="minp";inp.value=t.t.replace(/\n/g," / ");inp.setAttribute("aria-label","Edit info lines (separate with /)");inp.setAttribute("autocomplete","off");
+ inp.oninput=e=>{t.t=(e.target.value.toUpperCase().split(/\s*\/\s*/).join("\n"))||" ";t.manual=true;st.rev++;lowRender()};inp.onchange=()=>{touch()};r.appendChild(inp);
  r.appendChild(mkBtn("Locate",false,()=>{t.manual=false;t.anchor=t.anchor;captureMeta(st);toast("Locating\u2026")}));
  r.appendChild(mkBtn("Plate",!!t.plate,()=>{t.plate=!t.plate;touch();buildPanel()}));P.appendChild(r)}
 function makePoster(){const st=newState(SHAPE||SHP.circle);if(META){st.texts.push(metaText(META,st));META.sts.push(st)}GCUR={st};GAL.push(GCUR);ST=st;SELL="shape";TOOL="col"}

@@ -665,7 +665,7 @@ canvas{position:absolute;left:0;top:0;width:402px;height:874px;pointer-events:no
  /* grid (phone 402x874) */
  --ds-m:38px; --ds-top:76px; --ds-bot:798px; --ds-w:326px;
  --ds-icon-top:56px;            /* top of 56px icon buttons (back, next ...) */
- --ds-title-top:74px;
+ --ds-title-top:100px;
  /* type */
  --ds-title:38px; --ds-title-lh:36px; --ds-title-ls:-1.1px;
  --ds-sub:28px;                 /* item names, Next */
@@ -763,6 +763,27 @@ canvas{position:absolute;left:0;top:0;width:402px;height:874px;pointer-events:no
 #thbar{display:none!important}
 
 #gedge:after{content:"";position:absolute;left:50%;top:9px;width:44px;height:4px;margin-left:-22px;border-radius:2px;background:var(--ink)}
+
+/* ===== round 7 ===== */
+#dPost{top:253px!important;height:360px!important}
+#feed #fT{top:101px!important}
+#feed #fcats{top:216px!important}
+#feed #fg{top:268px!important}
+#feed #fl{top:220px!important}
+#feed #fringb{top:85px!important}
+#groom,#pedit{top:84px!important}
+#tt{top:184px!important}
+#thmock{top:276px!important}
+#thsum{top:622px!important}
+#thnote{top:655px!important}
+#buy:before{top:744px!important;transition:top .25s}
+#buy:has(#bpan:not(.off) .row):before{top:700px!important}
+#buy:has(#bpan:not(.off) .swr):before{top:650px!important}
+#bRoom{height:744px!important}
+#buy #bpan{top:auto!important;bottom:96px!important}
+#buy>.bk{display:flex!important;left:var(--ds-m)!important;right:auto!important;top:84px!important;background:none!important;filter:none!important;box-shadow:none!important;color:#fff;z-index:45}
+#buy>.bk svg{width:30px;height:30px}
+#buy>.bk svg *{stroke:currentColor!important}
 </style>
 </head>
 <body>
@@ -1334,7 +1355,7 @@ function drawDone(){const w=$("#dW"),sp=[...w.children],q=$("#dQ"),b1=$("#dBuy")
  pb.innerHTML="";const c=posterCanvas(st,900),r=c.width/c.height,bw=330,bh=392;let cw=bw,ch=bw/r;if(ch>bh){ch=bh;cw=bh*r}c.style.cssText="width:"+cw+"px;height:"+ch+"px;display:block;box-shadow:0 12px 34px rgba(0,0,0,.3)";pb.appendChild(c);
  [q,pb].forEach(e=>{e.style.transition="none";e.style.opacity=0});pb.style.transform="scale(.9)";q.style.transform="translateY(14px)";[b1,b2].forEach(x=>{x.classList.remove("blk","go","sw");x.style.opacity=0});
  w.style.transition="none";w.style.transform="none";sp.forEach(e=>{e.style.transition="none";e.style.opacity=0;e.style.transform="translateY(14px)"});void w.offsetWidth;
- const k=1.9,W=Math.max(...sp.map(x=>x.offsetWidth)),H=w.offsetHeight,tx=201-W*k/2-38,ty=437-H*k/2-74;w.style.transform="translate("+tx+"px,"+ty+"px) scale("+k+")";
+ const k=1.9,W=Math.max(...sp.map(x=>x.offsetWidth)),H=w.offsetHeight,tx=201-W*k/2-38,ty=437-H*k/2-100;w.style.transform="translate("+tx+"px,"+ty+"px) scale("+k+")";
  sp.forEach((e,i)=>later(()=>{e.style.transition="opacity .35s,transform .5s cubic-bezier(.2,.8,.2,1)";e.style.opacity=1;e.style.transform="none"},150+i*260));
  later(()=>{w.style.transition="transform .9s cubic-bezier(.6,0,.2,1)";w.style.transform="none"},2000);
  later(()=>{pb.style.transition="opacity .6s,transform .7s cubic-bezier(.2,.8,.2,1)";pb.style.opacity=1;pb.style.transform="none"},2650);
@@ -1344,7 +1365,7 @@ wbtn($("#dBuy"),()=>{BUYFROM="done";go("buy")});
 wbtn($("#dShare"),()=>go("feed"));
 /* ---- buy ---- */
 let BUYFROM="done",FEEDKEEP=false;
-const BPRICE=[89,59,42,32,36,24],BPPC=3.3;let BPOS={x:201,y:300},BTOOL=null;
+const BPRICE=[89,59,42,32,36,24],BPPC=3.3;let BPOS={x:201,y:320},BTOOL=null;
 function bFactor(st){const g=geom(st);return Math.max(.5,g.fw*g.fh/(50*70))}
 function bPrice(st){const base=BPRICE[st.fmt],f=Math.sqrt(bFactor(st));return Math.round(base+[0,14,26][st.frame.k]*f+[0,6,10][st.mat.k]*f)}
 function bPoster(){const st=ST,g=geom(st),f=buildFrame(st,BPPC),a=document.createElement("canvas");
@@ -1361,7 +1382,11 @@ function bPanel(){const P=$("#bpan"),st=ST;document.querySelectorAll("#btcol but
  if(BTOOL==="mat"){P.appendChild(mkChips(["None","Thin","Wide"],st.mat.k,i=>{st.mat.k=i;touch();rb()}));if(st.mat.k)P.appendChild(mkSw(MTC.map(c=>c[0]),st.mat.c,c=>{st.mat.c=c;touch();rb()}))}}
 (function(){const tb=$("#btcol"),IC={size:'<path d="M7 23L23 7"/><path d="M14 7h9v9"/><path d="M16 23H7v-9"/>',frame:'<rect x="3.5" y="5.5" width="23" height="19"/><path d="M7.5 20l5-6 4 4 3-3 4 5"/>',mat:'<rect x="3.5" y="3.5" width="23" height="23"/><rect x="9.5" y="9.5" width="11" height="11"/>',room:'<path d="M4 14L15 5l11 9"/><path d="M7 12v13h16V12"/><path d="M12 25v-7h6v7"/>'};
  [["size","Size"],["frame","Frame"],["mat","Mat"],["room","Room"]].forEach(([k,l])=>{const b=document.createElement("button");b.dataset.k=k;b.setAttribute("aria-label",l);b.innerHTML='<svg viewBox="0 0 30 30">'+IC[k]+'</svg>';b.onclick=()=>{if(k==="room"){BTOOL=null;bPanel();$("#brf").click();return}BTOOL=BTOOL===k?null:k;bPanel()};tb.appendChild(b)})})();
-function drawBuy(){const e=currentEntry();ST=e.st;GCUR=e;BTOOL=null;if(!ROOM){ROOM=scene(3).toDataURL("image/jpeg",.8)}$("#bimg").src=ROOM;bPoster();bPanel();const bb=$("#bbar");bb.textContent="Buy it · $"+bPrice(ST);bb.classList.remove("blk","go","sw");bb.style.opacity=0;later(()=>{bb.style.opacity=1;wsweep(bb)},500)}
+function buyBkColor(){const im=$("#bimg"),b=document.querySelector("#buy>.bk");if(!b)return;
+ if(!b.dataset.arrow){b.dataset.arrow=1;b.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12H4M10 6l-6 6 6 6"/></svg>'}
+ const f=()=>{try{const c=document.createElement("canvas");c.width=c.height=16;const x=c.getContext("2d"),w=im.naturalWidth,h=im.naturalHeight;x.drawImage(im,0,0,w*.35,h*.14,0,0,16,16);const d=x.getImageData(0,0,16,16).data;let l=0;for(let i=0;i<d.length;i+=4)l+=.299*d[i]+.587*d[i+1]+.114*d[i+2];l/=256;b.style.color=l>145?"#000":"#fff"}catch(e){b.style.color="#fff"}};
+ im.onload=f;if(im.complete&&im.naturalWidth)f()}
+function drawBuy(){const e=currentEntry();ST=e.st;GCUR=e;BTOOL=null;if(!ROOM){ROOM=scene(3).toDataURL("image/jpeg",.8)}$("#bimg").src=ROOM;buyBkColor();bPoster();bPanel();const bb=$("#bbar");bb.textContent="Buy it · $"+bPrice(ST);bb.classList.remove("blk","go","sw");bb.style.opacity=0;later(()=>{bb.style.opacity=1;wsweep(bb)},500)}
 (function(){const h=$("#bpos");let d=null;h.addEventListener("pointerdown",ev=>{ev.preventDefault();d={x:ev.clientX,y:ev.clientY,px:BPOS.x,py:BPOS.y};try{h.setPointerCapture(ev.pointerId)}catch(e){}});
  h.addEventListener("pointermove",ev=>{if(!d)return;BPOS={x:d.px+(ev.clientX-d.x)/SC,y:d.py+(ev.clientY-d.y)/SC};const w=h.offsetWidth,hh=h.offsetHeight;BPOS.x=clamp(BPOS.x,w*.3,402-w*.3);BPOS.y=clamp(BPOS.y,hh*.3,874-hh*.3);h.style.left=(BPOS.x-w/2)+"px";h.style.top=(BPOS.y-hh/2)+"px"});
  h.addEventListener("pointerup",()=>{d=null});h.addEventListener("pointercancel",()=>{d=null});
@@ -1663,9 +1688,9 @@ $("#obar").onclick=()=>go("thanks");
 wbtn($("#thbar"),()=>go("home"));
 let TB=[],gTh=null;
 function spawnTB(x,y,a,sp){TB.length<14&&TB.push({x,y,a,v:sp,t:0,ci:Math.floor(Math.random()*3),tr:[{x,y,w:1}]})}
-function initThanks(){later(()=>{if(cur==="thanks")go("home",true)},5500);TB=[];const s=$("#thanks");s.classList.remove("done");const e=GAL[Math.min(GAL.length-1,Math.max(0,MIDX))];
+function initThanks(){later(()=>{if(cur==="thanks")go("home",true)},8000);TB=[];const s=$("#thanks");s.classList.remove("done");const e=GAL[Math.min(GAL.length-1,Math.max(0,MIDX))];
  thFill();
- const tt=$("#tt"),sp=[...tt.children],W=Math.max(...sp.map(x=>x.offsetWidth)),H=tt.offsetHeight,k=1.9,tx=201-W*k/2-38,ty=437-H*k/2-74;
+ const tt=$("#tt"),sp=[...tt.children],W=Math.max(...sp.map(x=>x.offsetWidth)),H=tt.offsetHeight,k=1.9,tx=201-W*k/2-38,ty=437-H*k/2-184;
  tt.style.transition="none";tt.style.opacity=0;sp.forEach(x=>{x.style.transition="none";x.style.transform="translateX("+(W-x.offsetWidth)/2+"px)"});tt.style.transform="translate("+tx+"px,"+ty+"px) scale("+k*.3+")";void tt.offsetWidth;
  later(()=>{tt.style.transition="transform .5s cubic-bezier(.3,1.6,.5,1),opacity .2s";tt.style.opacity=1;tt.style.transform="translate("+tx+"px,"+ty+"px) scale("+k+")"},80);
  later(()=>{for(let i=0;i<3;i++)spawnTB(201,437,i*2.0944+.6+Math.random()*.5,430)},650);

@@ -240,7 +240,7 @@ canvas{position:absolute;left:0;top:0;width:402px;height:874px;pointer-events:no
 #tin{position:absolute;left:20px;top:700px;width:300px;height:44px;opacity:.02;font-size:16px;border:0;padding:0;resize:none;z-index:2;background:transparent;color:transparent;user-select:text;-webkit-user-select:text}
 #poster #nextbtn{position:absolute;left:20px;top:790px;width:60px;height:60px;border-radius:50%;border:3px solid var(--ink);background:var(--Y);display:flex;align-items:center;justify-content:center;padding:0;cursor:pointer;z-index:41;transition:transform .3s,opacity .3s}
 #nextbtn svg{width:32px;height:32px;fill:none;stroke:var(--ink);stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
-#nextbtn:hover{background:#fff}
+#nextbtn:hover{}
 #hh{position:absolute;right:-12px;bottom:-12px;width:24px;height:24px;border-radius:50%;background:#fff;border:2px solid var(--ink);pointer-events:auto;cursor:nwse-resize;touch-action:none}
 #trash{position:absolute;left:171px;top:782px;width:60px;height:60px;border-radius:50%;border:3px solid var(--ink);background:#fff;display:flex;align-items:center;justify-content:center;z-index:60;transform:translateY(130px);opacity:0;pointer-events:none;transition:transform .3s,opacity .3s,background .15s}
 #trash svg{width:30px;height:30px;fill:none;stroke:var(--ink);stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
@@ -577,8 +577,7 @@ canvas{position:absolute;left:0;top:0;width:402px;height:874px;pointer-events:no
 #poster #spn{bottom:188px!important}
 #poster #roombtn{top:583px!important;background:transparent!important;border:0!important;color:var(--bkc,#000)}
 #poster #roombtn svg{stroke:currentColor!important;width:34px;height:34px}
-#poster #nextbtn{width:auto!important;height:56px!important;border:0!important;border-radius:0;background:transparent!important;padding:0;font:700 28px/1 "Helvetica Neue",Helvetica,"Liberation Sans",Arial,sans-serif;letter-spacing:-.02em;color:var(--nx,#F0E810)}
-#poster #nextbtn:hover{background:transparent!important}
+#poster #nextbtn{width:auto!important;height:56px!important;border:0!important;border-radius:0;padding:0;font:700 28px/1 "Helvetica Neue",Helvetica,"Liberation Sans",Arial,sans-serif;letter-spacing:-.02em;color:var(--nx,#F0E810)}
 #poster #roombtn{transition:opacity .25s}
 #poster .bk{background:transparent!important;border:0!important;box-shadow:none!important;color:var(--bkc,#000)}
 #poster .bk:hover{background:transparent!important}
@@ -635,7 +634,6 @@ canvas{position:absolute;left:0;top:0;width:402px;height:874px;pointer-events:no
 #poster #spn .swr i{border:0!important}
 #poster #spn .swr i.k{border:1px solid #8a8a8a!important}
 #poster #spn .swr i.s{outline:0!important;transform:scale(1.28)}
-#poster #nextbtn{background:var(--ink)!important;border-radius:999px!important;padding:6px 14px!important;text-shadow:none!important;mix-blend-mode:normal!important}
 #done #dBuy{background:var(--pink,#E81878)!important;color:#fff!important}
 /* done screen */
 #dQ{display:none!important}
@@ -712,6 +710,10 @@ canvas{position:absolute;left:0;top:0;width:402px;height:874px;pointer-events:no
 #poster #spn{top:652px!important}
 #poster #spn .swr{margin-top:24px!important}
 #poster #tcol{bottom:37px!important}
+
+/* Next: white, with a black shine sweeping through every few seconds */
+#poster #nextbtn{background:linear-gradient(100deg,#fff 0 36%,#000 46% 54%,#fff 64% 100%) 100% 0/300% 100% no-repeat;-webkit-background-clip:text!important;background-clip:text!important;color:transparent!important;-webkit-text-fill-color:transparent!important;border-radius:0!important;padding:0!important;text-shadow:none!important;mix-blend-mode:normal!important;filter:drop-shadow(0 0 5px rgba(0,0,0,.3));animation:nxs 3.6s ease-in-out infinite}
+@keyframes nxs{0%{background-position:100% 0}30%,100%{background-position:0% 0}}
 </style>
 </head>
 <body>

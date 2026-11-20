@@ -1844,58 +1844,6 @@ let sw=null;
 ph.addEventListener("pointerdown",ev=>{if(editing||cur==="spring"||cur==="splash"||cur==="home")return;const r=ph.getBoundingClientRect();if((ev.clientY-r.top)/SC>770)sw={y:ev.clientY}});
 addEventListener("pointermove",ev=>{if(sw&&(sw.y-ev.clientY)/SC>70){sw=null;go("spring")}});
 addEventListener("pointerup",()=>{sw=null});
-/* ---------- glass orb on the home screen (toggle with the button outside the phone) ---------- */
-(function(){
- const home=$("#home"),cvA=$("#cA"),cvB=$("#cB");
- const oc=document.createElement("canvas");oc.id="orb";oc.width=W*dpr;oc.height=H*dpr;home.appendChild(oc);
- const og=oc.getContext("2d"),comp=document.createElement("canvas");comp.width=W*dpr;comp.height=H*dpr;const cg=comp.getContext("2d",{willReadFrequently:true});
- const st=document.createElement("style");st.textContent="#orb{position:absolute;left:0;top:0;width:100%;height:100%;pointer-events:none;z-index:5}#glassbtn{position:fixed;right:14px;bottom:14px;z-index:400;border:3px solid var(--fg);border-radius:16px;background:var(--Y);color:var(--ink);font:700 14px 'Helvetica Neue',Helvetica,Arial,sans-serif;padding:10px 14px;cursor:pointer}#glassbtn.off{background:transparent;color:var(--fg)}@media (max-width:500px){#glassbtn{font-size:12px;padding:7px 10px;border-width:2px;right:6px;bottom:6px}}";document.head.appendChild(st);
- const btn=document.createElement("button");btn.id="glassbtn";document.body.appendChild(btn);
- let on=true;try{on=localStorage.getItem("glassOrb")!=="off"}catch(e){}
- const setBtn=()=>{btn.textContent="Glass bar: "+(on?"on":"off");btn.classList.toggle("off",!on);btn.setAttribute("aria-pressed",on)};setBtn();
- btn.addEventListener("click",()=>{on=!on;setBtn();try{localStorage.setItem("glassOrb",on?"on":"off")}catch(e){}if(!on)og.clearRect(0,0,oc.width,oc.height)});
- let logoImg=null,logoKey="";
- function syncLogo(){const sv=home.querySelector("#ptt svg");if(!sv){logoImg=null;logoKey="";return null}
-  const k=new XMLSerializer().serializeToString(sv);if(k!==logoKey){logoKey=k;const im=new Image();im.onload=()=>{if(logoKey===k)logoImg=im};im.src="data:image/svg+xml;charset=utf-8,"+encodeURIComponent(k)}
-  return sv}
- let hh=124,by=-200,last=0,vis=0,bd=null,bUp=0,anim=null,wasShow=false,restY=90;
- const bpp=ev=>{const r=ph.getBoundingClientRect();return[(ev.clientX-r.left)/SC,(ev.clientY-r.top)/SC]};
- ph.addEventListener("pointerdown",ev=>{if(editing||cur!=="home"||!on||vis<.5)return;const p=bpp(ev);if(Math.abs(p[1]-by)<=hh/2&&by>0)bd={dy:p[1]-by,sy:p[1],drag:false,id:ev.pointerId}},true);
- ph.addEventListener("pointermove",ev=>{if(!bd)return;const p=bpp(ev);if(!bd.drag&&Math.abs(p[1]-bd.sy)>8){bd.drag=true;anim=null;try{ph.setPointerCapture(bd.id)}catch(e){}}if(bd.drag)by=Math.max(hh/2,Math.min(H-hh/2,p[1]-bd.dy))});
- const bEnd=()=>{if(bd&&bd.drag)bUp=performance.now();bd=null};
- ph.addEventListener("pointerup",bEnd);ph.addEventListener("pointercancel",bEnd);
- ph.addEventListener("click",ev=>{if(performance.now()-bUp<400){ev.stopPropagation();ev.preventDefault()}},true);
- function loop(ts){requestAnimationFrame(loop);
-  const dt=Math.min(.05,(ts-last)/1000||0);last=ts;
-  const showing=on&&cur==="home"&&(performance.now()-h0)/1000>2.0;
-  if(showing&&!wasShow){anim={t:0};by=-hh}wasShow=showing;
-  vis=Math.max(0,Math.min(1,vis+(showing?dt*2.5:-dt*6)));
-  if(vis<=0){if(oc._d){og.clearRect(0,0,oc.width,oc.height);oc._d=0}return}
-  oc._d=1;
-  const S=dpr;cg.setTransform(1,0,0,1,0,0);cg.fillStyle="#fff";cg.fillRect(0,0,comp.width,comp.height);
-  cg.drawImage(cvA,0,0);const sv=syncLogo();
-  if(sv&&logoImg){const rh=home.getBoundingClientRect(),rs=sv.getBoundingClientRect(),sc=rh.width/W;cg.drawImage(logoImg,(rs.left-rh.left)/sc*S,(rs.top-rh.top)/sc*S,rs.width/sc*S,rs.height/sc*S);if(rs.height>20)hh=Math.max(80,Math.min(160,Math.round(rs.height/sc*1.45)));restY=(rs.top-rh.top)/sc+rs.height/sc/2}
-  cg.drawImage(cvB,0,0);
-  if(anim){anim.t+=dt;const t=anim.t,D1=.95,D2=2.3,top=-hh/2,bot=H-hh/2;
-   if(t<D1){const u=t/D1;by=top+(bot-top)*u*u*u}else if(t<D1+D2){const u=(t-D1)/D2;by=bot+(restY-bot)*(1-Math.pow(1-u,3))}else{by=restY;anim=null}}
-  else by=Math.max(hh/2,Math.min(H-hh/2,by));
-  const HH=hh*S/2,cy=by*S,BW=comp.width,M=Math.ceil(HH*1.6);
-  const sy0=Math.max(0,Math.round(cy-M)),sy1=Math.min(comp.height,Math.round(cy+M)),SH=sy1-sy0;
-  const src=cg.getImageData(0,sy0,BW,SH).data;
-  const y0=Math.round(cy-HH),D=Math.round(HH*2),out=og.createImageData(BW,D),o=out.data;
-  for(let j=0;j<D;j++){const dy=j+y0-cy,dn=dy/HH,d=Math.abs(dn);if(d>1.01)continue;
-   const al=d>.985?Math.max(0,(1.01-d)/.025):1,veil=.02+.04*d**4;
-   for(let i=0;i<BW;i++){
-    const wob=1+.09*d*Math.sin(i/(48*S/2)+ts/380),k=(d<.75?.3+.7*(d/.75)**1.7:1+(d-.75)*5.5)*wob,idx=(j*BW+i)*4;
-    const wx=d*d*10*S*Math.sin(i/(60*S/2)+ts/520);
-    for(let c=0;c<3;c++){const kk=k*(1+(c-1)*.06*d*d),sx=Math.round(i+wx),sy=Math.round(cy+dy*kk)-sy0;
-     let p=255;if(sx>=0&&sx<BW&&sy>=0&&sy<SH)p=src[(sy*BW+sx)*4+c];o[idx+c]=p+(255-p)*veil}
-    o[idx+3]=255*al}}
-  og.setTransform(1,0,0,1,0,0);og.clearRect(0,0,oc.width,oc.height);og.globalAlpha=vis;
-  og.save();og.shadowColor="rgba(0,0,0,.2)";og.shadowBlur=14*S/2;og.shadowOffsetY=8;og.fillStyle="rgba(255,255,255,.01)";og.fillRect(0,y0,BW,D);og.restore();
-  const t=document.createElement("canvas");t.width=BW;t.height=D;t.getContext("2d").putImageData(out,0,0);og.drawImage(t,0,y0);
-  og.lineWidth=1.5;og.strokeStyle="rgba(255,255,255,.3)";og.strokeRect(-2,y0+1,BW+4,D-2);og.lineWidth=1.2;og.strokeStyle="rgba(30,28,29,.28)";og.strokeRect(-2,y0-.5,BW+4,D+1);og.globalAlpha=1}
- requestAnimationFrame(loop)})();
 let PULL=false;
 function gsync(el){const g=window.GE;if(!g)return;g.style.transition=el.style.transition;g.style.transform=el.style.transform}
 const PK=752;

@@ -784,6 +784,11 @@ canvas{position:absolute;left:0;top:0;width:402px;height:874px;pointer-events:no
 #buy>.bk{display:flex!important;left:var(--ds-m)!important;right:auto!important;top:84px!important;background:none!important;filter:none!important;box-shadow:none!important;color:#fff;z-index:45}
 #buy>.bk svg{width:30px;height:30px}
 #buy>.bk svg *{stroke:currentColor!important}
+
+/* ===== metadata line controls ===== */
+.minp{flex:1 1 150px;min-width:0;height:36px;border:0!important;border-bottom:1px solid rgba(255,255,255,.45)!important;background:transparent;color:#fff;font:700 13px "Helvetica Neue",Helvetica,Arial,sans-serif;letter-spacing:.04em;outline:0;padding:0 2px}
+.mcus{flex:none;width:30px;height:30px;border:0;border-radius:50%;padding:0;cursor:pointer;-webkit-appearance:none;appearance:none;background:conic-gradient(#E81878,#F0E810,#40A0D8,#fff,#E81878)}
+.mcus::-webkit-color-swatch-wrapper{padding:0}.mcus::-webkit-color-swatch{border:0;border-radius:50%;opacity:0}
 </style>
 </head>
 <body>
@@ -1086,7 +1091,7 @@ function lockAnim(pts){const c=$("#cam"),f=$("#flash");c.classList.add("lk");f.s
   if(t<2.4)requestAnimationFrame(fr);else{camStop();go("wait")}};requestAnimationFrame(fr)}
 /* ---- wait: starts from the detected shape, morphs until the poster is ready ---- */
 let WT=null;
-function waitStart(){const g=cvg("#cWt");g.clearRect(0,0,402,874);const seq=[SHAPE?SHAPE:SHP.circle,SHP.circle,SHP.tri,SHP.sq,SHP.star,SHP.hex,SHP.rect].map(p=>resample(p,120));WT={t0:performance.now(),seq,gen:false};
+function waitStart(){captureMeta();const g=cvg("#cWt");g.clearRect(0,0,402,874);const seq=[SHAPE?SHAPE:SHP.circle,SHP.circle,SHP.tri,SHP.sq,SHP.star,SHP.hex,SHP.rect].map(p=>resample(p,120));WT={t0:performance.now(),seq,gen:false};
  const hold=.15,step=.85,n=seq.length-1,cols=[INK,"#fff"];
  const fr=()=>{if(cur!=="wait"||!WT)return;const t=(performance.now()-WT.t0)/1000;let k=0,u=0;
   if(t>=hold){const q=(t-hold)/step;k=Math.min(n-1,Math.floor(q));u=k>=n-1&&q>=n?1:sm(0,1,q-k)}
@@ -1190,9 +1195,10 @@ function applyFilter(cv,st){const f=st.filter;if(!f||f==="None")return;const W=c
    g.fillStyle="rgb("+(r*.55|0)+","+(gg*.55|0)+","+(b*.55|0)+")";g.beginPath();g.arc((x+.5)*cs,(y+.5)*cs,rad,0,7);g.fill()}}}
 /* ---- text layers ---- */
 function drawTexts(cv,st){const g=cv.getContext("2d"),W=cv.width,H=cv.height,short=Math.min(W,H);g.textBaseline="middle";
- st.texts.forEach(t=>{const px=t.s*short;g.font="700 "+px+"px 'Helvetica Neue',Helvetica,Arial,sans-serif";const R=t.al==="right";g.textAlign=R?"right":"left";const lines=String(t.t).split("\n"),lh=px*(t.lh||1.05),w=Math.max(...lines.map(l=>g.measureText(l).width)),h=lh*lines.length;
-  const pd=px*.28,x0=t.x*W+(R?w/2:-w/2);if(t.plate!==false){const rgb=hex3(t.c.length===7?t.c:"#1E1C1D"),dark=(rgb[0]*.3+rgb[1]*.59+rgb[2]*.11)<140;g.fillStyle=dark?"#ffffff":INK;g.fillRect(t.x*W-w/2-pd,t.y*H-h/2-pd*.6,w+2*pd,h+pd*1.2)}
-  g.fillStyle=t.c;lines.forEach((l,k)=>g.fillText(l,x0,t.y*H-h/2+lh*(k+.5)));t.bb={x:t.x-(w/2+pd)/W,y:t.y-(h/2+pd*.6)/H,w:(w+2*pd)/W,h:(h+pd*1.2)/H}})}
+ st.texts.forEach(t=>{const px=t.s*short;g.font=(t.w||700)+" "+px+"px 'Helvetica Neue',Helvetica,Arial,sans-serif";if("letterSpacing" in g)g.letterSpacing=t.ls||"0px";const R=t.al==="right";g.textAlign=R?"right":"left";const lines=String(t.t).split("\n"),lh=px*(t.lh||1.05),w=Math.max(...lines.map(l=>g.measureText(l).width)),h=lh*lines.length;
+  if(t.meta&&t.anchor!==false){const mg=.06*short,mt=.105*short,ex=(mg+w/2)/W,ey=(mt+h/2)/H;if(t._ex!==undefined&&(Math.abs(t.x-t._ex)>1e-4||Math.abs(t.y-t._ey)>1e-4))t.anchor=false;else{t.x=ex;t.y=ey;t._ex=ex;t._ey=ey}}
+  const pd=px*.28,pb=t.meta?px*.9:pd,x0=t.x*W+(R?w/2:-w/2);if(t.plate!==false){const rgb=hex3(t.c.length===7?t.c:"#1E1C1D"),dark=(rgb[0]*.3+rgb[1]*.59+rgb[2]*.11)<140;g.fillStyle=dark?"#ffffff":INK;g.fillRect(t.x*W-w/2-pd,t.y*H-h/2-pd*.6,w+2*pd,h+pd*1.2)}
+  g.fillStyle=t.c;lines.forEach((l,k)=>g.fillText(l,x0,t.y*H-h/2+lh*(k+.5)));t.bb={x:t.x-(w/2+pb)/W,y:t.y-(h/2+pb*.6)/H,w:(w+2*pb)/W,h:(h+pb*1.2)/H};if("letterSpacing" in g)g.letterSpacing="0px"})}
 /* ---- compose a framed poster onto a square canvas (gallery, merch, share) ---- */
 function composeCanvas(st,N){const g0=geom(st),c=document.createElement("canvas");c.width=c.height=N;const g=c.getContext("2d");g.fillStyle="#fff";g.fillRect(0,0,N,N);
  const pad=N*.04,sc=(N-2*pad)/Math.max(g0.W,g0.H),ox=(N-g0.W*sc)/2,oy=(N-g0.H*sc)/2;
@@ -1210,7 +1216,29 @@ let ST=null,TOOL=null,MORE="size",SELL="shape",PART="shape",TONE="l",RENT=null,r
 const isSh=v=>v==="shape"||(typeof v==="string"&&v[0]==="e"&&!!(ST&&ST.extra&&ST.extra[+v.slice(1)]));
 const shObj=v=>v==="shape"?ST.sh:ST.extra[+v.slice(1)];
 function currentEntry(){return GCUR||GAL[GAL.length-1]}
-function makePoster(){const st=newState(SHAPE||SHP.circle);GCUR={st};GAL.push(GCUR);ST=st;SELL="shape";TOOL="col"}
+/* ---- metadata line: GPS + city + time, printed as a draggable text on the poster ---- */
+let META=null;
+const hhmm=d=>String(d.getHours()).padStart(2,"0")+":"+String(d.getMinutes()).padStart(2,"0");
+function metaLine(M){const parts=[];if(M.lat!=null){parts.push(Math.abs(M.lat).toFixed(4)+"\u00B0 "+(M.lat>=0?"N":"S")+", "+Math.abs(M.lon).toFixed(4)+"\u00B0 "+(M.lon>=0?"E":"W"));if(M.city)parts.push(M.city.toUpperCase())}else parts.push(M.denied?"LOCATION OFF":"LOCATING");parts.push(M.time);return parts.join(" \u2014 ")}
+function metaText(M,st){const g=st.col&&st.col.ground&&st.col.ground.l,rgb=hex3(g&&g.length===7?g:"#ffffff"),dark=(rgb[0]*.3+rgb[1]*.59+rgb[2]*.11)<120;return{t:metaLine(M),x:.5,y:.05,s:.024,c:dark?"#ffffff":INK,al:"left",plate:false,meta:true,w:500,ls:"0.06em",anchor:true}}
+function applyMeta(M){M.sts.forEach(st=>{const t=st.texts.find(x=>x.meta);if(t&&!t.manual){t.t=metaLine(M);st.rev++}});if(ST&&M.sts.includes(ST)&&cur==="poster"){try{refresh(false);if(TOOL==="col"&&PART==="info")buildPanel()}catch(e){}}}
+async function geocode(M){const get=async u=>{const c=new AbortController(),to=setTimeout(()=>c.abort(),6000);try{const r=await fetch(u,{signal:c.signal});return r.ok?await r.json():null}catch(e){return null}finally{clearTimeout(to)}};
+ let j=await get("https://api.bigdatacloud.net/data/reverse-geocode-client?latitude="+M.lat+"&longitude="+M.lon+"&localityLanguage=en"),c=j&&(j.city||j.locality||j.principalSubdivision);
+ if(!c){j=await get("https://nominatim.openstreetmap.org/reverse?format=jsonv2&zoom=10&accept-language=en&lat="+M.lat+"&lon="+M.lon);const a=j&&j.address;c=a&&(a.city||a.town||a.village||a.municipality||a.county)}
+ if(c){M.city=String(c).replace(/\s+/g," ").trim();applyMeta(M)}}
+function captureMeta(forSt){const M=META={time:hhmm(new Date()),lat:null,lon:null,city:"",denied:false,sts:forSt?[forSt]:[]};
+ if(!navigator.geolocation){M.denied=true;applyMeta(M);return M}
+ try{navigator.geolocation.getCurrentPosition(p=>{M.lat=p.coords.latitude;M.lon=p.coords.longitude;applyMeta(M);geocode(M)},()=>{M.denied=true;applyMeta(M)},{timeout:8000,maximumAge:60000})}catch(e){M.denied=true;applyMeta(M)}
+ return M}
+function metaPanel(P,st){const t=st.texts.find(x=>x.meta);
+ if(!t){const r=mkRow();r.appendChild(mkBtn("Add info line",false,()=>{const M=captureMeta(st);const nt=metaText(M,st);st.texts.push(nt);M.sts=[st];touch();buildPanel()}));P.appendChild(r);return}
+ const sw=mkSw(SWT.map(s=>s[1]),t.c,c=>{t.c=c;touch();buildPanel()});
+ const ci=document.createElement("input");ci.type="color";ci.className="mcus";ci.setAttribute("aria-label","Custom colour");ci.value=/^#[0-9a-f]{6}$/i.test(t.c)?t.c:"#1E1C1D";ci.oninput=e=>{t.c=e.target.value;st.rev++;lowRender()};ci.onchange=()=>{touch();buildPanel()};sw.appendChild(ci);P.appendChild(sw);
+ const r=mkRow(),inp=document.createElement("input");inp.type="text";inp.className="minp";inp.value=t.t;inp.setAttribute("aria-label","Edit info line");inp.setAttribute("autocomplete","off");
+ inp.oninput=e=>{t.t=e.target.value.toUpperCase()||" ";t.manual=true;st.rev++;lowRender()};inp.onchange=()=>{touch()};r.appendChild(inp);
+ r.appendChild(mkBtn("Locate",false,()=>{t.manual=false;t.anchor=t.anchor;captureMeta(st);toast("Locating\u2026")}));
+ r.appendChild(mkBtn("Plate",!!t.plate,()=>{t.plate=!t.plate;touch();buildPanel()}));P.appendChild(r)}
+function makePoster(){const st=newState(SHAPE||SHP.circle);if(META){st.texts.push(metaText(META,st));META.sts.push(st)}GCUR={st};GAL.push(GCUR);ST=st;SELL="shape";TOOL="col"}
 function touch(low){ST.rev++;refresh(low)}
 const ART={cw:402,ch:621,pad:0};
 function refresh(low){if(!ST||cur!=="poster")return;const box=$("#stagebox"),pf=$("#pframe"),pm=$("#pmat"),art=$("#art");let cw,ch,pad=0;
@@ -1261,10 +1289,11 @@ function buildPanel2(P,st){
  else if(TOOL==="bg"){{const ok=[0,1,2,5,6],r=mkChips(ok.map(i=>FLD[i]),ok.indexOf(st.field),i=>{st.field=ok[i];touch();rb()});P.appendChild(r)}
   const r=mkRow("two");r.appendChild(mkSl("Busy",Math.round(st.busy*100),0,100,v=>{st.busy=v/100;ST.rev++;lowRender()}));r.appendChild(mkSl("Variety",Math.round(st.vari*100),0,100,v=>{st.vari=v/100;ST.rev++;lowRender()}));P.appendChild(r);
   const r2=mkRow("two");r2.appendChild(mkSl("Angle",Math.round(st.rot*180/Math.PI),0,180,v=>{st.rot=v*Math.PI/180;ST.rev++;lowRender()}));r2.appendChild(mkBtn("Checker",st.alt,()=>{st.alt=!st.alt;touch();rb()}));P.appendChild(r2)}
- else if(TOOL==="col"){const SL=[["Shape","shape.l"],["Background","ground.l"],["Pattern","ground.d"]];
+ else if(TOOL==="col"){const SL=[["Shape","shape.l"],["Background","ground.l"],["Pattern","ground.d"],["Info","info"]],PL=["shape","bgc","pat","info"];
   const get=k=>k==="shape.l"?st.col.shape.l:k==="ground.l"?st.col.ground.l:st.col.ground.d;
-  P.appendChild(mkChips(SL.map(x=>x[0]),["shape","bgc","pat"].indexOf(PART),i=>{PART=["shape","bgc","pat"][i];rb()}));
-  if(!["shape","bgc","pat"].includes(PART))PART="shape";
+  P.appendChild(mkChips(SL.map(x=>x[0]),PL.indexOf(PART),i=>{PART=PL[i];rb()}));
+  if(!PL.includes(PART))PART="shape";
+  if(PART==="info"){metaPanel(P,st);return}
   const key=PART==="shape"?"shape.l":PART==="bgc"?"ground.l":"ground.d";
   P.appendChild(mkSw(SWT.map(s=>s[1]),get(key),c=>{st.bw=false;
    if(PART==="shape")st.col.shape.l=c;else if(PART==="bgc"){st.col.ground.l=c;st.col.halo.l=c}else{st.col.ground.d=c;st.col.halo.d=c;st.col.shape.d=c}touch();rb()}))}
@@ -1280,7 +1309,7 @@ function buildPanel2(P,st){
   else{P.appendChild(mkChips(FIL,FIL.indexOf(st.filter),i=>{st.filter=FIL[i];touch();rb()}));const r=mkRow("two");r.appendChild(mkSl("Amount",Math.round(st.famt*100),0,100,v=>{st.famt=v/100;ST.rev++;lowRender()}));P.appendChild(r)}}}
 /* poster pointer handling: drag, pinch, wheel, tap-to-type, long-press-to-delete */
 function addText(){ST.texts.push({t:"Text",x:.5,y:.5,s:.1,c:INK,al:"left",plate:true});SELL=ST.texts.length-1;touch();setTimeout(openKb,60)}
-function openKb(){const t=ST&&ST.texts[SELL];if(!t)return;const ta=$("#tin");ta.value=t.t;ta.focus();try{ta.select()}catch(e){}}
+function openKb(){const t=ST&&ST.texts[SELL];if(!t)return;if(t.meta){TOOL="col";PART="info";buildPanel();return}const ta=$("#tin");ta.value=t.t;ta.focus();try{ta.select()}catch(e){}}
 $("#tin").oninput=e=>{const t=ST&&ST.texts[SELL];if(!t)return;let v=e.target.value.replace(/[ \t]+/g,"\n").replace(/^\n+/,"");if(v!==e.target.value)e.target.value=v;t.t=v.replace(/\n+$/,"")||" ";ST.rev++;lowRender()};
 (function(){const art=$("#art"),PT=new Map(),pz=$("#poster");let DR=null,LP=0,del=false;
  const frac=ev=>{const r=art.getBoundingClientRect();return[(ev.clientX-r.left)/r.width,(ev.clientY-r.top)/r.height]};

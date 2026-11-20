@@ -612,6 +612,29 @@ canvas{position:absolute;left:0;top:0;width:402px;height:874px;pointer-events:no
 #cam #cup,#cam > .bk{all:unset;position:absolute;box-sizing:border-box;cursor:pointer;color:#fff!important;font-family:"Helvetica Neue",Helvetica,Arial,sans-serif!important;font-weight:700!important;font-size:11px!important;line-height:14px!important;letter-spacing:.06em!important;text-transform:uppercase!important;text-shadow:0 1px 6px rgba(0,0,0,.6);white-space:nowrap}
 #cam > .bk{top:78px!important;right:38px!important;left:auto!important;z-index:40!important}
 #cam #cup{left:0;top:0}
+
+
+/* no outlines around buttons (colour swatches keep theirs) */
+.scr button,.wbtn,.pill,.ch,#fcats button,#fbar button,#ordp button,#csel button,.bar{border-color:transparent!important}
+/* buttons on white screens are negative: ink fill, white content */
+#done .bk,#done .wbtn,#feed .bk,#feed #pedit,#feed #fprof,#feed #fsx,#feed .wbtn,#share .bk,#hist .bk,#hist #groom,#merch .bk,#wait .bk{background:var(--ink)!important;color:#fff!important}
+#done .bk svg *,#done .wbtn svg *,#feed .bk svg *,#feed #pedit svg *,#feed #fprof svg *,#feed #fsx svg *,#feed .wbtn svg *,#share .bk svg *,#hist .bk svg *,#hist #groom svg *,#merch .bk svg *,#wait .bk svg *{stroke:#fff!important}
+#cam #chint{max-width:236px!important}
+/* ===== GRID: side margin 38, top line y=76, bottom line y=798 (76 from the bottom), on every screen ===== */
+.scr .bk,#pedit,#groom,#poster #nextbtn{top:56px!important}
+#cam > .bk{top:77px!important}
+#cam #cup{top:786px!important;left:38px!important;height:14px!important;width:auto!important}
+#cam #cbtns{top:0!important;left:0!important}
+.bar,#sendbar,#printbar,#rctl,#bbar,#mbar{top:734px!important}
+#dBuy{top:658px!important}#dShare{top:734px!important}
+#send{top:726px!important}#retry{top:744px!important}#trash{top:740px!important}#fbar{bottom:76px!important}
+#tShare,#tHist,#tMerch,#dW{top:74px!important}
+#feed #fT{top:76px!important}#fringb{top:61px!important}
+#poster:not(.pvw) #stagebox{height:621px!important}
+#poster #roombtn{top:545px!important}
+#poster #spn{top:628px!important}
+#poster #tcol{bottom:74px!important}
+#poster #tin{top:660px!important}
 </style>
 </head>
 <body>
@@ -818,18 +841,26 @@ function grabRGB(src,sw,sh,w,h){AN.width=w;AN.height=h;coverDraw(ANG,src,sw,sh,w
  for(let y=0;y<h;y++)for(let x=0;x<w;x++){for(let c=0;c<3;c++){let v=0,ws=0;for(let k=-1;k<=1;k++){const yy=y+k;if(yy<0||yy>=h)continue;v+=o[(yy*w+x)*3+c]*K3[k+1];ws+=K3[k+1]}t[(y*w+x)*3+c]=v/ws}}
  return t}
 /* returns {poly:[[x,y]..] in analysis px, score,...} or null. pt = a tapped point: only regions that contain it */
-function detect(px,w,h,pt){const N=w*h,minS=Math.max(12,Math.round(N*.0016)),p0=pt?Math.round(pt[1])*w+Math.round(pt[0]):-1;let best=null;
- for(const k of [40,400]){const C=candidates(px,w,h,k,minS,.5);
-  for(const pix of C){if(pt&&pix.indexOf(p0)<0)continue;const f=featOf(pix,px,w,h),sc=scoreFeat(f)+(pt?-1.2*Math.log(Math.max(f.a,1e-3)):0);if(!best||sc>best.sc)best={sc,pix,f}}}
- if(!best)return null;
- const m=new Uint8Array(N);for(const q of best.pix)m[q]=1;
+const TMDL={"mu": [-2.2442, 6.6105, 0.5425, 0.2617, 0.1531, 0.507, 0.0464, 1.3951, 0.8188, 0.8066, 1.3742, 1.2407, 0.3743, 0.1573, 0.0997, 0.0997], "sd": [1.2547, 6.917, 0.1608, 0.2354, 0.187, 0.1676, 0.5636, 0.5101, 0.36, 0.2041, 0.8273, 0.7822, 0.8779, 0.1242, 0.1001, 0.1012], "w": [0.4747, -0.7339, 0.3581, -0.5266, -1.4879, 0.4148, -0.1653, -0.2773, 0.0492, -0.3181, 0.5706, -0.1295, -0.2193, -1.6841, -0.7274, -2.1549], "b": -2.2982};
+/* a tap: rank the regions that contain the tapped point with a model fitted to the user's own taps */
+function tapScore(f,tx,ty){const a=Math.max(f.a,1e-4),la=Math.log(a),x=[la,la*la,f.cy,f.top,f.bd,f.fill,Math.log(Math.max(f.asp,.05)),f.edge/60,f.sd/60,Math.min(f.per,8)/8,f.ring/60,f.sal/60,Math.log(Math.max(f.ring,1)/Math.max(f.sd,1)),Math.hypot(tx-f.cx,ty-f.cy),Math.abs(tx-f.cx),Math.abs(ty-f.cy)];
+ let s=TMDL.b;for(let i=0;i<x.length;i++)s+=TMDL.w[i]*(x[i]-TMDL.mu[i])/TMDL.sd[i];return s}
+function outlineOf(c,w,h){const N=w*h,m=new Uint8Array(N);for(const q of c.pix)m[q]=1;
  const bg=new Uint8Array(N),st=[];const push=i=>{if(!m[i]&&!bg[i]){bg[i]=1;st.push(i)}};
  for(let x=0;x<w;x++){push(x);push((h-1)*w+x)}for(let y=0;y<h;y++){push(y*w);push(y*w+w-1)}
  while(st.length){const q=st.pop(),x=q%w,y=(q/w)|0;if(x>0)push(q-1);if(x<w-1)push(q+1);if(y>0)push(q-w);if(y<h-1)push(q+w)}
  for(let i=0;i<N;i++)if(!bg[i])m[i]=1;
- let c=traceC(m,w,h);if(c.length<12)return null;
- c=smoothC(c,2);let eps=.8*w/96,P=simplify(c,eps);while(P.length>70&&eps<6){eps*=1.3;P=simplify(c,eps)}
- if(P.length<5)return null;return{poly:P,score:best.sc,prims:[],seed:[best.f.cx*w,best.f.cy*h],area:best.f.a,w,h}}
+ let cc=traceC(m,w,h);if(cc.length<12)return null;
+ cc=smoothC(cc,2);let eps=.8*w/96,P=simplify(cc,eps);while(P.length>70&&eps<6){eps*=1.3;P=simplify(cc,eps)}
+ if(P.length<5)return null;return{poly:P,score:c.sc,prims:[],seed:[c.f.cx*w,c.f.cy*h],area:c.f.a,w,h}}
+/* returns the best outline {poly,..., rest:[next best candidates]} or null. pt = a tapped point: only regions that contain it */
+function detect(px,w,h,pt){const N=w*h,minS=Math.max(12,Math.round(N*.0016)),p0=pt?Math.round(pt[1])*w+Math.round(pt[0]):-1,all=[];
+ for(const k of (pt?[15,40,100,400]:[40,400])){const C=candidates(px,w,h,k,minS,.5);
+  for(const pix of C){if(pt&&pix.indexOf(p0)<0)continue;const f=featOf(pix,px,w,h);all.push({sc:pt?tapScore(f,pt[0]/w,pt[1]/h):scoreFeat(f),pix,f})}}
+ all.sort((a,b)=>b.sc-a.sc);const picked=[];
+ for(const c of all){if(picked.length>=(pt?1:4))break;const A=new Set(c.pix);let dup=false;for(const q of picked){let I=0;for(const x of q.pix)if(A.has(x))I++;const U=q.pix.length+c.pix.length-I;if(I/U>.35){dup=true;break}}if(!dup)picked.push(c)}
+ for(let i=0;i<picked.length;i++){const d=outlineOf(picked[i],w,h);if(d){d.rest=picked.slice(i+1);return d}}
+ return null}
 /* ---- placeholder room (used when no photo was taken) ---- */
 function scene(k){const c=document.createElement("canvas");c.width=600;c.height=1300;const g=c.getContext("2d");
  const wall=["#D8D0C0","#CBD3CF","#DCD2CA","#D9D6CE"][k];g.fillStyle=wall;g.fillRect(0,0,600,1300);
@@ -852,21 +883,21 @@ const HOLD=2.6;
 function setHint(t){$("#chint").textContent=t}
 function setProg(p){$("#rp").style.strokeDashoffset=1-clamp(p,0,1);$("#cnt").textContent=p>.02?Math.max(1,Math.ceil((1-p)*HOLD)):""}
 function camStop(){clearInterval(CAMS.timer);CAMS.timer=0;if(CAMS.stream){CAMS.stream.getTracks().forEach(t=>t.stop());CAMS.stream=null}const v=$("#cvid");if(v)try{v.pause();v.srcObject=null}catch(e){}CAMS.mode="idle"}
-function camStart(){camStop();camSel(false);CAMS.froze=false;$("#cam").classList.remove("stat");const c=$("#cam");c.className="scr on";CAMS.locked=false;CAMS.manual=false;CAMS.auto=null;CAMS.miss=0;CAMS.acc=0;CAMS.prev=null;CAMS.det=null;CAMS.src=null;
+function camStart(){camStop();camSel(false);CAMS.froze=false;$("#cam").classList.remove("stat");const c=$("#cam");c.className="scr on";CAMS.locked=false;CAMS.manual=false;CAMS.alt=false;CAMS.auto=null;CAMS.miss=0;CAMS.acc=0;CAMS.prev=null;CAMS.det=null;CAMS.src=null;
  cvg("#cov").clearRect(0,0,402,874);setProg(0);$("#cmsg").style.display="none";setHint("Starting camera…");
  const md=navigator.mediaDevices;if(!md||!md.getUserMedia){camFail("unsupported");return}
  let p;try{p=md.getUserMedia({video:{facingMode:{ideal:"environment"},width:{ideal:1280},height:{ideal:720}},audio:false})}catch(e){camFail(e&&e.name);return}
  p.then(s=>{if(cur!=="cam"||CAMS.locked){s.getTracks().forEach(t=>t.stop());return}CAMS.stream=s;const v=$("#cvid");v.srcObject=s;const pl=v.play();if(pl&&pl.catch)pl.catch(()=>{});CAMS.mode="video";setHint("Tap the shape you want, or move closer");CAMS.timer=setInterval(camTick,350)}).catch(e=>camFail(e&&e.name))}
 function camFail(n){CAMS.mode="idle";setHint("The camera didn't open");const m=$("#cmsg");m.style.display="block";
  m.textContent=(n==="NotAllowedError"||n==="SecurityError")?"This viewer doesn't allow live camera. Tap Upload to choose a photo of your spot.":"No camera found. Tap Upload to choose a photo."}
-function useStatic(cv){camStop();camSel(false);CAMS.froze=false;CAMS.locked=false;CAMS.miss=0;CAMS.acc=0;CAMS.prev=null;CAMS.src=cv;CAMS.sw=cv.width;CAMS.sh=cv.height;CAMS.mode="static";
+function useStatic(cv){camStop();camSel(false);CAMS.froze=false;CAMS.locked=false;if(!CAMS.manual)CAMS.alt=false;CAMS.miss=0;CAMS.acc=0;CAMS.prev=null;CAMS.src=cv;CAMS.sw=cv.width;CAMS.sh=cv.height;CAMS.mode="static";
  const c=$("#cam");c.classList.add("stat");$("#cmsg").style.display="none";const g=$("#cst").getContext("2d");$("#cst").width=402;$("#cst").height=874;coverDraw(g,cv,cv.width,cv.height,402,874);
  setHint("Tap the shape you want, or move closer");CAMS.timer=setInterval(camTick,350)}
 function srcDims(){if(CAMS.mode==="video"){const v=$("#cvid");return[v,v.videoWidth,v.videoHeight]}return[CAMS.src,CAMS.sw,CAMS.sh]}
 function drawLive(det){const g=cvg("#cov");g.clearRect(0,0,402,874);if(!det)return;const k=402/AW,ky=874/AH;g.beginPath();det.poly.forEach((p,i)=>i?g.lineTo(p[0]*k,p[1]*ky):g.moveTo(p[0]*k,p[1]*ky));g.closePath();
  g.fillStyle="rgba(240,232,16,.2)";g.fill();g.lineWidth=4;g.lineJoin="round";g.strokeStyle="#F0E810";g.stroke();
  g.lineWidth=1.5;g.strokeStyle="rgba(255,255,255,.85)";(det.prims||[]).forEach(q=>{g.beginPath();if(q.t==="c")g.arc(q.x*k,q.y*ky,q.r*k,0,7);else g.rect(q.x*k,q.y*ky,q.w*k,q.h*ky);g.stroke()})}
-function camTick(){if(CAMS.locked||cur!=="cam"||CAMS.manual)return;const[S,sw,sh]=srcDims();if(!S||!sw||(CAMS.mode==="video"&&S.readyState<2))return;
+function camTick(){if(CAMS.locked||cur!=="cam"||CAMS.manual||CAMS.alt)return;const[S,sw,sh]=srcDims();if(!S||!sw||(CAMS.mode==="video"&&S.readyState<2))return;
  const g=grabRGB(S,sw,sh,AW,AH),det=detect(g,AW,AH);
  if(!det){if(++CAMS.miss>3){CAMS.auto=null;camSel(false);cvg("#cov").clearRect(0,0,402,874)}return}
  CAMS.miss=0;const pr=CAMS.auto;
@@ -883,7 +914,11 @@ function camTap(e){if(CAMS.locked||cur!=="cam")return;if(e.target.closest("#cbtn
  if(!det){const keep=CAMS.sel;o.clearRect(0,0,402,874);if(keep)drawLive(keep.det);o.beginPath();o.arc(px,py,20,0,7);o.lineWidth=3;o.strokeStyle="#F0E810";o.stroke();setTimeout(()=>{if(!CAMS.locked){o.clearRect(0,0,402,874);if(CAMS.sel)drawLive(CAMS.sel.det)}},500);return}
  CAMS.sel={det};drawLive(det);camSel(true)}
 function camOk(){if(!CAMS.sel||CAMS.locked)return;const[S,sw,sh]=srcDims(),s=CAMS.sel;camSel(false);capture(S,sw,sh,s.det)}
-function camNo(){camSel(false);cvg("#cov").clearRect(0,0,402,874);
+function camNo(){
+ /* first X: try the next best guesses before asking you to tap */
+ if(!CAMS.manual&&CAMS.sel&&CAMS.sel.det.rest&&CAMS.sel.det.rest.length){const c=CAMS.sel.det.rest[0],d=outlineOf(c,CAMS.sel.det.w,CAMS.sel.det.h);const rest=CAMS.sel.det.rest.slice(1);
+  if(d){d.rest=rest;CAMS.alt=true;CAMS.auto={det:d,n:9};CAMS.sel={det:d};drawLive(d);return}CAMS.sel.det.rest=rest;return camNo()}
+ camSel(false);cvg("#cov").clearRect(0,0,402,874);
  if(!CAMS.manual){CAMS.manual=true;CAMS.auto=null;return}
  if(CAMS.froze){CAMS.froze=false;camStart();CAMS.manual=true}}
 function capture(S,sw,sh,det){CAMS.locked=true;clearInterval(CAMS.timer);
@@ -899,7 +934,7 @@ function lockAnim(pts){const c=$("#cam"),f=$("#flash");c.classList.add("lk");f.s
   if(t>=0){const dr=E(0,.9,t),fl=E(.8,1.3,t),mv=out(E(1.4,2.3,t));const P=pts.map((p,i)=>[lerp(p[0],tgt[i][0],mv),lerp(p[1],tgt[i][1],mv)]);
    g.beginPath();P.forEach((p,i)=>i?g.lineTo(p[0],p[1]):g.moveTo(p[0],p[1]));g.closePath();g.lineJoin="round";
    g.globalAlpha=fl;g.fillStyle=INK;g.fill();g.globalAlpha=1-fl*.85;g.lineWidth=5;g.strokeStyle=C.Y;g.setLineDash([per*dr+.01,per*2]);g.stroke();g.setLineDash([]);g.globalAlpha=1}
-  if(t<2.7)requestAnimationFrame(fr);else{camStop();go("wait")}};requestAnimationFrame(fr)}
+  if(t<2.4)requestAnimationFrame(fr);else{camStop();go("wait")}};requestAnimationFrame(fr)}
 /* ---- wait: starts from the detected shape, morphs until the poster is ready ---- */
 let WT=null;
 function waitStart(){const g=cvg("#cWt");g.clearRect(0,0,402,874);const seq=[SHAPE?SHAPE:SHP.circle,SHP.circle,SHP.tri,SHP.sq,SHP.star,SHP.hex,SHP.rect].map(p=>resample(p,120));WT={t0:performance.now(),seq,gen:false};
@@ -907,9 +942,9 @@ function waitStart(){const g=cvg("#cWt");g.clearRect(0,0,402,874);const seq=[SHA
  const fr=()=>{if(cur!=="wait"||!WT)return;const t=(performance.now()-WT.t0)/1000;let k=0,u=0;
   if(t>=hold){const q=(t-hold)/step;k=Math.min(n-1,Math.floor(q));u=k>=n-1&&q>=n?1:sm(0,1,q-k)}
   const A=seq[k],B=seq[k+1],P=A.map((a,i)=>[lerp(a[0],B[i][0],u),lerp(a[1],B[i][1],u)]);
-  /* the whole striped stack (yellow centre) grows out of a point and keeps morphing */
+  /* the black shape from the camera stays; the stripes open up inside it from the centre, then it keeps morphing */
   const NR=20,nf=NR-1,fr2=0,zi=sm(0,1,Math.min(1,t/.5)),R=140,cx=201,cy=470;g.clearRect(0,0,402,874);
-  for(let r=0;r<=Math.min(NR-1,nf+1);r++){const grow=r>nf?fr2*fr2*(3-2*fr2):1,s=(1-r*.0485)*grow*zi;if(s<=0.002)continue;const rot=r*.12*Math.sin(t*1.6)*.55,co=Math.cos(rot),si=Math.sin(rot);g.beginPath();
+  for(let r=0;r<=Math.min(NR-1,nf+1);r++){const grow=r>nf?fr2*fr2*(3-2*fr2):1,s=(1-r*.0485)*(r===0?1:sm(0,1,Math.min(1,Math.max(0,(t-r*.03)/.5))));if(s<=0.002)continue;const rot=r*.12*Math.sin(t*1.6)*.55,co=Math.cos(rot),si=Math.sin(rot);g.beginPath();
    P.forEach((p,i)=>{const x=p[0]*s,y=p[1]*s,X=cx+(x*co-y*si)*R,Y=cy+(x*si+y*co)*R;i?g.lineTo(X,Y):g.moveTo(X,Y)});g.closePath();
    g.fillStyle=(r===NR-1)?C.Y:cols[r%2];g.fill()}
   if(!WT.gen&&t>.1){WT.gen=true;makePoster()}
@@ -1028,15 +1063,15 @@ const shObj=v=>v==="shape"?ST.sh:ST.extra[+v.slice(1)];
 function currentEntry(){return GCUR||GAL[GAL.length-1]}
 function makePoster(){const st=newState(SHAPE||SHP.circle);GCUR={st};GAL.push(GCUR);ST=st;SELL="shape";TOOL="col"}
 function touch(low){ST.rev++;refresh(low)}
-const ART={cw:402,ch:659,pad:0};
+const ART={cw:402,ch:621,pad:0};
 function refresh(low){if(!ST||cur!=="poster")return;const box=$("#stagebox"),pf=$("#pframe"),pm=$("#pmat"),art=$("#art");let cw,ch,pad=0;
- if(!pvw){pf.style.border="0";pf.style.width="402px";pm.style.padding="0";pm.style.background="#fff";cw=402;ch=659}
+ if(!pvw){pf.style.border="0";pf.style.width="402px";pm.style.padding="0";pm.style.background="#fff";cw=402;ch=621}
  else{const bw=box.clientWidth,bh=box.clientHeight,g=geom(ST),sc=Math.min((bw-34)/g.W,(bh-34)/g.H);
   pf.style.border=(g.fr*sc)+"px solid "+(g.fr>0?ST.frame.c:"transparent");pf.style.width=g.fw*sc+"px";pm.style.padding=(g.mt*sc)+"px";pm.style.background=g.mt>0?ST.mat.c:"#fff";cw=g.aw*sc;ch=g.ah*sc;pad=g.mt*sc}
  art.style.width=cw+"px";art.style.height=ch+"px";const q=low?.5:Math.min(dpr,Math.sqrt(650000/(cw*ch)));
  renderArt(ST,Math.max(8,Math.round(cw*q)),Math.max(8,Math.round(ch*q)),art);ART.cw=cw;ART.ch=ch;ART.pad=pad;try{glassBtns()}catch(e){}try{const g0=hex3(ST.col.ground.l);$("#poster").style.setProperty("--bkc",(.299*g0[0]+.587*g0[1]+.114*g0[2])/255<.5?"#fff":"#000");const yy=hex3(C.Y);$("#poster").style.setProperty("--nx",Math.hypot(g0[0]-yy[0],g0[1]-yy[1],g0[2]-yy[2])<90?C.P:C.Y)}catch(e){}selBox()}
 /* clear glass lenses under the two floating poster buttons: they magnify and bend the poster behind them */
-function glassBtns(){const art=$("#art");if(!art||!art.width)return;const S=dpr,R=34,list=[["#pglassA",336,88],["#pglassB",336,611]],k0=art.width/402;
+function glassBtns(){const art=$("#art");if(!art||!art.width)return;const S=dpr,R=34,list=[["#pglassA",336,88],["#pglassB",336,573]],k0=art.width/402;
  const sg=art.getContext("2d");
  for(const[id,cx,cy]of list){const gc=$(id);if(!gc)continue;const D=Math.round((R*2+8)*S);if(gc.width!==402*S){gc.width=402*S;gc.height=874*S}
   const g=gc.getContext("2d");g.setTransform(1,0,0,1,0,0);g.clearRect(0,0,gc.width,gc.height);if(pvw)continue;

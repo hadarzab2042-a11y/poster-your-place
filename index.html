@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8">
+<meta charset="utf-8"><meta http-equiv="Cache-Control" content="no-cache">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <title>Grignani Studio</title>
 <style>
@@ -613,7 +613,9 @@ canvas{position:absolute;left:0;top:0;width:402px;height:874px;pointer-events:no
 
 /* no outlines around buttons (colour swatches keep theirs) */
 .scr button,.wbtn,.pill,.ch,#fcats button,#fbar button,#ordp button,#csel button,.bar{border-color:transparent!important}
-#done .wbtn,#share .wbtn,#hist .wbtn,#merch .wbtn,#order .wbtn{background:#EFEDE8!important}
+/* buttons on white screens are negative: ink fill, white content */
+#done .bk,#done .wbtn,#feed .bk,#feed #pedit,#feed #fprof,#feed #fsx,#feed .wbtn,#share .bk,#hist .bk,#hist #groom,#merch .bk,#wait .bk{background:var(--ink)!important;color:#fff!important}
+#done .bk svg *,#done .wbtn svg *,#feed .bk svg *,#feed #pedit svg *,#feed #fprof svg *,#feed #fsx svg *,#feed .wbtn svg *,#share .bk svg *,#hist .bk svg *,#hist #groom svg *,#merch .bk svg *,#wait .bk svg *{stroke:#fff!important}
 #cam #chint{max-width:236px!important}
 </style>
 </head>
@@ -1153,7 +1155,10 @@ function drawRoom(){const img=$("#rimg");if(!ROOM){const c=scene(3);ROOM=c.toDat
 function seedGal(){[SHP.arch,SHP.leaf,SHP.star,SHP.hex].forEach((p,i)=>{const st=newState(normPoly(p),i);if(i===2)st.bw=true;GAL.push({st,seed:true})})}
 /* ---- demo / upload buttons ---- */
 $("#cup").onclick=()=>$("#cfile").click();
-$("#cfile").onchange=e=>{const f=e.target.files&&e.target.files[0];if(!f)return;const u=URL.createObjectURL(f),im=new Image();im.onload=()=>{const c=document.createElement("canvas"),k=Math.min(1,1400/Math.max(im.width,im.height));c.width=Math.round(im.width*k);c.height=Math.round(im.height*k);c.getContext("2d").drawImage(im,0,0,c.width,c.height);URL.revokeObjectURL(u);cvg("#cov").clearRect(0,0,402,874);CAMS.manual=false;CAMS.auto=null;useStatic(c)};im.src=u;e.target.value=""};
+$("#cfile").onchange=async e=>{const f=e.target.files&&e.target.files[0];e.target.value="";if(!f)return;
+ const draw=(src,w,h)=>{const c=document.createElement("canvas"),k=Math.min(1,1400/Math.max(w,h));c.width=Math.round(w*k);c.height=Math.round(h*k);c.getContext("2d").drawImage(src,0,0,c.width,c.height);cvg("#cov").clearRect(0,0,402,874);CAMS.manual=false;CAMS.auto=null;useStatic(c)};
+ try{if(window.createImageBitmap){const bm=await createImageBitmap(f);draw(bm,bm.width,bm.height);return}}catch(err){}
+ const u=URL.createObjectURL(f),im=new Image();im.onload=()=>{URL.revokeObjectURL(u);draw(im,im.width,im.height)};im.onerror=()=>{URL.revokeObjectURL(u);setHint("This photo can't be opened here. Try a JPG or PNG")};im.src=u};
 
 $("#cam").addEventListener("click",camTap);
 

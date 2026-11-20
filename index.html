@@ -695,6 +695,23 @@ canvas{position:absolute;left:0;top:0;width:402px;height:874px;pointer-events:no
 /* 6. List rows and item names */
 .pl{font-size:var(--ds-btn-fs)!important}
 #mname,#order span{font-size:var(--ds-sub)!important}
+
+/* ===== round 3: pull-down tab, peek, camera back, tools ===== */
+#cam > .bk{left:auto!important;right:var(--ds-m)!important;top:76px!important;width:auto!important;height:14px!important;text-align:right!important}
+#done>.bk,#buy>.bk,#room>.bk,#share>.bk,#hist>.bk,#merch>.bk,#order>.bk,#feed>.bk{display:none!important}
+#feed.lst>.bk,#feed.prof>.bk{display:flex!important}
+.ptab{position:absolute;left:50%;top:40px;width:104px;height:30px;margin-left:-52px;background:#000;border-radius:0 0 18px 18px;z-index:61;display:grid;place-items:end center;padding-bottom:3px;pointer-events:none;animation:ptn 1.1s .7s 1}
+.ptab svg{width:20px;height:20px;fill:none;stroke:#fff;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
+@keyframes ptn{0%,100%{transform:translateY(0)}40%{transform:translateY(8px)}}
+#fpeek{position:absolute;left:0;right:0;top:812px;height:90px;border-radius:26px 26px 0 0;background:#fff;box-shadow:0 -3px 16px rgba(0,0,0,.14);z-index:7;display:none;overflow:hidden;pointer-events:none}
+#home.peek #fpeek{display:block}
+#home.peek #hswp{display:none!important}
+#fpeek:before{content:"";position:absolute;left:50%;top:8px;width:44px;height:4px;margin-left:-22px;border-radius:2px;background:var(--ink)}
+#fpeek .th{position:absolute;top:24px;width:108px;height:110px;object-fit:cover;border-radius:10px}
+/* edit screen: equal gaps between poster, chips, swatches, tools, screen edge */
+#poster #spn{top:652px!important}
+#poster #spn .swr{margin-top:24px!important}
+#poster #tcol{bottom:37px!important}
 </style>
 </head>
 <body>
@@ -1761,9 +1778,23 @@ addEventListener("pointerup",()=>{sw=null});
   const t=document.createElement("canvas");t.width=BW;t.height=D;t.getContext("2d").putImageData(out,0,0);og.drawImage(t,0,y0);
   og.lineWidth=1.5;og.strokeStyle="rgba(255,255,255,.3)";og.strokeRect(-2,y0+1,BW+4,D-2);og.lineWidth=1.2;og.strokeStyle="rgba(30,28,29,.28)";og.strokeRect(-2,y0-.5,BW+4,D+1);og.globalAlpha=1}
  requestAnimationFrame(loop)})();
+let PULL=false;
+(function(){const IDS=["done","buy","feed","room","share","hist","merch","order"],hm=$("#home");
+ IDS.forEach(id=>{const s=document.getElementById(id);if(!s)return;const t=document.createElement("div");t.className="ptab";t.innerHTML='<svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg>';s.appendChild(t);
+  let y0=null,dy=0,act=false;
+  s.addEventListener("pointerdown",ev=>{if(cur!==id)return;const r=s.getBoundingClientRect();if((ev.clientY-r.top)/SC>120)return;y0=ev.clientY;dy=0;act=false;try{s.setPointerCapture(ev.pointerId)}catch(e){}});
+  s.addEventListener("pointermove",ev=>{if(y0===null)return;dy=Math.max(0,(ev.clientY-y0)/SC);if(dy>8&&!act){act=true;PULL=true;homeInit(true);hm.classList.add("on");s.style.zIndex=40}if(act){s.style.transition="none";s.style.transform="translateY("+dy+"px)"}});
+  const end=()=>{if(y0===null)return;y0=null;if(!act)return;act=false;const go_=dy>140;
+   if(go_){s.style.transition="transform .4s cubic-bezier(.65,0,.25,1)";s.style.transform="translateY(104%)";later(()=>{PULL=false;s.style.transition="";s.style.transform="";s.style.zIndex="";go("home",true)},420)}
+   else{s.style.transition="transform .35s cubic-bezier(.22,1,.36,1)";s.style.transform="none";later(()=>{PULL=false;if(cur===id)hm.classList.remove("on");s.style.transition="";s.style.transform="";s.style.zIndex=""},360)}};
+  s.addEventListener("pointerup",end);s.addEventListener("pointercancel",end)});
+ /* feed tab peeking at the bottom of home, from the second visit on */
+ const pk=document.createElement("div");pk.id="fpeek";hm.appendChild(pk);let pkN=-1;
+ setInterval(()=>{const mine=GAL.filter(e=>!e.seed);const on=mine.length>0;hm.classList.toggle("peek",on);
+  if(on&&pkN!==GAL.length){pkN=GAL.length;pk.querySelectorAll(".th").forEach(x=>x.remove());GAL.slice(-3).forEach((e,i)=>{const im=document.createElement("img");im.className="th";im.style.left=(18+i*118)+"px";im.src=gUrl(e,200);pk.appendChild(im)})}},500)})();
 let last=performance.now();
 function frame(now){const dt=Math.min(.05,(now-last)/1000);last=now;
- if(cur==="home"){const t=(now-h0)/1000;ribHome(t)}
+ if(cur==="home"||PULL){const t=(now-h0)/1000;ribHome(t)}
  else if(cur==="splash")drawSplash((now-sS)/1000);
  else if(cur==="share")shareStep(dt);
  else if(cur==="thanks")thanksStep(dt);else if(cur==="feed")feedRing(dt);

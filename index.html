@@ -617,9 +617,33 @@ canvas{position:absolute;left:0;top:0;width:402px;height:874px;pointer-events:no
 /* no outlines around buttons (colour swatches keep theirs) */
 .scr button,.wbtn,.pill,.ch,#fcats button,#fbar button,#ordp button,#csel button,.bar{border-color:transparent!important}
 /* buttons on white screens are negative: ink fill, white content */
-#done .bk,#done .wbtn,#feed .bk,#feed #pedit,#feed #fprof,#feed #fsx,#feed .wbtn,#share .bk,#hist .bk,#hist #groom,#merch .bk,#wait .bk{background:var(--ink)!important;color:#fff!important}
-#done .bk svg *,#done .wbtn svg *,#feed .bk svg *,#feed #pedit svg *,#feed #fprof svg *,#feed #fsx svg *,#feed .wbtn svg *,#share .bk svg *,#hist .bk svg *,#hist #groom svg *,#merch .bk svg *,#wait .bk svg *{stroke:#fff!important}
+#done .wbtn,#feed #pedit,#feed #fprof,#feed #fsx,#feed .wbtn,#hist #groom,#wait .bk{background:var(--ink)!important;color:#fff!important}
+#done .wbtn svg *,#feed #pedit svg *,#feed #fprof svg *,#feed #fsx svg *,#feed .wbtn svg *,#hist #groom svg *,#wait .bk svg *{stroke:#fff!important}
 #cam #chint{max-width:236px!important}
+
+/* ===== round 2 ===== */
+/* back arrows and other top icons: icon only, no circle */
+.bk{background:transparent!important;border-color:transparent!important;box-shadow:none!important}
+#buy .bk svg *,#room .bk svg *{stroke:#fff!important}
+#buy .bk,#room .bk{filter:drop-shadow(0 1px 4px rgba(0,0,0,.55))}
+/* edit screen: no glass lenses; icons use a difference blend so they stay visible on any poster */
+#pglassA,#pglassB{display:none!important}
+#poster .bk,#poster #roombtn{mix-blend-mode:difference;color:#fff!important}
+#poster .bk svg *,#poster #roombtn svg *{stroke:#fff!important}
+#poster #nextbtn{text-shadow:0 0 10px rgba(0,0,0,.35)}
+/* colour swatches: no outline, thin grey one on black */
+#poster #spn .swr i{border:0!important}
+#poster #spn .swr i.k{border:1px solid #8a8a8a!important}
+#poster #spn .swr i.s{outline:0!important;transform:scale(1.28)}
+#poster #nextbtn{background:var(--ink)!important;border-radius:999px!important;padding:6px 14px!important;text-shadow:none!important;mix-blend-mode:normal!important}
+/* done screen */
+#dQ{display:none!important}
+#dPost{top:236px!important;height:380px!important}
+/* feed: no user tags or gradient on tiles; list starts lower; people as app-coloured icons */
+.ft .un{display:none!important}
+#fl{top:196px!important}
+.fh i,.fr i,.rw .dot{border:0!important;border-radius:0!important;-webkit-mask:url("data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 24 24%27%3E%3Ccircle cx=%2712%27 cy=%278%27 r=%274.4%27/%3E%3Cpath d=%27M3.2 22c.7-5.6 4.3-8.4 8.8-8.4s8.1 2.8 8.8 8.4z%27/%3E%3C/svg%3E") center/contain no-repeat;mask:url("data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 24 24%27%3E%3Ccircle cx=%2712%27 cy=%278%27 r=%274.4%27/%3E%3Cpath d=%27M3.2 22c.7-5.6 4.3-8.4 8.8-8.4s8.1 2.8 8.8 8.4z%27/%3E%3C/svg%3E") center/contain no-repeat}
+.fh i{width:32px;height:32px}.fr i{width:40px;height:40px}.rw .dot{width:38px;height:38px}
 /* ===== GRID: side margin 38, top line y=76, bottom line y=798 (76 from the bottom), on every screen ===== */
 .scr .bk,#pedit,#groom,#poster #nextbtn{top:56px!important}
 #cam > .bk{top:77px!important}
@@ -1071,7 +1095,7 @@ function refresh(low){if(!ST||cur!=="poster")return;const box=$("#stagebox"),pf=
  art.style.width=cw+"px";art.style.height=ch+"px";const q=low?.5:Math.min(dpr,Math.sqrt(650000/(cw*ch)));
  renderArt(ST,Math.max(8,Math.round(cw*q)),Math.max(8,Math.round(ch*q)),art);ART.cw=cw;ART.ch=ch;ART.pad=pad;try{glassBtns()}catch(e){}try{const g0=hex3(ST.col.ground.l);$("#poster").style.setProperty("--bkc",(.299*g0[0]+.587*g0[1]+.114*g0[2])/255<.5?"#fff":"#000");const yy=hex3(C.Y);$("#poster").style.setProperty("--nx",Math.hypot(g0[0]-yy[0],g0[1]-yy[1],g0[2]-yy[2])<90?C.P:C.Y)}catch(e){}selBox()}
 /* clear glass lenses under the two floating poster buttons: they magnify and bend the poster behind them */
-function glassBtns(){const art=$("#art");if(!art||!art.width)return;const S=dpr,R=34,list=[["#pglassA",336,88],["#pglassB",336,573]],k0=art.width/402;
+function glassBtns(){return;const art=$("#art");if(!art||!art.width)return;const S=dpr,R=34,list=[["#pglassA",336,88],["#pglassB",336,573]],k0=art.width/402;
  const sg=art.getContext("2d");
  for(const[id,cx,cy]of list){const gc=$(id);if(!gc)continue;const D=Math.round((R*2+8)*S);if(gc.width!==402*S){gc.width=402*S;gc.height=874*S}
   const g=gc.getContext("2d");g.setTransform(1,0,0,1,0,0);g.clearRect(0,0,gc.width,gc.height);if(pvw)continue;
@@ -1344,7 +1368,7 @@ function openOrd(o){closeOrd();const p=document.createElement("div");p.id="ordp"
  build();ORDT=setInterval(()=>{if(!$("#ordp")){clearInterval(ORDT);return}const sc=p.scrollTop;build();p.scrollTop=sc},6000)}
 /* ---- edit my wall ---- */
 function pSw(cols,cur,cb,auto){const r=document.createElement("div");r.className="row swr";if(auto){const e=document.createElement("i");e.style.background="linear-gradient(135deg,#1E1C1D 50%,#fff 50%)";if(!cur)e.className="s";e.onclick=()=>cb(null);r.appendChild(e)}
- cols.forEach(c=>{const e=document.createElement("i");e.style.background=c;if(cur&&String(c).toLowerCase()===String(cur).toLowerCase())e.className="s";e.onclick=()=>cb(c);r.appendChild(e)});return r}
+ cols.forEach(c=>{const e=document.createElement("i");e.style.background=c;if(cur&&String(c).toLowerCase()===String(cur).toLowerCase())e.className="s";if(String(c).toLowerCase()==="#1e1c1d")e.classList.add("k");e.onclick=()=>cb(c);r.appendChild(e)});return r}
 function pepBuild(){const P=$("#pep");P.innerHTML="";const lab=t=>{const x=document.createElement("div");x.className="bl";x.textContent=t;P.appendChild(x)},rb=()=>{updateHead();pepBuild()};
  lab("Name");const inp=document.createElement("input");inp.id="pin";inp.type="text";inp.value=PROF.name;inp.maxLength=24;inp.oninput=()=>{PROF.name=inp.value;updateHead()};P.appendChild(inp);
  lab("Stripes");const r1=document.createElement("div");r1.className="row";[["On",true],["Off",false]].forEach(([t,v])=>{const b=document.createElement("button");b.className="ch"+(PROF.stripes===v?" on":"");b.textContent=t;b.onclick=()=>{PROF.stripes=v;rb()};r1.appendChild(b)});P.appendChild(r1);

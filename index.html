@@ -714,6 +714,18 @@ canvas{position:absolute;left:0;top:0;width:402px;height:874px;pointer-events:no
 /* Next: white, with a black shine sweeping through every few seconds */
 #poster #nextbtn{background:linear-gradient(100deg,#fff 0 36%,#000 46% 54%,#fff 64% 100%) 100% 0/300% 100% no-repeat;-webkit-background-clip:text!important;background-clip:text!important;color:transparent!important;-webkit-text-fill-color:transparent!important;border-radius:0!important;padding:0!important;text-shadow:none!important;mix-blend-mode:normal!important;filter:drop-shadow(0 0 5px rgba(0,0,0,.3));animation:nxs 3.6s ease-in-out infinite}
 @keyframes nxs{0%{background-position:100% 0}30%,100%{background-position:0% 0}}
+
+/* ===== round 4 ===== */
+#cam > .bk{display:none!important}
+#cam #cup{left:364px!important;right:auto!important;transform:translateX(-100%)}
+.scr{isolation:isolate}
+#poster .bk{left:var(--ds-m)!important;right:auto!important;top:545px!important}
+#poster #roombtn{left:106px!important;right:auto!important;top:545px!important}
+#poster #nextbtn{left:auto!important;right:var(--ds-m)!important}
+/* feed is a sheet: rounded top with a handle, home visible behind */
+#feed{clip-path:inset(36px 0 0 0 round 26px 26px 0 0);background:#fff}
+#feed .ptab{display:none}
+#feed:after{content:"";position:absolute;left:50%;top:54px;width:44px;height:4px;margin-left:-22px;border-radius:2px;background:var(--ink);z-index:70;pointer-events:none}
 </style>
 </head>
 <body>
@@ -1515,12 +1527,12 @@ function undoDelete(){const u=LASTDEL;if(!u)return;LASTDEL=null;GAL.splice(Math.
 /* ---- swipe up on home -> feed ---- */
 (function(){const h=$("#home");const w=document.createElement("div");w.id="hswp";w.innerHTML='<div class="hl">Swipe up for feed</div><div class="hb"></div>';h.appendChild(w);
  let s=null,dy=0,prep=false;const fd=$("#feed");
- function prepare(){if(prep)return;prep=true;FBROWSE=true;fd.style.transition="none";fd.classList.add("on");drawFeed();h.style.zIndex=30}
- function finish(){FBROWSE=true;h.style.transition="none";h.style.transform="none";h.style.zIndex="";fd.style.transition="";go("feed",true);prep=false}
- function commit(){prepare();h.style.transition="transform .55s cubic-bezier(.65,0,.25,1)";h.style.transform="translateY(-104%)";later(finish,580)}
- function cancel(){h.style.transition="transform .45s cubic-bezier(.22,1,.36,1)";h.style.transform="none";later(()=>{if(cur==="home"){fd.classList.remove("on");fd.style.transition="";h.style.zIndex="";prep=false}},470)}
+ function prepare(){if(prep)return;prep=true;FBROWSE=true;fd.style.transition="none";fd.classList.add("on");drawFeed();fd.style.transform="translateY(776px)"}
+ function finish(){FBROWSE=true;fd.style.transition="";fd.style.transform="";go("feed",true);prep=false}
+ function commit(){prepare();fd.style.transition="transform .5s cubic-bezier(.65,0,.25,1)";fd.style.transform="translateY(0px)";later(finish,520)}
+ function cancel(){fd.style.transition="transform .45s cubic-bezier(.22,1,.36,1)";fd.style.transform="translateY(776px)";later(()=>{if(cur==="home"){fd.classList.remove("on");fd.style.transition="";fd.style.transform="";prep=false}},470)}
  h.addEventListener("pointerdown",ev=>{if(cur!=="home")return;const r=h.getBoundingClientRect();const y=(ev.clientY-r.top)/(r.height/874);if(y<640)return;s=ev.clientY;dy=0;try{h.setPointerCapture(ev.pointerId)}catch(e){}});
- h.addEventListener("pointermove",ev=>{if(s===null)return;dy=Math.min(0,(ev.clientY-s)/SC);if(dy<-8){prepare();h.style.transition="none";h.style.transform="translateY("+dy+"px)"}});
+ h.addEventListener("pointermove",ev=>{if(s===null)return;dy=Math.min(0,(ev.clientY-s)/SC);if(dy<-8){prepare();fd.style.transition="none";fd.style.transform="translateY("+Math.max(0,776+dy)+"px)"}});
  h.addEventListener("pointerup",ev=>{if(s===null)return;const m=dy;s=null;if(m<-150)commit();else if(m<-8)cancel();else if(Math.abs(ev.clientY-ev.clientY)===0&&m===0){const r=h.getBoundingClientRect();const y=(ev.clientY-r.top)/(r.height/874);if(y>760)commit()}});
  h.addEventListener("pointercancel",()=>{if(s!==null){s=null;cancel()}})})();
 
@@ -1781,8 +1793,8 @@ addEventListener("pointerup",()=>{sw=null});
   og.lineWidth=1.5;og.strokeStyle="rgba(255,255,255,.3)";og.strokeRect(-2,y0+1,BW+4,D-2);og.lineWidth=1.2;og.strokeStyle="rgba(30,28,29,.28)";og.strokeRect(-2,y0-.5,BW+4,D+1);og.globalAlpha=1}
  requestAnimationFrame(loop)})();
 let PULL=false;
-(function(){const IDS=["done","buy","feed","room","share","hist","merch","order"],hm=$("#home");
- IDS.forEach(id=>{const s=document.getElementById(id);if(!s)return;const t=document.createElement("div");t.className="ptab";t.innerHTML='<svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg>';s.appendChild(t);
+(function(){const IDS=["cam","done","buy","feed","room","share","hist","merch","order"],hm=$("#home");
+ IDS.forEach(id=>{const s=document.getElementById(id);if(!s)return;if(id!=="cam"){const t=document.createElement("div");t.className="ptab";t.innerHTML='<svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg>';s.appendChild(t)}
   let y0=null,dy=0,act=false;
   s.addEventListener("pointerdown",ev=>{if(cur!==id)return;const r=s.getBoundingClientRect();if((ev.clientY-r.top)/SC>120)return;y0=ev.clientY;dy=0;act=false;try{s.setPointerCapture(ev.pointerId)}catch(e){}});
   s.addEventListener("pointermove",ev=>{if(y0===null)return;dy=Math.max(0,(ev.clientY-y0)/SC);if(dy>8&&!act){act=true;PULL=true;homeInit(true);hm.classList.add("on");s.style.zIndex=40}if(act){s.style.transition="none";s.style.transform="translateY("+dy+"px)"}});
@@ -1790,6 +1802,7 @@ let PULL=false;
    if(go_){s.style.transition="transform .4s cubic-bezier(.65,0,.25,1)";s.style.transform="translateY(104%)";later(()=>{PULL=false;s.style.transition="";s.style.transform="";s.style.zIndex="";go("home",true)},420)}
    else{s.style.transition="transform .35s cubic-bezier(.22,1,.36,1)";s.style.transform="none";later(()=>{PULL=false;if(cur===id)hm.classList.remove("on");s.style.transition="";s.style.transform="";s.style.zIndex=""},360)}};
   s.addEventListener("pointerup",end);s.addEventListener("pointercancel",end)});
+ setInterval(()=>{if(cur==="feed"){hm.classList.add("on");PULL=true}else if(PULL&&cur!=="home"&&!document.querySelector(".scr[style*=translate]")){PULL=false}},200);
  /* feed tab peeking at the bottom of home, from the second visit on */
  const pk=document.createElement("div");pk.id="fpeek";hm.appendChild(pk);let pkN=-1;
  setInterval(()=>{const mine=GAL.filter(e=>!e.seed);const on=mine.length>0;hm.classList.toggle("peek",on);

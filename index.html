@@ -660,6 +660,41 @@ canvas{position:absolute;left:0;top:0;width:402px;height:874px;pointer-events:no
 #poster #spn{top:628px!important}
 #poster #tcol{bottom:74px!important}
 #poster #tin{top:660px!important}
+
+/* ===================== DESIGN SYSTEM (single source of truth) =====================
+   Change a token or a group here and every screen that uses it follows. */
+:root{
+ /* grid (phone 402x874) */
+ --ds-m:38px; --ds-top:76px; --ds-bot:798px; --ds-w:326px;
+ --ds-icon-top:56px;            /* top of 56px icon buttons (back, next ...) */
+ --ds-title-top:74px;
+ /* type */
+ --ds-title:38px; --ds-title-lh:36px; --ds-title-ls:-1.1px;
+ --ds-sub:28px;                 /* item names, Next */
+ --ds-btn-fs:24px;              /* big buttons, list rows */
+ --ds-tool:21px;                /* tool labels */
+ --ds-label:12px; --ds-label-ls:.72px;  /* chips, tabs, captions caps */
+ --ds-cap:13px;
+ /* shape */
+ --ds-bar-h:66px; --ds-r-bar:26px; --ds-r-chip:18px; --ds-icon:56px;
+ /* bar slots: bottom bar and the one above it */
+ --ds-bar-y:732px; --ds-bar2-y:658px;
+}
+/* 1. Screen titles */
+#tShare,#tHist,#tMerch,#tOrder,#dW{font-size:var(--ds-title)!important;line-height:var(--ds-title-lh)!important;letter-spacing:var(--ds-title-ls)!important;top:var(--ds-title-top)!important;left:var(--ds-m)!important}
+/* 2. Big bottom buttons (all the same size, one slot) */
+.bar,.wbtn.sw,#bbar,#sendbar,#printbar,#mbar,#obar,#dBuy,#dShare,#thbar{left:var(--ds-m)!important;width:var(--ds-w)!important;height:var(--ds-bar-h)!important;border-radius:var(--ds-r-bar)!important;font-size:var(--ds-btn-fs)!important;font-weight:700!important;letter-spacing:-.02em!important}
+.bar,#bbar,#sendbar,#printbar,#mbar,#obar,#dShare{top:var(--ds-bar-y)!important}
+#dBuy{top:var(--ds-bar2-y)!important}
+/* 3. Chips / tabs */
+#poster .ch,#fcats button{font-size:var(--ds-label)!important;letter-spacing:var(--ds-label-ls)!important;height:36px!important;border-radius:var(--ds-r-chip)!important;font-weight:700!important;text-transform:uppercase}
+/* 4. Tool labels (bottom of edit) */
+#poster #tcol button{font-size:var(--ds-tool)!important}
+/* 5. Icon buttons: back / close share one size and slot */
+.scr .bk,#feed .bk{width:var(--ds-icon)!important;height:var(--ds-icon)!important;top:var(--ds-icon-top)!important}
+/* 6. List rows and item names */
+.pl{font-size:var(--ds-btn-fs)!important}
+#mname,#order span{font-size:var(--ds-sub)!important}
 </style>
 </head>
 <body>

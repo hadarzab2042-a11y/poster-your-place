@@ -1170,12 +1170,13 @@ function tileV(x,y,T,k,st,mode,pw){ /* mode 0 fill, 1 outline */
 function renderArt(st,W,H,cv){const short=Math.min(W,H),aw=W/short,ah=H/short;getTex(st);cv.width=W;cv.height=H;
  const g=cv.getContext("2d"),im=g.createImageData(W,H),o=im.data,pw=1/short;
  const SH=[{prim:st.prim,cx:st.sh.x*aw,cy:st.sh.y*ah,R:Math.max(.05,st.sh.s*.5),cr:Math.cos(st.sh.r),sr:Math.sin(st.sh.r)}].concat((st.extra||[]).map(e=>({prim:e.prim,cx:e.x*aw,cy:e.y*ah,R:Math.max(.05,e.s*.5),cr:Math.cos(e.r||0),sr:Math.sin(e.r||0)}))),NS=SH.length;
+ if(!st.po)st.po={x:st.sh.x,y:st.sh.y};const pox=st.po.x*aw,poy=st.po.y*ah;
  const cx=st.sh.x*aw,cy=st.sh.y*ah,R=Math.max(.05,st.sh.s*.5),cr=Math.cos(st.sh.r),sr=Math.sin(st.sh.r),A=.25+.6*st.depth,T=lerp(.36,.055,st.busy),k=.86,f=st.field,efx=st.efx;
  const CL=st.bw?{shape:{l:"#ffffff",d:"#111111"},halo:{l:"#ffffff",d:"#111111"},ground:{l:"#ffffff",d:"#111111"}}:st.col;
  const RG=[CL.shape,CL.halo,CL.ground].map(r=>[hex3(r.l),hex3(r.d)]);
  const prc=Math.cos(st.rot),prs=Math.sin(st.rot),fa=2*Math.PI/st.n,aa=Math.max(.0005,pw*1.2);
  for(let y=0;y<H;y++){const v=(y+.5)/short;
-  for(let x=0;x<W;x++){const u=(x+.5)/short,dx=u-cx,dy=v-cy;let dG=1e9,ex=0,ey=0;
+  for(let x=0;x<W;x++){const u=(x+.5)/short,dx=u-pox,dy=v-poy;let dG=1e9,ex=0,ey=0;
    for(let i=0;i<NS;i++){const sh=SH[i],ddx=u-sh.cx,ddy=v-sh.cy,lx=(ddx*sh.cr+ddy*sh.sr)/sh.R,ly=(-ddx*sh.sr+ddy*sh.cr)/sh.R,d=sdG(sh.prim,lx,ly)*sh.R;if(d<dG)dG=d;
     const P=.35*Math.exp(-Math.pow(Math.max(d,0)/(.3*sh.R),2))+.65*clamp(-d/(.9*sh.R),0,1);
     if(efx===0){const m=-A*P;ex+=ddx*m;ey+=ddy*m}

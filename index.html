@@ -610,6 +610,11 @@ canvas{position:absolute;left:0;top:0;width:402px;height:874px;pointer-events:no
 #cam #cbtns{left:38px!important;right:auto!important;top:806px!important;justify-content:flex-start!important;gap:0!important;display:flex}
 #cam #cbtns button{flex:none!important;width:auto!important;height:auto!important;padding:0!important;border:0!important;border-radius:0!important;background:none!important;color:#fff!important;font:700 11px/1.25 inherit!important;letter-spacing:.06em!important;text-transform:uppercase!important;cursor:pointer;text-shadow:0 1px 6px rgba(0,0,0,.6)}
 #cam > .bk{top:78px!important;right:38px!important;width:auto!important;height:auto!important;padding:0!important;border:0!important;border-radius:0!important;background:none!important;box-shadow:none!important;color:#fff!important;font:700 11px/1.25 inherit!important;letter-spacing:.06em!important;text-transform:uppercase!important;text-shadow:0 1px 6px rgba(0,0,0,.6)}
+
+/* no outlines around buttons (colour swatches keep theirs) */
+.scr button,.wbtn,.pill,.ch,#fcats button,#fbar button,#ordp button,#csel button,.bar{border-color:transparent!important}
+#done .wbtn,#share .wbtn,#hist .wbtn,#merch .wbtn,#order .wbtn{background:#EFEDE8!important}
+#cam #chint{max-width:236px!important}
 </style>
 </head>
 <body>
@@ -765,13 +770,6 @@ function blobShape(){const m=3+Math.floor(Math.random()*4),o=[];for(let i=0;i<72
 /* ---- image analysis ---- */
 const AW=96,AH=208,AN=document.createElement("canvas"),ANG=AN.getContext("2d",{willReadFrequently:true});
 function coverDraw(g,src,sw,sh,cw,ch){const r=cw/ch;let w=sw,h=sh,x=0,y=0;if(sw/sh>r){w=sh*r;x=(sw-w)/2}else{h=sw/r;y=(sh-h)/2}g.drawImage(src,x,y,w,h,0,0,cw,ch)}
-function grabGray(src,sw,sh,w,h){AN.width=w;AN.height=h;coverDraw(ANG,src,sw,sh,w,h);const d=ANG.getImageData(0,0,w,h).data,g=new Float32Array(w*h);
- for(let i=0,j=0;i<g.length;i++,j+=4)g[i]=.299*d[j]+.587*d[j+1]+.114*d[j+2];return blurG(blurG(g,w,h),w,h)}
-function blurG(g,w,h){const o=new Float32Array(g.length);for(let y=0;y<h;y++)for(let x=0;x<w;x++){let s=0,n=0;
- for(let dy=-1;dy<=1;dy++){const yy=y+dy;if(yy<0||yy>=h)continue;for(let dx=-1;dx<=1;dx++){const xx=x+dx;if(xx<0||xx>=w)continue;s+=g[yy*w+xx];n++}}o[y*w+x]=s/n}return o}
-function otsu(g){const hs=new Float64Array(256);for(let i=0;i<g.length;i++)hs[clamp(Math.round(g[i]),0,255)]++;
- const tot=g.length;let sum=0;for(let i=0;i<256;i++)sum+=i*hs[i];let sb=0,wb=0,mx=0,th=128;
- for(let t=0;t<256;t++){wb+=hs[t];if(!wb)continue;const wf=tot-wb;if(!wf)break;sb+=t*hs[t];const mb=sb/wb,mf=(sum-sb)/wf,v=wb*wf*(mb-mf)*(mb-mf);if(v>mx){mx=v;th=t}}return th}
 function traceC(m,w,h){let sx=-1,sy=-1;for(let i=0;i<w*h;i++)if(m[i]){sx=i%w;sy=(i/w)|0;break}if(sx<0)return[];
  const DX=[1,1,0,-1,-1,-1,0,1],DY=[0,1,1,1,0,-1,-1,-1],at=(x,y)=>x>=0&&y>=0&&x<w&&y<h&&m[y*w+x];
  const pts=[];let cx=sx,cy=sy,bx=sx-1,by=sy,guard=0;
@@ -781,72 +779,60 @@ function traceC(m,w,h){let sx=-1,sy=-1;for(let i=0;i<w*h;i++)if(m[i]){sx=i%w;sy=
   if(!found)break}while((cx!==sx||cy!==sy)&&++guard<40000);
  return pts}
 /* returns {poly:[[x,y]..] in analysis px, score} or null */
-function LV(g){let lo=255,hi=0;for(let i=0;i<g.length;i+=3){if(g[i]<lo)lo=g[i];if(g[i]>hi)hi=g[i]}const o=[];for(let k=1;k<=7;k++)o.push(lo+(hi-lo)*k/8);return o}
-function gradMag(g,w,h){const o=new Float32Array(g.length);for(let y=1;y<h-1;y++)for(let x=1;x<w-1;x++){const i=y*w+x,dx=g[i+1]-g[i-1],dy=g[i+w]-g[i-w];o[i]=Math.sqrt(dx*dx+dy*dy)/2}return o}
-/* silhouette -> union of circles and rectangles (greedy: biggest shape that fits in what is still uncovered) */
-function abstractMask(m,w,h){let x0=w,x1=-1,y0=h,y1=-1,tot=0;
- for(let y=0;y<h;y++)for(let x=0;x<w;x++)if(m[y*w+x]){tot++;if(x<x0)x0=x;if(x>x1)x1=x;if(y<y0)y0=y;if(y>y1)y1=y}
- if(tot<20)return null;const bw=x1-x0+1,bh=y1-y0+1,R=new Uint8Array(bw*bh);
- for(let y=0;y<bh;y++)for(let x=0;x<bw;x++)R[y*bw+x]=m[(y+y0)*w+x+x0];
- const prims=[],minGain=tot*.03;let seed=null;
- for(let it=0;it<10;it++){
-  const D=new Float32Array(bw*bh);for(let i=0;i<D.length;i++)D[i]=R[i]?1e6:0;
-  const g=(x,y)=>x<0||y<0||x>=bw||y>=bh?0:D[y*bw+x];
-  for(let y=0;y<bh;y++)for(let x=0;x<bw;x++){const i=y*bw+x;if(!D[i])continue;D[i]=Math.min(D[i],g(x-1,y)+1,g(x,y-1)+1,g(x-1,y-1)+1.414,g(x+1,y-1)+1.414)}
-  for(let y=bh-1;y>=0;y--)for(let x=bw-1;x>=0;x--){const i=y*bw+x;if(!D[i])continue;D[i]=Math.min(D[i],g(x+1,y)+1,g(x,y+1)+1,g(x+1,y+1)+1.414,g(x-1,y+1)+1.414)}
-  let bd=0,bc=0;for(let i=0;i<D.length;i++)if(D[i]>bd){bd=D[i];bc=i}
-  if(it===0)seed=[x0+bc%bw,y0+((bc/bw)|0)];
-  const r=bd-.5,cA=Math.PI*r*r*1.15;
-  /* biggest axis-aligned rectangle inside the uncovered area (histogram method) */
-  const H=new Int32Array(bw);let rA=0,rx=0,ry=0,rw=0,rh=0;
-  for(let y=0;y<bh;y++){for(let x=0;x<bw;x++)H[x]=R[y*bw+x]?H[x]+1:0;
-   const st=[];for(let x=0;x<=bw;x++){const hh=x<bw?H[x]:0;let sx=x;while(st.length&&st[st.length-1][1]>=hh){const[px,ph]=st.pop();const a=ph*(x-px);if(a>rA){rA=a;rx=px;ry=y-ph+1;rw=x-px;rh=ph}sx=px}st.push([sx,hh])}}
-  if(Math.max(cA,rA)<minGain)break;
-  if(cA>rA){const cx=bc%bw,cy=(bc/bw)|0;prims.push({t:"c",x:x0+cx,y:y0+cy,r});
-   for(let y=Math.max(0,Math.floor(cy-r-1));y<=Math.min(bh-1,Math.ceil(cy+r+1));y++)for(let x=Math.max(0,Math.floor(cx-r-1));x<=Math.min(bw-1,Math.ceil(cx+r+1));x++)if(Math.hypot(x-cx,y-cy)<=r+1)R[y*bw+x]=0}
-  else{prims.push({t:"r",x:x0+rx,y:y0+ry,w:rw,h:rh});for(let y=ry;y<ry+rh;y++)for(let x=rx;x<rx+rw;x++)R[y*bw+x]=0}}
- if(!prims.length)return null;
- const o=new Uint8Array(w*h);
- for(const q of prims){if(q.t==="c"){const r=q.r+1;for(let y=Math.max(0,Math.floor(q.y-r));y<=Math.min(h-1,Math.ceil(q.y+r));y++)for(let x=Math.max(0,Math.floor(q.x-r));x<=Math.min(w-1,Math.ceil(q.x+r));x++)if(Math.hypot(x-q.x,y-q.y)<=r)o[y*w+x]=1}
-  else for(let y=Math.max(0,q.y-1);y<Math.min(h,q.y+q.h+1);y++)for(let x=Math.max(0,q.x-1);x<Math.min(w,q.x+q.w+1);x++)o[y*w+x]=1}
- return{mask:o,prims,seed}}
-function largestCC(m,w,h){const lab=new Int32Array(w*h),q=new Int32Array(w*h);let nl=0,bl=0,ba=0;
- for(let s0=0;s0<w*h;s0++){if(!m[s0]||lab[s0])continue;nl++;let qh=0,qt=0;q[qt++]=s0;lab[s0]=nl;while(qh<qt){const p=q[qh++],x=p%w,y=(p/w)|0;
-  for(let dy=-1;dy<=1;dy++)for(let dx=-1;dx<=1;dx++){const xx=x+dx,yy=y+dy;if(xx<0||yy<0||xx>=w||yy>=h)continue;const n=yy*w+xx;if(m[n]&&!lab[n]){lab[n]=nl;q[qt++]=n}}}
-  if(qt>ba){ba=qt;bl=nl}}
- const o=new Uint8Array(w*h);for(let i=0;i<o.length;i++)o[i]=lab[i]===bl?1:0;return o}
-function detect(gr,w,h,pt){const th0=otsu(gr);let best=null;const pi=pt?[Math.round(pt[0]),Math.round(pt[1])]:null;const gm=pt?null:gradMag(gr,w,h);
- for(const th of (pt?[th0,th0-22,th0+22,th0-40,th0+40].concat(LV(gr),[gr[pi[1]*w+pi[0]]-6,gr[pi[1]*w+pi[0]]+6]):LV(gr)))for(const pol of [0,1]){const m=new Uint8Array(w*h);for(let i=0;i<m.length;i++)m[i]=(pol?gr[i]>th:gr[i]<=th)?1:0;
-  const lab=new Int32Array(w*h),q=new Int32Array(w*h);let nl=0;
-  for(let s0=0;s0<w*h;s0++){if(!m[s0]||lab[s0])continue;nl++;let qh=0,qt=0;q[qt++]=s0;lab[s0]=nl;
-   let area=0,sx=0,sy=0,bd=0,x0=w,x1=0,y0=h,y1=0,pe=0,ge=0;
-   while(qh<qt){const p=q[qh++],x=p%w,y=(p/w)|0;area++;if(gm&&x>0&&y>0&&x<w-1&&y<h-1&&(!m[p-1]||!m[p+1]||!m[p-w]||!m[p+w])){pe++;ge+=gm[p]}sx+=x;sy+=y;if(x<x0)x0=x;if(x>x1)x1=x;if(y<y0)y0=y;if(y>y1)y1=y;if(x===0||y===0||x===w-1||y===h-1)bd++;
-    if(x>0&&m[p-1]&&!lab[p-1]){lab[p-1]=nl;q[qt++]=p-1}if(x<w-1&&m[p+1]&&!lab[p+1]){lab[p+1]=nl;q[qt++]=p+1}
-    if(y>0&&m[p-w]&&!lab[p-w]){lab[p-w]=nl;q[qt++]=p-w}if(y<h-1&&m[p+w]&&!lab[p+w]){lab[p+w]=nl;q[qt++]=p+w}}
-   const af=area/(w*h);if(af<(pt?.012:.02)||af>.6)continue;
-   if(pt){let cov=false;for(let yy=pi[1]-3;yy<=pi[1]+3&&!cov;yy++)for(let xx=pi[0]-3;xx<=pi[0]+3;xx++)if(xx>=0&&yy>=0&&xx<w&&yy<h&&lab[yy*w+xx]===nl){cov=true;break}if(!cov)continue;if(bd/(2*(x1-x0+y1-y0+2))>.25)continue;const s2=1-af;if(!best||s2>best.sc)best={sc:s2,lab,id:nl};continue}
-   const dc=Math.hypot(sx/area/w-.5,(sy/area/h-.5)*.6),bt=bd/(2*(x1-x0+y1-y0+2));
-   /* area with holes filled, so a frame counts as the whole thing it frames */
-   const bw=x1-x0+1,bh=y1-y0+1,seen=new Uint8Array(bw*bh),stk=[];let bgc=0;
-   const pb=(xx,yy)=>{const j=yy*bw+xx;if(!seen[j]&&lab[(yy+y0)*w+xx+x0]!==nl){seen[j]=1;stk.push(j);bgc++}};
-   for(let xx=0;xx<bw;xx++){pb(xx,0);pb(xx,bh-1)}for(let yy=0;yy<bh;yy++){pb(0,yy);pb(bw-1,yy)}
-   while(stk.length){const j=stk.pop(),xx=j%bw,yy=(j/bw)|0;if(xx>0)pb(xx-1,yy);if(xx<bw-1)pb(xx+1,yy);if(yy>0)pb(xx,yy-1);if(yy<bh-1)pb(xx,yy+1)}
-   const fa=bw*bh-bgc,fill=fa/(bw*bh),afF=fa/(w*h);if(afF>.6)continue;
-   const size=afF<.2?Math.pow(afF/.2,.8):(afF>.4?Math.max(.15,1-(afF-.4)*4):1),edge=pe?Math.min(1,ge/pe/14):0;
-   const sc=size*(1-Math.min(1,dc*1.5))*(1-Math.min(1,bt*3))*(.55+.45*fill)*(.25+.75*edge);
-   if(sc>0&&(!best||sc>best.sc))best={sc,lab,id:nl}}}
+/* ---- finding the object: colour segmentation, merged into candidate regions, ranked by a model fitted to the user's own picks ---- */
+function segFZ(px,w,h,k,minS){const n=w*h,E=[];const d=(a,b)=>{const r=px[a*3]-px[b*3],g=px[a*3+1]-px[b*3+1],bl=px[a*3+2]-px[b*3+2];return Math.sqrt(r*r+g*g+bl*bl)};
+ for(let y=0;y<h;y++)for(let x=0;x<w;x++){const p=y*w+x;if(x<w-1)E.push([d(p,p+1),p,p+1]);if(y<h-1)E.push([d(p,p+w),p,p+w])}
+ E.sort((a,b)=>a[0]-b[0]);const par=new Int32Array(n),sz=new Int32Array(n).fill(1),it=new Float32Array(n);for(let i=0;i<n;i++)par[i]=i;
+ const f=a=>{while(par[a]!==a){par[a]=par[par[a]];a=par[a]}return a};
+ for(const[wt,p,q]of E){const a=f(p),b=f(q);if(a===b)continue;if(wt<=Math.min(it[a]+k/sz[a],it[b]+k/sz[b])){par[b]=a;sz[a]+=sz[b];it[a]=wt}}
+ for(const[wt,p,q]of E){const a=f(p),b=f(q);if(a!==b&&(sz[a]<minS||sz[b]<minS)){par[b]=a;sz[a]+=sz[b]}}
+ const id=new Map,lab=new Int32Array(n);let c=0;for(let i=0;i<n;i++){const r=f(i);if(!id.has(r))id.set(r,c++);lab[i]=id.get(r)}return{lab,n:c}}
+function candidates(px,w,h,k,minS,maxFrac){const{lab,n}=segFZ(px,w,h,k,minS),N=w*h;
+ const R=[];for(let i=0;i<n;i++)R.push({pix:[],sum:[0,0,0],nb:new Set,alive:true});
+ for(let p=0;p<N;p++){const r=R[lab[p]];r.pix.push(p);r.sum[0]+=px[p*3];r.sum[1]+=px[p*3+1];r.sum[2]+=px[p*3+2]}
+ for(let y=0;y<h;y++)for(let x=0;x<w;x++){const p=y*w+x,a=lab[p];if(x<w-1&&lab[p+1]!==a){R[a].nb.add(lab[p+1]);R[lab[p+1]].nb.add(a)}if(y<h-1&&lab[p+w]!==a){R[a].nb.add(lab[p+w]);R[lab[p+w]].nb.add(a)}}
+ const out=[];const add=r=>{if(r.pix.length>=N*.004&&r.pix.length<=N*maxFrac)out.push(r.pix)};R.forEach(add);
+ const cost=(a,b)=>{const A=R[a],B=R[b],na=A.pix.length,nb=B.pix.length;let s=0;for(let c=0;c<3;c++){const t=A.sum[c]/na-B.sum[c]/nb;s+=t*t}return Math.sqrt(s)+60*(na+nb)/N};
+ let alive=n;while(alive>1){let best=1e9,ba=-1,bb=-1;for(let a=0;a<R.length;a++){if(!R[a].alive)continue;for(const b of R[a].nb)if(b>a){const c=cost(a,b);if(c<best){best=c;ba=a;bb=b}}}
+  if(ba<0)break;const A=R[ba],B=R[bb];A.pix=A.pix.concat(B.pix);for(let c=0;c<3;c++)A.sum[c]+=B.sum[c];B.alive=false;alive--;
+  for(const x of B.nb){if(x===ba)continue;R[x].nb.delete(bb);R[x].nb.add(ba);A.nb.add(x)}A.nb.delete(bb);A.nb.delete(ba);
+  if(A.pix.length>N*maxFrac){A.alive=false;alive--;for(const x of A.nb)R[x].nb.delete(ba);continue}add(A)}
+ return out}
+function featOf(pix,px,w,h){const N=w*h,m=new Uint8Array(N);let x0=w,x1=0,y0=h,y1=0,sx=0,sy=0,bd=0;
+ for(const p of pix){m[p]=1;const x=p%w,y=(p/w)|0;if(x<x0)x0=x;if(x>x1)x1=x;if(y<y0)y0=y;if(y>y1)y1=y;sx+=x;sy+=y;if(x===0||y===0||x===w-1||y===h-1)bd++}
+ const a=pix.length/N,bw=x1-x0+1,bh=y1-y0+1;let pe=0,cd=0,ctop=0,ctopn=0;
+ for(const p of pix){const x=p%w,y=(p/w)|0;let o=-1;
+  if(x>0&&!m[p-1])o=p-1;else if(x<w-1&&!m[p+1])o=p+1;else if(y>0&&!m[p-w])o=p-w;else if(y<h-1&&!m[p+w])o=p+w;
+  if(o>=0){pe++;const r=px[p*3]-px[o*3],g=px[p*3+1]-px[o*3+1],b=px[p*3+2]-px[o*3+2];cd+=Math.sqrt(r*r+g*g+b*b)}}
+ let mr=0,mg=0,mb=0;for(const p of pix){mr+=px[p*3];mg+=px[p*3+1];mb+=px[p*3+2]}mr/=pix.length;mg/=pix.length;mb/=pix.length;let vr=0;for(const p of pix){const r=px[p*3]-mr,g=px[p*3+1]-mg,b=px[p*3+2]-mb;vr+=r*r+g*g+b*b}
+ /* surround contrast + saliency */
+ let rr=Math.max(3,Math.round(.3*Math.sqrt(pix.length))),ex0=Math.max(0,x0-rr),ex1=Math.min(w-1,x1+rr),ey0=Math.max(0,y0-rr),ey1=Math.min(h-1,y1+rr),sr=0,sg=0,sb2=0,cn=0;
+ for(let y=ey0;y<=ey1;y++)for(let x=ex0;x<=ex1;x++){const p=y*w+x;if(!m[p]){sr+=px[p*3];sg+=px[p*3+1];sb2+=px[p*3+2];cn++}}
+ const ring=cn?Math.sqrt((mr-sr/cn)**2+(mg-sg/cn)**2+(mb-sb2/cn)**2):0;let gr=0,gg=0,gb=0;for(let i=0;i<N;i++){gr+=px[i*3];gg+=px[i*3+1];gb+=px[i*3+2]}const sal=Math.sqrt((mr-gr/N)**2+(mg-gg/N)**2+(mb-gb/N)**2);
+ return{ring,sal,a,cx:sx/pix.length/w,cy:sy/pix.length/h,top:y0/h,bot:(y1+1)/h,bd:bd/(2*(bw+bh)),fill:pix.length/(bw*bh),asp:bw/bh,edge:pe?cd/pe:0,sd:Math.sqrt(vr/pix.length),per:pe/Math.sqrt(pix.length)}}
+
+const MDL={"mu": [-3.7811, 15.9288, 0.4902, 0.3104, 0.3505, 0.1102, 0.525, -0.2, 1.0595, 0.5331, 0.718, 0.2229, 0.9955, 1.2081, 0.4475], "sd": [1.2774, 8.7872, 0.2646, 0.2714, 0.2866, 0.153, 0.1933, 0.958, 0.6628, 0.3497, 0.2108, 0.1423, 0.8129, 0.795, 1.0218], "w": [1.1328, -0.4631, 3.7164, -3.0298, -0.2194, -1.888, 0.5363, 0.3474, -0.4521, 0.8175, -0.7298, -0.4415, 0.2587, 0.1709, 0.3356], "b": -2.1993};
+function scoreFeat(f){const x=[Math.log(Math.max(f.a,1e-4)),0,f.cy,f.cy*f.cy,f.top,f.bd,f.fill,Math.log(Math.max(f.asp,.05)),f.edge/60,f.sd/60,Math.min(f.per,8)/8,Math.abs(f.cx-.5),f.ring/60,f.sal/60,Math.log(Math.max(f.ring,1)/Math.max(f.sd,1))];x[1]=x[0]*x[0];
+ let s=MDL.b;for(let i=0;i<x.length;i++)s+=MDL.w[i]*(x[i]-MDL.mu[i])/MDL.sd[i];return s}
+function grabRGB(src,sw,sh,w,h){AN.width=w;AN.height=h;coverDraw(ANG,src,sw,sh,w,h);const d=ANG.getImageData(0,0,w,h).data,o=new Float32Array(w*h*3),t=new Float32Array(w*h*3);
+ for(let i=0;i<w*h;i++){t[i*3]=d[i*4];t[i*3+1]=d[i*4+1];t[i*3+2]=d[i*4+2]}
+ const K3=[.21,.58,.21];/* light gaussian blur (sigma .7), horizontal then vertical */
+ for(let y=0;y<h;y++)for(let x=0;x<w;x++){for(let c=0;c<3;c++){let v=0,ws=0;for(let k=-1;k<=1;k++){const xx=x+k;if(xx<0||xx>=w)continue;v+=t[(y*w+xx)*3+c]*K3[k+1];ws+=K3[k+1]}o[(y*w+x)*3+c]=v/ws}}
+ for(let y=0;y<h;y++)for(let x=0;x<w;x++){for(let c=0;c<3;c++){let v=0,ws=0;for(let k=-1;k<=1;k++){const yy=y+k;if(yy<0||yy>=h)continue;v+=o[(yy*w+x)*3+c]*K3[k+1];ws+=K3[k+1]}t[(y*w+x)*3+c]=v/ws}}
+ return t}
+/* returns {poly:[[x,y]..] in analysis px, score,...} or null. pt = a tapped point: only regions that contain it */
+function detect(px,w,h,pt){const N=w*h,minS=Math.max(12,Math.round(N*.0016)),p0=pt?Math.round(pt[1])*w+Math.round(pt[0]):-1;let best=null;
+ for(const k of [40,400]){const C=candidates(px,w,h,k,minS,.5);
+  for(const pix of C){if(pt&&pix.indexOf(p0)<0)continue;const f=featOf(pix,px,w,h),sc=scoreFeat(f)+(pt?-1.2*Math.log(Math.max(f.a,1e-3)):0);if(!best||sc>best.sc)best={sc,pix,f}}}
  if(!best)return null;
- let m=new Uint8Array(w*h);for(let i=0;i<m.length;i++)m[i]=best.lab[i]===best.id?1:0;
- /* fill holes: flood the background from the border */
- const bg=new Uint8Array(w*h),st=[];const push=i=>{if(!m[i]&&!bg[i]){bg[i]=1;st.push(i)}};
+ const m=new Uint8Array(N);for(const q of best.pix)m[q]=1;
+ const bg=new Uint8Array(N),st=[];const push=i=>{if(!m[i]&&!bg[i]){bg[i]=1;st.push(i)}};
  for(let x=0;x<w;x++){push(x);push((h-1)*w+x)}for(let y=0;y<h;y++){push(y*w);push(y*w+w-1)}
- while(st.length){const p=st.pop(),x=p%w,y=(p/w)|0;if(x>0)push(p-1);if(x<w-1)push(p+1);if(y>0)push(p-w);if(y<h-1)push(p+w)}
- for(let i=0;i<m.length;i++)if(!bg[i])m[i]=1;
- let ar=0;for(let i=0;i<m.length;i++)ar+=m[i];
- const ab=abstractMask(m,w,h);let mm=m,prims=[],seed=null;if(ab){mm=largestCC(ab.mask,w,h);prims=ab.prims;seed=ab.seed}
- let c=traceC(mm,w,h);if(c.length<12)return null;
- c=smoothC(c,1);let eps=.8*w/96,P=simplify(c,eps);while(P.length>70&&eps<6){eps*=1.3;P=simplify(c,eps)}
- if(P.length<4)return null;return{poly:P,score:best.sc,prims,seed:seed||[w/2,h/2],area:ar/(w*h),w,h}}
+ while(st.length){const q=st.pop(),x=q%w,y=(q/w)|0;if(x>0)push(q-1);if(x<w-1)push(q+1);if(y>0)push(q-w);if(y<h-1)push(q+w)}
+ for(let i=0;i<N;i++)if(!bg[i])m[i]=1;
+ let c=traceC(m,w,h);if(c.length<12)return null;
+ c=smoothC(c,2);let eps=.8*w/96,P=simplify(c,eps);while(P.length>70&&eps<6){eps*=1.3;P=simplify(c,eps)}
+ if(P.length<5)return null;return{poly:P,score:best.sc,prims:[],seed:[best.f.cx*w,best.f.cy*h],area:best.f.a,w,h}}
 /* ---- placeholder room (used when no photo was taken) ---- */
 function scene(k){const c=document.createElement("canvas");c.width=600;c.height=1300;const g=c.getContext("2d");
  const wall=["#D8D0C0","#CBD3CF","#DCD2CA","#D9D6CE"][k];g.fillStyle=wall;g.fillRect(0,0,600,1300);
@@ -865,7 +851,7 @@ function scene(k){const c=document.createElement("canvas");c.width=600;c.height=
  const v=g.createRadialGradient(300,650,300,300,650,900);v.addColorStop(0,"rgba(0,0,0,0)");v.addColorStop(1,"rgba(0,0,0,.22)");g.fillStyle=v;g.fillRect(0,0,600,1300);return c}
 /* ---- camera screen ---- */
 const CAMS={mode:"idle",stream:null,src:null,sw:0,sh:0,prev:null,acc:0,last:0,timer:0,locked:false,det:null};
-const HOLD=2.6;var SHAPE_ABS=false;
+const HOLD=2.6;
 function setHint(t){$("#chint").textContent=t}
 function setProg(p){$("#rp").style.strokeDashoffset=1-clamp(p,0,1);$("#cnt").textContent=p>.02?Math.max(1,Math.ceil((1-p)*HOLD)):""}
 function camStop(){clearInterval(CAMS.timer);CAMS.timer=0;if(CAMS.stream){CAMS.stream.getTracks().forEach(t=>t.stop());CAMS.stream=null}const v=$("#cvid");if(v)try{v.pause();v.srcObject=null}catch(e){}CAMS.mode="idle"}
@@ -873,30 +859,30 @@ function camStart(){camStop();camSel(false);CAMS.froze=false;$("#cam").classList
  cvg("#cov").clearRect(0,0,402,874);setProg(0);$("#cmsg").style.display="none";setHint("Starting camera…");
  const md=navigator.mediaDevices;if(!md||!md.getUserMedia){camFail("unsupported");return}
  let p;try{p=md.getUserMedia({video:{facingMode:{ideal:"environment"},width:{ideal:1280},height:{ideal:720}},audio:false})}catch(e){camFail(e&&e.name);return}
- p.then(s=>{if(cur!=="cam"||CAMS.locked){s.getTracks().forEach(t=>t.stop());return}CAMS.stream=s;const v=$("#cvid");v.srcObject=s;const pl=v.play();if(pl&&pl.catch)pl.catch(()=>{});CAMS.mode="video";setHint("Tap the shape you want");CAMS.timer=setInterval(camTick,140)}).catch(e=>camFail(e&&e.name))}
+ p.then(s=>{if(cur!=="cam"||CAMS.locked){s.getTracks().forEach(t=>t.stop());return}CAMS.stream=s;const v=$("#cvid");v.srcObject=s;const pl=v.play();if(pl&&pl.catch)pl.catch(()=>{});CAMS.mode="video";setHint("Tap the shape you want, or move closer");CAMS.timer=setInterval(camTick,350)}).catch(e=>camFail(e&&e.name))}
 function camFail(n){CAMS.mode="idle";setHint("The camera didn't open");const m=$("#cmsg");m.style.display="block";
  m.textContent=(n==="NotAllowedError"||n==="SecurityError")?"This viewer doesn't allow live camera. Tap Upload to choose a photo of your spot.":"No camera found. Tap Upload to choose a photo."}
 function useStatic(cv){camStop();camSel(false);CAMS.froze=false;CAMS.locked=false;CAMS.miss=0;CAMS.acc=0;CAMS.prev=null;CAMS.src=cv;CAMS.sw=cv.width;CAMS.sh=cv.height;CAMS.mode="static";
  const c=$("#cam");c.classList.add("stat");$("#cmsg").style.display="none";const g=$("#cst").getContext("2d");$("#cst").width=402;$("#cst").height=874;coverDraw(g,cv,cv.width,cv.height,402,874);
- setHint("Tap the shape you want");CAMS.timer=setInterval(camTick,140)}
+ setHint("Tap the shape you want, or move closer");CAMS.timer=setInterval(camTick,350)}
 function srcDims(){if(CAMS.mode==="video"){const v=$("#cvid");return[v,v.videoWidth,v.videoHeight]}return[CAMS.src,CAMS.sw,CAMS.sh]}
 function drawLive(det){const g=cvg("#cov");g.clearRect(0,0,402,874);if(!det)return;const k=402/AW,ky=874/AH;g.beginPath();det.poly.forEach((p,i)=>i?g.lineTo(p[0]*k,p[1]*ky):g.moveTo(p[0]*k,p[1]*ky));g.closePath();
  g.fillStyle="rgba(240,232,16,.2)";g.fill();g.lineWidth=4;g.lineJoin="round";g.strokeStyle="#F0E810";g.stroke();
  g.lineWidth=1.5;g.strokeStyle="rgba(255,255,255,.85)";(det.prims||[]).forEach(q=>{g.beginPath();if(q.t==="c")g.arc(q.x*k,q.y*ky,q.r*k,0,7);else g.rect(q.x*k,q.y*ky,q.w*k,q.h*ky);g.stroke()})}
 function camTick(){if(CAMS.locked||cur!=="cam"||CAMS.manual)return;const[S,sw,sh]=srcDims();if(!S||!sw||(CAMS.mode==="video"&&S.readyState<2))return;
- const g=grabGray(S,sw,sh,AW,AH),det=detect(g,AW,AH);
+ const g=grabRGB(S,sw,sh,AW,AH),det=detect(g,AW,AH);
  if(!det){if(++CAMS.miss>3){CAMS.auto=null;camSel(false);cvg("#cov").clearRect(0,0,402,874)}return}
  CAMS.miss=0;const pr=CAMS.auto;
- const near=pr&&Math.hypot(det.seed[0]-pr.det.seed[0],det.seed[1]-pr.det.seed[1])<AW*.13&&Math.abs(det.area-pr.det.area)/pr.det.area<.35;
- const keep=near&&pr.n>=3;CAMS.auto={det:keep?pr.det:det,n:near?pr.n+1:1};
+ const near=pr&&Math.hypot(det.seed[0]-pr.det.seed[0],det.seed[1]-pr.det.seed[1])<AW*.15&&Math.abs(det.area-pr.det.area)/pr.det.area<.45;
+ const keep=near&&pr.n>=2;CAMS.auto={det:keep?pr.det:det,n:near?pr.n+1:1};
  if(!keep)drawLive(det);
- if(CAMS.auto.n>=3){CAMS.sel={det:CAMS.auto.det};camSel(true)}else camSel(false)}
+ if(CAMS.auto.n>=2){CAMS.sel={det:CAMS.auto.det};camSel(true)}else camSel(false)}
 function camSel(on){const c=$("#cam");c.classList.toggle("sel",!!on);if(!on)CAMS.sel=null}
 function camTap(e){if(CAMS.locked||cur!=="cam")return;if(e.target.closest("#cbtns,.bk,button"))return;
  CAMS.manual=true;CAMS.auto=null;
  if(CAMS.mode==="video"){const v=$("#cvid");if(!v.videoWidth)return;const fc=document.createElement("canvas");fc.width=v.videoWidth;fc.height=v.videoHeight;fc.getContext("2d").drawImage(v,0,0);useStatic(fc);CAMS.froze=true}
  const[S,sw,sh]=srcDims();if(!S||!sw)return;const r=$("#cam").getBoundingClientRect(),px=(e.clientX-r.left)/r.width*402,py=(e.clientY-r.top)/r.height*874;
- const g=grabGray(S,sw,sh,AW,AH),det=detect(g,AW,AH,[px/402*AW,py/874*AH]);const o=cvg("#cov");
+ const g=grabRGB(S,sw,sh,AW,AH),det=detect(g,AW,AH,[px/402*AW,py/874*AH]);const o=cvg("#cov");
  if(!det){const keep=CAMS.sel;o.clearRect(0,0,402,874);if(keep)drawLive(keep.det);o.beginPath();o.arc(px,py,20,0,7);o.lineWidth=3;o.strokeStyle="#F0E810";o.stroke();setTimeout(()=>{if(!CAMS.locked){o.clearRect(0,0,402,874);if(CAMS.sel)drawLive(CAMS.sel.det)}},500);return}
  CAMS.sel={det};drawLive(det);camSel(true)}
 function camOk(){if(!CAMS.sel||CAMS.locked)return;const[S,sw,sh]=srcDims(),s=CAMS.sel;camSel(false);capture(S,sw,sh,s.det)}
@@ -905,8 +891,8 @@ function camNo(){camSel(false);cvg("#cov").clearRect(0,0,402,874);
  if(CAMS.froze){CAMS.froze=false;camStart();CAMS.manual=true}}
 function capture(S,sw,sh,det){CAMS.locked=true;clearInterval(CAMS.timer);
  const RC=document.createElement("canvas");RC.width=600;RC.height=1300;coverDraw(RC.getContext("2d"),S,sw,sh,600,1300);ROOM=RC.toDataURL("image/jpeg",.82);ROOM_OWN=ROOM;BROOMN="";
- let pts;SHAPE_ABS=false;
- if(det){pts=det.poly.map(p=>[p[0]*402/det.w,p[1]*874/det.h]);SHAPE_ABS=det.prims.length>=2}else{pts=blobShape().map(p=>[201+p[0]*130,437+p[1]*130]);toast("No clear shape, so I made one")}
+ let pts;
+ if(det){pts=det.poly.map(p=>[p[0]*402/det.w,p[1]*874/det.h])}else{pts=blobShape().map(p=>[201+p[0]*130,437+p[1]*130]);toast("No clear shape, so I made one")}
  if(CAMS.mode==="video"){try{$("#cvid").pause()}catch(e){}}
  lockAnim(pts)}
 function lockAnim(pts){const c=$("#cam"),f=$("#flash");c.classList.add("lk");f.style.opacity=1;setTimeout(()=>{f.style.opacity=0;c.classList.add("bare")},180);
@@ -919,23 +905,7 @@ function lockAnim(pts){const c=$("#cam"),f=$("#flash");c.classList.add("lk");f.s
   if(t<2.7)requestAnimationFrame(fr);else{camStop();go("wait")}};requestAnimationFrame(fr)}
 /* ---- wait: starts from the detected shape, morphs until the poster is ready ---- */
 let WT=null;
-/* snap the detected outline to the closest clean geometric shape (circle, triangle, square, rectangle, hexagon, star, arch, leaf), same bounding box and tilt */
-function cleanShape(raw){
- const T=normPoly(raw),G=40;let tx0=1e9,tx1=-1e9,ty0=1e9,ty1=-1e9;T.forEach(p=>{tx0=Math.min(tx0,p[0]);tx1=Math.max(tx1,p[0]);ty0=Math.min(ty0,p[1]);ty1=Math.max(ty1,p[1])});
- const inP=(P,x,y)=>{let c=false;for(let i=0,j=P.length-1;i<P.length;j=i++){const a=P[i],b=P[j];if((a[1]>y)!==(b[1]>y)&&x<(b[0]-a[0])*(y-a[1])/(b[1]-a[1])+a[0])c=!c}return c};
- const gx=[],gy=[];for(let i=0;i<G;i++){gx.push(tx0+(tx1-tx0)*(i+.5)/G);gy.push(ty0+(ty1-ty0)*(i+.5)/G)}
- const tm=[];for(let j=0;j<G;j++)for(let i=0;i<G;i++)tm.push(inP(T,gx[i],gy[j]));
- let best=null,bs=0;
- for(const k of ["circle","tri","sq","rect","hex","star","arch","leaf"]){const base=SHP[k],steps=k==="circle"?1:36;
-  for(let a=0;a<steps;a++){const th=a*Math.PI*2/steps,c=Math.cos(th),sn=Math.sin(th);
-   const Tr=T.map(p=>[p[0]*c+p[1]*sn,-p[0]*sn+p[1]*c]);let x0=1e9,x1=-1e9,y0=1e9,y1=-1e9;Tr.forEach(p=>{x0=Math.min(x0,p[0]);x1=Math.max(x1,p[0]);y0=Math.min(y0,p[1]);y1=Math.max(y1,p[1])});
-   let bx0=1e9,bx1=-1e9,by0=1e9,by1=-1e9;base.forEach(p=>{bx0=Math.min(bx0,p[0]);bx1=Math.max(bx1,p[0]);by0=Math.min(by0,p[1]);by1=Math.max(by1,p[1])});
-   const P=base.map(p=>{const u=x0+(p[0]-bx0)/((bx1-bx0)||1)*(x1-x0),v=y0+(p[1]-by0)/((by1-by0)||1)*(y1-y0);return[u*c-v*sn,u*sn+v*c]});
-   let I=0,U=0;for(let j=0;j<G;j++)for(let i=0;i<G;i++){const m=inP(P,gx[i],gy[j]),t=tm[j*G+i];if(m&&t)I++;if(m||t)U++}
-   const iou=I/(U||1),sc=iou+({circle:.025,hex:-.02,star:-.04,arch:-.035,leaf:-.05})[k]||iou;if(sc>bs){bs=sc;best=P}}}
- if(best&&bs>=.72)return normPoly(best);
- const q=simplify(T,.07);return q.length>=3?normPoly(q):T}
-function waitStart(){const g=cvg("#cWt");g.clearRect(0,0,402,874);const seq=[SHAPE?(SHAPE_ABS?SHAPE:cleanShape(SHAPE)):SHP.circle,SHP.circle,SHP.tri,SHP.sq,SHP.star,SHP.hex,SHP.rect].map(p=>resample(p,120));WT={t0:performance.now(),seq,gen:false};
+function waitStart(){const g=cvg("#cWt");g.clearRect(0,0,402,874);const seq=[SHAPE?SHAPE:SHP.circle,SHP.circle,SHP.tri,SHP.sq,SHP.star,SHP.hex,SHP.rect].map(p=>resample(p,120));WT={t0:performance.now(),seq,gen:false};
  const hold=.9,step=.85,n=seq.length-1,cols=[INK,"#fff"];
  const fr=()=>{if(cur!=="wait"||!WT)return;const t=(performance.now()-WT.t0)/1000;let k=0,u=0;
   if(t>=hold){const q=(t-hold)/step;k=Math.min(n-1,Math.floor(q));u=k>=n-1&&q>=n?1:sm(0,1,q-k)}

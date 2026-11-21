@@ -868,6 +868,27 @@ canvas{position:absolute;left:0;top:0;width:402px;height:874px;pointer-events:no
 #poster .bk svg{width:20px!important;height:20px!important;stroke-width:2.4!important}
 #poster #roombtn{left:84px!important;right:auto!important;top:var(--rpt,66px)!important;width:34px!important;height:34px!important;padding:0!important;display:flex;align-items:center;justify-content:center}
 #poster #roombtn svg{width:28px!important;height:28px!important;stroke-width:2!important}
+
+/* ===== round 8: no sheet handle line; buy flow; thank-you; calm button press ===== */
+#gedge{box-shadow:none!important}
+#gedge:after{display:none!important}
+/* every wide button: no colour stripes, just turns pink when pressed */
+.wbtn,.wbtn:hover{background-image:none!important}
+.wbtn.sw{animation:none!important}
+:is(#done,#buy,#feed,#thanks,#share,#room,#hist,#merch,#order,#dsheet) .wbtn.go,:is(#done,#buy,#feed,#thanks,#share,#room,#hist,#merch,#order,#dsheet) .wbtn.blk{background:var(--P)!important;color:#fff!important}
+/* buy: back arrow on the grid, categories spread to both margins, bar near the picture edge */
+#buy>.bk{left:20px!important}
+#buy #btcol{left:var(--ds-m)!important;right:var(--ds-m)!important;width:auto!important;justify-content:space-between!important;gap:0!important}
+#buy #bbar{top:654px!important;transition:top .25s,background .25s,color .25s}
+#buy:has(#bpan:not(.off) .row) #bbar{top:610px!important}
+#buy:has(#bpan:not(.off) .swr) #bbar{top:560px!important}
+/* thank you: larger title, calm entrance (no bounce) */
+#tt{top:92px!important;font-size:54px!important;line-height:50px!important;letter-spacing:-1.6px!important}
+#thmock{top:232px!important;transform:translateY(14px)!important;transition:opacity .6s,transform .6s cubic-bezier(.2,.8,.2,1)!important}
+#thanks.done #thmock{transform:none!important}
+#thsum{top:582px!important}
+#thnote{top:614px!important}
+#thanks .fi{transition:opacity .6s!important}
 </style>
 </head>
 <body>
@@ -1503,7 +1524,7 @@ function bPanel(){const P=$("#bpan"),st=ST;document.querySelectorAll("#btcol but
  if(BTOOL==="room"){const opts=[];if(ROOM_OWN)opts.push(["Your room",ROOM_OWN]);[["Sofa",3],["Window",1],["Table",0],["Plant",2]].forEach(o=>opts.push(o));if(BROOMN==="Photo")opts.push(["Photo",ROOM]);
   const nm=BROOMN||(ROOM_OWN?"Your room":"Sofa"),names=opts.map(o=>o[0]).concat(["Add photo"]);
   P.appendChild(mkChips(names,Math.max(0,names.indexOf(nm)),i=>{if(i===names.length-1){$("#brf").click();return}const o=opts[i];if(typeof o[1]==="string")ROOM=o[1];else ROOM=scn(o[1]).toDataURL("image/jpeg",.8);BROOMN=o[0];$("#bimg").src=ROOM;bPanel()}))}
- if(BTOOL==="mat"){P.appendChild(mkChips(["None","Thin","Wide"],st.mat.k,i=>{st.mat.k=i;touch();rb()}));if(st.mat.k)P.appendChild(mkSw(MTC.map(c=>c[0]),st.mat.c,c=>{st.mat.c=c;touch();rb()}))}}
+ if(BTOOL==="mat"){P.appendChild(mkChips(["None","Thin","Wide"],st.mat.k,i=>{st.mat.k=i;st.mat.c="#ffffff";touch();rb()}))}}
 (function(){const tb=$("#btcol"),IC={size:'<path d="M7 23L23 7"/><path d="M14 7h9v9"/><path d="M16 23H7v-9"/>',frame:'<rect x="3.5" y="5.5" width="23" height="19"/><path d="M7.5 20l5-6 4 4 3-3 4 5"/>',mat:'<rect x="3.5" y="3.5" width="23" height="23"/><rect x="9.5" y="9.5" width="11" height="11"/>',room:'<path d="M4 14L15 5l11 9"/><path d="M7 12v13h16V12"/><path d="M12 25v-7h6v7"/>'};
  [["size","Size"],["frame","Frame"],["mat","Mat"],["room","Room"]].forEach(([k,l])=>{const b=document.createElement("button");b.dataset.k=k;b.setAttribute("aria-label",l);b.innerHTML='<svg viewBox="0 0 30 30">'+IC[k]+'</svg>';b.onclick=()=>{if(k==="room"){BTOOL=null;bPanel();$("#brf").click();return}BTOOL=BTOOL===k?null:k;bPanel()};tb.appendChild(b)})})();
 function buyBkColor(){const im=$("#bimg"),b=document.querySelector("#buy>.bk");if(!b)return;
@@ -1817,9 +1838,9 @@ $("#obar").onclick=()=>go("thanks");
 wbtn($("#thbar"),()=>go("home"));
 let TB=[],gTh=null;
 function spawnTB(x,y,a,sp){TB.length<14&&TB.push({x,y,a,v:sp,t:0,ci:Math.floor(Math.random()*3),tr:[{x,y,w:1}]})}
-function initThanks(){later(()=>{if(cur==="thanks")go("home",true)},8000);TB=[];const s=$("#thanks");s.classList.remove("done");const e=GAL[Math.min(GAL.length-1,Math.max(0,MIDX))];
+function initThanks(){later(()=>{if(cur==="thanks")go("home",true)},10500);TB=[];const s=$("#thanks");s.classList.remove("done");const e=GAL[Math.min(GAL.length-1,Math.max(0,MIDX))];
  thFill();
- const tt=$("#tt"),sp=[...tt.children],W=Math.max(...sp.map(x=>x.offsetWidth)),H=tt.offsetHeight,k=1.9,tx=201-W*k/2-38,ty=437-H*k/2-184;
+ const tt=$("#tt"),sp=[...tt.children],W=Math.max(...sp.map(x=>x.offsetWidth)),H=tt.offsetHeight,k=1.9,tx=201-W*k/2-38,ty=437-H*k/2-tt.offsetTop;
  tt.style.transition="none";tt.style.opacity=0;sp.forEach(x=>{x.style.transition="none";x.style.transform="translateX("+(W-x.offsetWidth)/2+"px)"});tt.style.transform="translate("+tx+"px,"+ty+"px) scale("+k*.3+")";void tt.offsetWidth;
  later(()=>{tt.style.transition="transform .5s cubic-bezier(.3,1.6,.5,1),opacity .2s";tt.style.opacity=1;tt.style.transform="translate("+tx+"px,"+ty+"px) scale("+k+")"},80);
  later(()=>{for(let i=0;i<3;i++)spawnTB(201,437,i*2.0944+.6+Math.random()*.5,430)},650);

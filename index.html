@@ -862,6 +862,12 @@ canvas{position:absolute;left:0;top:0;width:402px;height:874px;pointer-events:no
 
 /* selected colour dot: grows a little, never clipped */
 #poster #spn .swr i.s{transform:scale(1.12)!important}
+
+/* Retry + Preview(eye): top-left on the Next line */
+#poster .bk{left:38px!important;right:auto!important;top:var(--rpt,66px)!important;width:34px!important;height:34px!important;padding:0!important;display:flex;align-items:center;justify-content:center}
+#poster .bk svg{width:20px!important;height:20px!important;stroke-width:2.4!important}
+#poster #roombtn{left:84px!important;right:auto!important;top:var(--rpt,66px)!important;width:34px!important;height:34px!important;padding:0!important;display:flex;align-items:center;justify-content:center}
+#poster #roombtn svg{width:28px!important;height:28px!important;stroke-width:2!important}
 </style>
 </head>
 <body>
@@ -906,7 +912,7 @@ canvas{position:absolute;left:0;top:0;width:402px;height:874px;pointer-events:no
    <div id="stagebox"><div id="pframe"><div id="pmat"><canvas id="art"></canvas><div id="hsel"><i id="hh"></i></div></div></div></div>
    <div id="spn"></div><div id="tcol"></div><textarea id="tin" aria-label="Edit text" rows="2"></textarea>
    <button id="nextbtn" aria-label="Next"><svg viewBox="0 0 30 30"><path d="M4 15H25"/><path d="M17 7L25 15L17 23"/></svg></button><canvas id="pglassA" class="pgl"></canvas><canvas id="pglassB" class="pgl"></canvas><div id="trash"><svg viewBox="0 0 30 30"><path d="M5 8h20"/><path d="M11 8V5h8v3"/><path d="M8 8l1 17h12l1-17"/><path d="M12.5 12v9M17.5 12v9"/></svg></div>
-   <button id="roombtn" aria-label="Preview in your room"><svg viewBox="0 0 30 30"><path d="M7 5h16v13H7z"/><path d="M11 9h8v5h-8z"/><path d="M4 25h22"/><path d="M10 18v7M20 18v7"/></svg></button></section>
+   <button id="roombtn" aria-label="Preview in your room"><svg viewBox="0 0 24 24"><path d="M2 12s3.6-6.5 10-6.5S22 12 22 12s-3.6 6.5-10 6.5S2 12 2 12z"/><circle cx="12" cy="12" r="2.8"/></svg></button></section>
   <section class="scr" id="done"><div id="dW"></div><div id="dPost"></div><div id="dQ">What do you want to do with it?</div><button class="wbtn" id="dBuy" style="top:652px">Buy it</button><button class="wbtn" id="dShare" style="top:728px">Share with friends</button></section>
   <section class="scr" id="buy"><div id="bRoom"><img id="bimg" alt="Your room"><div id="bpos"></div></div><div id="btcol"></div><div id="bpan" class="off"></div><button class="wbtn" id="bbar">Buy it</button></section>
   <section class="scr" id="feed"><canvas id="fring" width="402" height="874"></canvas><button id="fringb" aria-label="Back to start"></button><div id="fW">Welcome back,</div><div id="fT">Poster<br>your<br>place</div><button id="pedit" aria-label="Edit my wall"><svg viewBox="0 0 30 30"><path d="M6 24l1-5L19.5 6.5l4 4L11 23z"/><path d="M17 9l4 4"/></svg></button><div id="pep"></div><input type="file" id="pcf" accept="image/*" hidden><div id="fcats" role="tablist" aria-label="Categories"></div><div id="fg"></div><div id="fl"></div>
@@ -914,7 +920,7 @@ canvas{position:absolute;left:0;top:0;width:402px;height:874px;pointer-events:no
    <div id="fsr"><div id="fst">Find<br>friends</div><button class="bk" id="fsx" aria-label="Close"><svg viewBox="0 0 24 24"><path d="M5 5L19 19M19 5L5 19"/></svg></button><input id="fsin" type="text" placeholder="Search" autocomplete="off"><div id="fsl"></div></div></section>
   <section class="scr" id="room"><img id="rimg" alt="Your room"><div id="rtop">Your poster in your room</div><div id="rpos"></div><div id="rsz"></div><div id="rbox"><i class="c1"></i><i class="c2"></i><i class="c3"></i><i class="c4"></i></div></section>
   <section class="scr" id="share"><div class="tx" id="tShare">Send it<br>to…</div><div id="st"></div><div id="avs"></div><button id="sendbar" class="off">Send</button><div id="sent"><b>Sent!</b><span id="sentn"></span></div><canvas id="cSh"></canvas></section>
-  <section class="scr" id="hist"><div class="tx" id="tHist">youre<br>gallery</div><div id="car"></div><div id="gcap"></div><div id="ticks"></div><button class="bar off" id="printbar">Print</button><button id="groom" aria-label="See it in your room"><svg viewBox="0 0 30 30"><path d="M7 5h16v13H7z"/><path d="M11 9h8v5h-8z"/><path d="M4 25h22"/><path d="M10 18v7M20 18v7"/></svg></button></section>
+  <section class="scr" id="hist"><div class="tx" id="tHist">youre<br>gallery</div><div id="car"></div><div id="gcap"></div><div id="ticks"></div><button class="bar off" id="printbar">Print</button><button id="groom" aria-label="See it in your room"><svg viewBox="0 0 24 24"><path d="M2 12s3.6-6.5 10-6.5S22 12 22 12s-3.6 6.5-10 6.5S2 12 2 12z"/><circle cx="12" cy="12" r="2.8"/></svg></button></section>
   <section class="scr" id="merch"><div class="tx" id="tMerch">Pick your<br>merch</div><div id="chips"></div><div id="mock"></div><div id="mname"></div><button class="bar" id="mbar">This is it</button></section>
   <section class="scr" id="order"><div class="tx" id="tOrder">Order<br>it</div><div id="omock"></div><div id="osum"></div><div id="onote"></div><button class="bar" id="obar">Place order</button></section>
   <section class="scr" id="thanks"><div id="tt"><span>Thank</span><span>you!</span></div><div id="thmock"></div><div id="thsum" class="fi"></div><div id="thnote" class="fi">Your order is on its way to print.</div><button class="wbtn fi" id="thbar">Create another</button><canvas id="cTh"></canvas></section>

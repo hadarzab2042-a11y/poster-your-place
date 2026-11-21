@@ -919,6 +919,12 @@ canvas{position:absolute;left:0;top:0;width:402px;height:874px;pointer-events:no
 #thanks #tShareB:after{content:"";position:absolute;top:0;bottom:0;left:0;width:36%;background:linear-gradient(100deg,transparent 0,rgba(255,255,255,.55) 50%,transparent 100%);transform:translateX(-130%) skewX(-18deg);animation:tshn 2s ease-in-out infinite;pointer-events:none}
 #thanks #tShareB.go:after,#thanks #tShareB.blk:after{display:none}
 @keyframes tshn{0%{transform:translateX(-130%) skewX(-18deg)}50%,100%{transform:translateX(330%) skewX(-18deg)}}
+
+/* ===== round 11: buy tools sit on one fixed black area (sized for Frame, the fullest) ===== */
+#buy:before,#buy:has(#bpan:not(.off) .row):before,#buy:has(#bpan:not(.off) .swr):before{top:650px!important}
+#buy #bbar,#buy:has(#bpan:not(.off) .row) #bbar,#buy:has(#bpan:not(.off) .swr) #bbar{top:576px!important}
+#buy #bpan{top:670px!important;bottom:auto!important}
+#buy #bpan .row.swr{margin-top:26px!important}
 </style>
 </head>
 <body>
@@ -1240,7 +1246,7 @@ function pat(){const i=new Image();i.src=gUrl(currentEntry(),480);i.className="p
 const SWT=[["k","#1E1C1D"],["w","#ffffff"],["Y",C.Y],["P",C.P],["B",C.B]];
 const FMT=[["70×100",70,100],["50×70",50,70],["40×50",40,50],["30×40",30,40],["A3",29.7,42],["A4",21,29.7]];
 const FLD=["Grid","Brick","Grow","Outline","Moiré","Rings","Fold"],PRM=["Circle","Square","Triangle","Hexagon"],EFX=["Bulge","Pinch","Twist","Shift"],FIL=["None","Grain","Halftone","Invert","Vintage","Soft"];
-const FRC=[["#1E1C1D"],["#ffffff"],["#B8905A"],["#5C4033"],["#C9A36B"],[C.Y],[C.P],[C.B]],MTC=[["#ffffff"],["#F1EADB"],["#1E1C1D"],[C.Y],[C.P],[C.B]];
+const FRC=[["#1E1C1D"],["#ffffff"],["#B8905A"],["#5C4033"],[C.Y],[C.P],[C.B]],MTC=[["#ffffff"],["#F1EADB"],["#1E1C1D"],[C.Y],[C.P],[C.B]];
 const ACC=[C.Y,C.P,C.B],rnd=()=>Math.random(),pick=a=>a[Math.floor(rnd()*a.length)];
 /* a fresh random composition around the photographed shape */
 function roll(st){const f=pick([0,0,1,2,2,5,6]);

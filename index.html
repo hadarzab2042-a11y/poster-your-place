@@ -932,7 +932,7 @@ canvas{position:absolute;left:0;top:0;width:402px;height:874px;pointer-events:no
 const $=s=>document.querySelector(s),INK="#1E1C1D",C={Y:"#F0E810",P:"#E81878",B:"#40A0D8"},NS="http://www.w3.org/2000/svg";
 const ph=$("#ph"),wrap=$("#wrap");
 let SC=1;
-function fit(){const side=0,sq=innerWidth<=500,m=sq?0:28;if(sq)document.documentElement.style.padding="0";SC=Math.min((innerHeight-m)/874,(innerWidth-side-m)/402,sq?3:1.15);if(!sq)document.body.style.background='';else if(!document.body.style.background)document.body.style.background='#fff';wrap.style.width=402*SC+"px";wrap.style.height=874*SC+"px";ph.style.transform="scale("+SC+")";ph.classList.toggle("sq",sq)}
+function fit(){const side=0,sq=false;SC=Math.min((innerHeight-28)/874,(innerWidth-side-28)/402,1.15);if(!sq)document.body.style.background='';else if(!document.body.style.background)document.body.style.background='#fff';wrap.style.width=402*SC+"px";wrap.style.height=874*SC+"px";ph.style.transform="scale("+SC+")";ph.classList.toggle("sq",sq)}
 addEventListener("resize",fit);fit();
 const mk=(src,alt)=>{const i=new Image();i.src=src;i.alt=alt;return i};
 

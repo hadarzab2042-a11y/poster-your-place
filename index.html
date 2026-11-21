@@ -936,6 +936,10 @@ canvas{position:absolute;left:0;top:0;width:402px;height:874px;pointer-events:no
 /* checkout bar: no button at first; stripes run left to right to fill it, then keep going and uncover the pink */
 #buy #bbar.rev0{background-color:transparent!important;background-size:0% 100%!important;background-position:0 0!important;transition:none!important;color:transparent!important}
 #buy #bbar.rev1{background-color:transparent!important;background-size:100% 100%!important;background-position:0 0!important;transition:background-size .5s cubic-bezier(.45,0,.2,1)!important;color:transparent!important}
+
+/* Posted: big word, no background, balls with ribbons */
+.pst{background:none!important;border:0!important;padding:0!important;border-radius:0!important;font-size:54px!important;letter-spacing:-1.6px!important;line-height:50px!important}
+.pcv{position:absolute;left:0;top:0;width:402px;height:874px;z-index:58;pointer-events:none}
 </style>
 </head>
 <body>
@@ -1734,12 +1738,19 @@ function flyHeart(x,y){const h=document.createElement("div");h.className="fh2";h
 
 /* ---- "Posted" + balls that vanish after one wall touch ---- */
 function postedBurst(){const f=$("#feed"),t=document.createElement("div");t.className="pst";t.textContent="Posted";f.appendChild(t);t.style.opacity=0;t.style.transform="translate(-50%,-50%) scale(.6)";
- requestAnimationFrame(()=>{t.style.transition="opacity .25s,transform .45s cubic-bezier(.3,1.6,.5,1)";t.style.opacity=1;t.style.transform="translate(-50%,-50%) scale(1)"});
- setTimeout(()=>{t.style.transition="opacity .5s";t.style.opacity=0},1900);setTimeout(()=>t.remove(),2500);
- const cols=[C.Y,C.P,C.B],balls=[];for(let i=0;i<5;i++){const e=document.createElement("div");e.className="pb2";e.style.background=cols[i%3];f.appendChild(e);const a=i*1.2566+.4+Math.random()*.4;balls.push({e,x:201,y:437,vx:Math.cos(a)*430,vy:Math.sin(a)*430,gone:false})}
- let last=performance.now();const M=26;const fr=now=>{const dt=Math.min(.04,(now-last)/1000);last=now;let alive=0;
-  for(const b of balls){if(b.gone)continue;b.x+=b.vx*dt;b.y+=b.vy*dt;if(b.x<M||b.x>402-M||b.y<M||b.y>874-M){b.gone=true;b.e.remove();continue}alive++;b.e.style.transform="translate("+(b.x-26)+"px,"+(b.y-26)+"px)"}
-  if(alive)requestAnimationFrame(fr)};requestAnimationFrame(fr)}
+ requestAnimationFrame(()=>{t.style.transition="opacity .25s,transform .5s cubic-bezier(.3,1.6,.5,1)";t.style.opacity=1;t.style.transform="translate(-50%,-50%) scale(1.9)"});
+ setTimeout(()=>{t.style.transition="opacity .5s";t.style.opacity=0},2000);setTimeout(()=>t.remove(),2600);
+ /* balls with ribbon trails, like the thank-you screen; each one leaves after touching a wall */
+ const cv=document.createElement("canvas");cv.className="pcv";f.appendChild(cv);const g=ctx(cv),cols=[C.Y,C.P,C.B],balls=[];
+ for(let i=0;i<4;i++){const a=i*1.5708+.5+Math.random()*.5;balls.push({x:201,y:437,a,v:430,t:0,ci:i%3,tr:[{x:201,y:437,w:1}],gone:false})}
+ let last=performance.now();const M=28;const fr=now=>{const dt=Math.min(.04,(now-last)/1000);last=now;g.clearRect(0,0,W,H);let alive=0;
+  for(const b of balls){b.t+=dt;if(!b.gone){const v=215+(b.v-215)*Math.exp(-b.t*3.5);b.x+=Math.cos(b.a)*v*dt;b.y+=Math.sin(b.a)*v*dt;
+    if(b.x<M||b.x>W-M||b.y<M||b.y>H-M){b.gone=true}else{const l=b.tr[b.tr.length-1];if(Math.hypot(l.x-b.x,l.y-b.y)>=4)b.tr.push({x:b.x,y:b.y,w:1});while(b.tr.length>60)b.tr.shift()}}
+   else if(b.tr.length)b.tr.splice(0,2);
+   if(b.tr.length>3)ribbon(g,smoothTrail(b.tr,7),TS,14,()=>3,q=>{const r=Math.min(1,q/25);return r*r*(3-2*r)});
+   if(b.tr.length>1||!b.gone)alive++}
+  for(const b of balls){if(b.gone)continue;g.fillStyle=cols[b.ci];g.strokeStyle=INK;g.lineWidth=4;g.beginPath();g.arc(b.x,b.y,26,0,7);g.fill();g.stroke()}
+  if(alive)requestAnimationFrame(fr);else cv.remove()};requestAnimationFrame(fr)}
 
 function buyBack(){if(BUYFROM==="feed"){FEEDKEEP=true;go("feed")}else go("done")}
 

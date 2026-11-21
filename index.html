@@ -712,7 +712,7 @@ canvas{position:absolute;left:0;top:0;width:402px;height:874px;pointer-events:no
 #poster #tcol{bottom:37px!important}
 
 /* Next: white, with a black shine sweeping through every few seconds */
-#poster #nextbtn{background:linear-gradient(100deg,#fff 0 36%,#000 46% 54%,#fff 64% 100%) 100% 0/300% 100% no-repeat;-webkit-background-clip:text!important;background-clip:text!important;color:transparent!important;-webkit-text-fill-color:transparent!important;border-radius:0!important;padding:0!important;text-shadow:none!important;mix-blend-mode:normal!important;filter:drop-shadow(0 0 5px rgba(0,0,0,.3));animation:nxs 3.6s ease-in-out infinite}
+#poster #nextbtn{background:linear-gradient(100deg,var(--nx,#F0E810) 0 36%,#fff 46% 54%,var(--nx,#F0E810) 64% 100%) 100% 0/300% 100% no-repeat;-webkit-background-clip:text!important;background-clip:text!important;color:transparent!important;-webkit-text-fill-color:transparent!important;border-radius:0!important;padding:0!important;text-shadow:none!important;mix-blend-mode:normal!important;filter:drop-shadow(0 0 5px rgba(0,0,0,.3));animation:nxs 3.6s ease-in-out infinite}
 @keyframes nxs{0%{background-position:100% 0}30%,100%{background-position:0% 0}}
 
 /* ===== round 4 ===== */
@@ -940,16 +940,29 @@ canvas{position:absolute;left:0;top:0;width:402px;height:874px;pointer-events:no
 #buy #bbar.rev1{background-color:transparent!important;background-size:100% 100%!important;background-position:0 0!important;transition:background-size .5s cubic-bezier(.45,0,.2,1)!important;color:transparent!important}
 
 /* Posted: big word, no background, balls with ribbons */
-.pst{background:none!important;border:0!important;padding:0!important;border-radius:0!important;font-size:54px!important;letter-spacing:-1.6px!important;line-height:50px!important}
+.pst{background:none!important;border:0!important;padding:0!important;border-radius:0!important;font-size:30px!important;letter-spacing:-.9px!important;line-height:30px!important}
 .pcv{position:absolute;left:0;top:0;width:402px;height:874px;z-index:58;pointer-events:none}
 
 /* Perfect: whole group centred on the sheet (not the screen) */
 #dW{top:114px!important}
 #dPost{top:270px!important}
 
-/* Next: larger, with a thick underline; the light flash runs through both the word and the underline */
-#poster #nextbtn{filter:drop-shadow(0 1px 6px rgba(0,0,0,.5))!important;font-size:30px!important;height:auto!important;line-height:1!important;padding:0 0 7px!important}
-#poster #nextbtn:after{content:"";position:absolute;left:0;right:0;bottom:0;height:4px;border-radius:2px;background:linear-gradient(100deg,#fff 0 36%,#000 46% 54%,#fff 64% 100%) 100% 0/300% 100% no-repeat;animation:nxs 3.6s ease-in-out infinite}
+/* Next: larger, yellow (black on a yellow ground), white flash, on the same line as retry + eye */
+#poster #nextbtn{filter:drop-shadow(0 1px 5px rgba(0,0,0,.35))!important;font-size:30px!important;height:34px!important;line-height:34px!important;padding:0!important;top:66px!important}
+
+/* ===== round 12: feed spacing, centred list, location line, two-picture carousel ===== */
+#feed #fcats{top:189px!important}
+#feed:not(.prof) #fg{top:257px!important}
+#fl .fi2,.fc .fi2{width:100%!important}
+.fn{display:flex;flex-direction:column;line-height:1.15}
+.fn em{font-style:normal;font-size:12px;font-weight:500;opacity:.55;letter-spacing:.01em}
+#fl .fi2{display:flex!important;overflow-x:auto!important;overflow-y:hidden!important;scroll-snap-type:x mandatory;scrollbar-width:none;touch-action:pan-x pan-y!important;-webkit-overflow-scrolling:touch}
+#fl .fi2::-webkit-scrollbar{display:none}
+#fl .fi2 .sd{flex:0 0 100%;height:100%;scroll-snap-align:start;position:relative}
+#fl .fi2 .sd canvas{position:static!important}
+.dts{display:flex;justify-content:center;gap:7px;margin-top:9px}
+.dts i{width:6px;height:6px;border-radius:50%;background:var(--ink);opacity:.22;cursor:pointer;transition:opacity .2s}
+.dts i.on{opacity:.9}
 </style>
 </head>
 <body>
@@ -1402,7 +1415,7 @@ function refresh(low){if(!ST||cur!=="poster")return;const box=$("#stagebox"),pf=
  else{const bw=box.clientWidth,bh=box.clientHeight,g=geom(ST),sc=Math.min((bw-34)/g.W,(bh-34)/g.H);
   pf.style.border=(g.fr*sc)+"px solid "+(g.fr>0?ST.frame.c:"transparent");pf.style.width=g.fw*sc+"px";pm.style.padding=(g.mt*sc)+"px";pm.style.background=g.mt>0?ST.mat.c:"#fff";cw=g.aw*sc;ch=g.ah*sc;pad=g.mt*sc}
  art.style.width=cw+"px";art.style.height=ch+"px";const q=low?.5:Math.min(dpr,Math.sqrt(520000/(cw*ch)));
- renderArt(ST,Math.max(8,Math.round(cw*q)),Math.max(8,Math.round(ch*q)),art);ART.cw=cw;ART.ch=ch;ART.pad=pad;try{const g0=hex3(ST.col.ground.l);$("#poster").style.setProperty("--bkc",(.299*g0[0]+.587*g0[1]+.114*g0[2])/255<.5?"#fff":"#000");const yy=hex3(C.Y);$("#poster").style.setProperty("--nx",Math.hypot(g0[0]-yy[0],g0[1]-yy[1],g0[2]-yy[2])<90?C.P:C.Y)}catch(e){}selBox()}
+ renderArt(ST,Math.max(8,Math.round(cw*q)),Math.max(8,Math.round(ch*q)),art);ART.cw=cw;ART.ch=ch;ART.pad=pad;try{const g0=hex3(ST.col.ground.l);$("#poster").style.setProperty("--bkc",(.299*g0[0]+.587*g0[1]+.114*g0[2])/255<.5?"#fff":"#000");const yy=hex3(C.Y);$("#poster").style.setProperty("--nx",Math.hypot(g0[0]-yy[0],g0[1]-yy[1],g0[2]-yy[2])<90?"#000":C.Y)}catch(e){}selBox()}
 function selBox(){const e=$("#hsel");if(pvw||!ST||!TOOL||TOOL==="pat"||TOOL==="bg"||(TOOL==="text"&&typeof SELL!=="number")||(TOOL==="shape"&&typeof SELL==="number")){e.style.display="none";return}let x,y,w,h;e.style.transform="";
  if(isSh(SELL)){const o=shObj(SELL),r=o.s*Math.min(ART.cw,ART.ch)/2;x=o.x*ART.cw-r;y=o.y*ART.ch-r;w=h=2*r}
  else{const t=ST.texts[SELL];if(!t||!t.bb){e.style.display="none";return}x=t.bb.x*ART.cw-4;y=t.bb.y*ART.ch-3;w=t.bb.w*ART.cw+8;h=t.bb.h*ART.ch+6;if(t.r)e.style.transform="rotate("+t.r+"rad)"}
@@ -1720,9 +1733,13 @@ function pepBuild(){const P=$("#pep");P.innerHTML="";const lab=t=>{const x=docum
  const dn=document.createElement("button");dn.className="ch on pdn";dn.textContent="Done";dn.onclick=()=>$("#feed").classList.remove("edt");P.appendChild(dn)}
 $("#pedit").onclick=()=>{pepBuild();$("#feed").classList.add("edt")};
 $("#pcf").onchange=e=>{const f=e.target.files&&e.target.files[0];if(!f)return;const u=URL.createObjectURL(f),im=new Image();im.onload=()=>{const c=document.createElement("canvas"),k=Math.min(1,900/Math.max(im.width,im.height));c.width=Math.round(im.width*k);c.height=Math.round(im.height*k);c.getContext("2d").drawImage(im,0,0,c.width,c.height);URL.revokeObjectURL(u);PROF.cover=c.toDataURL("image/jpeg",.82);PROF.stripes=false;updateHead();pepBuild()};im.src=u;e.target.value=""};
-function feedOpen(list,i){FLIST=list;const L=$("#fl");L.innerHTML="";const io=new IntersectionObserver(es=>es.forEach(en=>{if(en.isIntersecting){const b=en.target;io.unobserve(b);const it=list[+b.dataset.i];setTimeout(()=>setTile(it,b,700,false,"pl"),0)}}),{root:L,rootMargin:"400px"});const cards=[];
- list.forEach((it,idx)=>{const card=document.createElement("div");card.className="fc";const hd=document.createElement("div");hd.className="fh";hd.innerHTML='<i style="background:'+[C.Y,C.P,C.B][idx%3]+'"></i><b>'+it.n+'</b><span>'+it.t+'</span>';card.appendChild(hd);
-  const bx=document.createElement("div");bx.className="fi2";bx.style.aspectRatio=asp(it.st);bx.dataset.i=idx;card.appendChild(bx);bx.addEventListener('pointerup',ev=>dtap(ev,bx));const ft=document.createElement("div");ft.className="ff";const hb=document.createElement("button");hb.setAttribute("aria-label","Like");hb.innerHTML='<svg viewBox="0 0 30 30"><path d="M15 25S5 18.5 5 11.5A5.5 5.5 0 0 1 15 8.5 5.5 5.5 0 0 1 25 11.5C25 18.5 15 25 15 25Z"/></svg>';const sid=it.st.id;hb.classList.toggle("on",LIKES.has(sid));hb.onclick=()=>{if(LIKES.has(sid))LIKES.delete(sid);else LIKES.set(sid,it);persist();hb.classList.toggle("on",LIKES.has(sid))};bx._hb=hb;bx._it=it;ft.appendChild(hb);const bb=document.createElement('button');bb.setAttribute('aria-label','Buy this poster');bb.className='bb';bb.innerHTML='<svg viewBox="0 0 30 30"><path d="M6 10h18l-1.5 15h-15z"/><path d="M11 13V8.5a4 4 0 0 1 8 0V13"/></svg>';bb.onclick=()=>{GCUR=it.e||{st:it.st};BUYFROM="feed";go("buy")};ft.appendChild(bb);if(it.mine){const tr=document.createElement('button');tr.setAttribute('aria-label','Delete this poster');tr.className='bb';tr.innerHTML='<svg viewBox="0 0 30 30"><path d="M7 9h16"/><path d="M12 9V6.5h6V9"/><path d="M9 9l1 15h10l1-15"/><path d="M13 13v7M17 13v7"/></svg>';tr.onclick=()=>askDelete(it,card,list);ft.appendChild(tr)}card.appendChild(ft);L.appendChild(card);cards.push(card);io.observe(bx)});
+const LOCS=["Tel Aviv, Israel","Haifa, Israel","Berlin, Germany","Milan, Italy","Lisbon, Portugal","Amsterdam, Netherlands","Copenhagen, Denmark","Paris, France","Barcelona, Spain","Vienna, Austria","Kyoto, Japan","Brooklyn, USA"];
+function locOf(it){if(it.mine)return(META&&META.city)||"";let h=0;for(const ch of String(it.n))h=(h*31+ch.charCodeAt(0))>>>0;return LOCS[h%LOCS.length]}
+/* each post is a two-picture carousel: the poster, then the poster in the room where it was shot */
+function setSlides(it,b){b.innerHTML="";const mk=c=>{const d=document.createElement("div");d.className="sd";c.style.cssText="width:100%;height:100%;display:block;object-fit:cover";d.appendChild(c);b.appendChild(d)};mk(posterCached(it.st,700));mk(tileCanvas(it.st,it.k,700))}
+function feedOpen(list,i){FLIST=list;const L=$("#fl");L.innerHTML="";const io=new IntersectionObserver(es=>es.forEach(en=>{if(en.isIntersecting){const b=en.target;io.unobserve(b);const it=list[+b.dataset.i];setTimeout(()=>setSlides(it,b),0)}}),{root:L,rootMargin:"400px"});const cards=[];
+ list.forEach((it,idx)=>{const card=document.createElement("div");card.className="fc";const hd=document.createElement("div");hd.className="fh";const lc=locOf(it);hd.innerHTML='<i style="background:'+[C.Y,C.P,C.B][idx%3]+'"></i><div class="fn"><b>'+it.n+'</b>'+(lc?'<em>'+lc+'</em>':'')+'</div><span>'+it.t+'</span>';card.appendChild(hd);
+  const bx=document.createElement("div");bx.className="fi2";bx.style.aspectRatio=asp(it.st);bx.dataset.i=idx;card.appendChild(bx);const dts=document.createElement("div");dts.className="dts";dts.innerHTML="<i class=on></i><i></i>";card.appendChild(dts);bx.addEventListener("scroll",()=>{const k=Math.round(bx.scrollLeft/Math.max(1,bx.clientWidth));[...dts.children].forEach((d,j)=>d.classList.toggle("on",j===k))});[...dts.children].forEach((d,j)=>d.onclick=()=>bx.scrollTo({left:j*bx.clientWidth,behavior:"smooth"}));bx.addEventListener('pointerup',ev=>dtap(ev,bx));const ft=document.createElement("div");ft.className="ff";const hb=document.createElement("button");hb.setAttribute("aria-label","Like");hb.innerHTML='<svg viewBox="0 0 30 30"><path d="M15 25S5 18.5 5 11.5A5.5 5.5 0 0 1 15 8.5 5.5 5.5 0 0 1 25 11.5C25 18.5 15 25 15 25Z"/></svg>';const sid=it.st.id;hb.classList.toggle("on",LIKES.has(sid));hb.onclick=()=>{if(LIKES.has(sid))LIKES.delete(sid);else LIKES.set(sid,it);persist();hb.classList.toggle("on",LIKES.has(sid))};bx._hb=hb;bx._it=it;ft.appendChild(hb);const bb=document.createElement('button');bb.setAttribute('aria-label','Buy this poster');bb.className='bb';bb.innerHTML='<svg viewBox="0 0 30 30"><path d="M6 10h18l-1.5 15h-15z"/><path d="M11 13V8.5a4 4 0 0 1 8 0V13"/></svg>';bb.onclick=()=>{GCUR=it.e||{st:it.st};BUYFROM="feed";go("buy")};ft.appendChild(bb);if(it.mine){const tr=document.createElement('button');tr.setAttribute('aria-label','Delete this poster');tr.className='bb';tr.innerHTML='<svg viewBox="0 0 30 30"><path d="M7 9h16"/><path d="M12 9V6.5h6V9"/><path d="M9 9l1 15h10l1-15"/><path d="M13 13v7M17 13v7"/></svg>';tr.onclick=()=>askDelete(it,card,list);ft.appendChild(tr)}card.appendChild(ft);L.appendChild(card);cards.push(card);io.observe(bx)});
  $("#fT").innerHTML=LOGO;const prev=FV;feedSet("list");FV="list";FV_PREV=prev;$("#feed").classList.toggle("fp",prev==="mine");requestAnimationFrame(()=>{L.scrollTop=cards[i].offsetTop-6})}
 let FV_PREV="grid",FDIRTY=false;
 function feedBack(){if(FV==="list"){if(FV_PREV==="mine"){if(FDIRTY){FDIRTY=false;feedProfile()}else feedSet("mine")}else feedSet("grid");return}if(FV==="mine"){drawFeedKeep();return}go(FFROM==="home"?"home":"done")}
@@ -1748,19 +1765,20 @@ function flyHeart(x,y){const h=document.createElement("div");h.className="fh2";h
 
 /* ---- "Posted" + balls that vanish after one wall touch ---- */
 function postedBurst(){const f=$("#feed"),t=document.createElement("div");t.className="pst";t.textContent="Posted";f.appendChild(t);t.style.opacity=0;t.style.transform="translate(-50%,-50%) scale(.6)";
- requestAnimationFrame(()=>{t.style.transition="opacity .25s,transform .5s cubic-bezier(.3,1.6,.5,1)";t.style.opacity=1;t.style.transform="translate(-50%,-50%) scale(1.9)"});
+ requestAnimationFrame(()=>{t.style.transition="opacity .25s,transform .5s cubic-bezier(.3,1.6,.5,1)";t.style.opacity=1;t.style.transform="translate(-50%,-50%) scale(1)"});
  setTimeout(()=>{t.style.transition="opacity .5s";t.style.opacity=0},2000);setTimeout(()=>t.remove(),2600);
- /* balls with ribbon trails, like the thank-you screen; each one leaves after touching a wall */
- const cv=document.createElement("canvas");cv.className="pcv";f.appendChild(cv);const g=ctx(cv),cols=[C.Y,C.P,C.B],balls=[];
- for(let i=0;i<4;i++){const a=i*1.5708+.5+Math.random()*.5;balls.push({x:201,y:437,a,v:430,t:0,ci:i%3,tr:[{x:201,y:437,w:1}],gone:false})}
- let last=performance.now();const M=28;const fr=now=>{const dt=Math.min(.04,(now-last)/1000);last=now;g.clearRect(0,0,W,H);let alive=0;
-  for(const b of balls){b.t+=dt;if(!b.gone){const v=215+(b.v-215)*Math.exp(-b.t*3.5);b.x+=Math.cos(b.a)*v*dt;b.y+=Math.sin(b.a)*v*dt;
-    if(b.x<M||b.x>W-M||b.y<M||b.y>H-M){b.gone=true}else{const l=b.tr[b.tr.length-1];if(Math.hypot(l.x-b.x,l.y-b.y)>=4)b.tr.push({x:b.x,y:b.y,w:1});while(b.tr.length>60)b.tr.shift()}}
-   else if(b.tr.length)b.tr.splice(0,2);
-   if(b.tr.length>3)ribbon(g,smoothTrail(b.tr,7),TS,14,()=>3,q=>{const r=Math.min(1,q/25);return r*r*(3-2*r)});
-   if(b.tr.length>1||!b.gone)alive++}
-  for(const b of balls){if(b.gone)continue;g.fillStyle=cols[b.ci];g.strokeStyle=INK;g.lineWidth=4;g.beginPath();g.arc(b.x,b.y,26,0,7);g.fill();g.stroke()}
-  if(alive)requestAnimationFrame(fr);else cv.remove()};requestAnimationFrame(fr)}
+ /* the very same balls as the thank-you screen: they scatter, bounce and change colour at every wall */
+ const cv=document.createElement("canvas");cv.className="pcv";f.appendChild(cv);const g=ctx(cv),CS=[C.Y,C.P,C.B],B=[];
+ for(let i=0;i<3;i++){const a=i*2.0944+.6+Math.random()*.5;B.push({x:201,y:437,a,v:430,t:0,ci:Math.floor(Math.random()*3),tr:[{x:201,y:437,w:1}]})}
+ let last=performance.now(),stop=false;setTimeout(()=>{cv.style.transition="opacity .6s";cv.style.opacity=0},4300);setTimeout(()=>{stop=true},5000);
+ const M=28,fr=now=>{if(stop){cv.remove();return}const dt=Math.min(.04,(now-last)/1000);last=now;g.clearRect(0,0,W,H);
+  for(const b of B){b.t+=dt;const v=215+(b.v-215)*Math.exp(-b.t*3.5);b.x+=Math.cos(b.a)*v*dt;b.y+=Math.sin(b.a)*v*dt;let hit=false;
+   if(b.x<M){b.x=2*M-b.x;b.a=Math.PI-b.a;hit=true}else if(b.x>W-M){b.x=2*(W-M)-b.x;b.a=Math.PI-b.a;hit=true}
+   if(b.y<M){b.y=2*M-b.y;b.a=-b.a;hit=true}else if(b.y>H-M){b.y=2*(H-M)-b.y;b.a=-b.a;hit=true}
+   if(hit)b.ci=(b.ci+1)%3;const l=b.tr[b.tr.length-1];if(hit||Math.hypot(l.x-b.x,l.y-b.y)>=4)b.tr.push({x:b.x,y:b.y,w:1});while(b.tr.length>60)b.tr.shift();
+   if(b.tr.length>3)ribbon(g,smoothTrail(b.tr,7),TS,14,()=>3,q=>{const r=Math.min(1,q/25);return r*r*(3-2*r)})}
+  for(const b of B){g.fillStyle=CS[b.ci];g.strokeStyle=INK;g.lineWidth=4;g.beginPath();g.arc(b.x,b.y,26,0,7);g.fill();g.stroke()}
+  requestAnimationFrame(fr)};requestAnimationFrame(fr)}
 
 function buyBack(){if(BUYFROM==="feed"){FEEDKEEP=true;go("feed")}else go("done")}
 

@@ -946,6 +946,10 @@ canvas{position:absolute;left:0;top:0;width:402px;height:874px;pointer-events:no
 /* Perfect: whole group centred on the sheet (not the screen) */
 #dW{top:114px!important}
 #dPost{top:270px!important}
+
+/* Next: larger, with a thick underline; the light flash runs through both the word and the underline */
+#poster #nextbtn{filter:drop-shadow(0 1px 6px rgba(0,0,0,.5))!important;font-size:30px!important;height:auto!important;line-height:1!important;padding:0 0 7px!important}
+#poster #nextbtn:after{content:"";position:absolute;left:0;right:0;bottom:0;height:4px;border-radius:2px;background:linear-gradient(100deg,#fff 0 36%,#000 46% 54%,#fff 64% 100%) 100% 0/300% 100% no-repeat;animation:nxs 3.6s ease-in-out infinite}
 </style>
 </head>
 <body>

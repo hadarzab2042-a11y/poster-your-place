@@ -925,6 +925,10 @@ canvas{position:absolute;left:0;top:0;width:402px;height:874px;pointer-events:no
 #buy #bbar,#buy:has(#bpan:not(.off) .row) #bbar,#buy:has(#bpan:not(.off) .swr) #bbar{top:576px!important}
 #buy #bpan{top:670px!important;bottom:auto!important}
 #buy #bpan .row.swr{margin-top:26px!important}
+
+/* checkout bar is born from the stripes of the previous button: stripes slide out to the right and reveal it */
+#buy #bbar.rev{background-position:100% 0!important;background-size:100% 100%!important;transition:none!important;color:transparent!important}
+#buy #bbar.rev2{background-position:100% 0!important;background-size:0% 100%!important;transition:background-size .6s cubic-bezier(.45,0,.2,1),color .3s .35s!important}
 </style>
 </head>
 <body>
@@ -1568,7 +1572,7 @@ function buyBkColor(){const im=$("#bimg"),b=document.querySelector("#buy>.bk");i
  if(!b.dataset.arrow){b.dataset.arrow=1;b.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12H4M10 6l-6 6 6 6"/></svg>'}
  const f=()=>{try{const c=document.createElement("canvas");c.width=c.height=16;const x=c.getContext("2d"),w=im.naturalWidth,h=im.naturalHeight;x.drawImage(im,0,0,w*.35,h*.14,0,0,16,16);const d=x.getImageData(0,0,16,16).data;let l=0;for(let i=0;i<d.length;i+=4)l+=.299*d[i]+.587*d[i+1]+.114*d[i+2];l/=256;b.style.color=l>145?"#000":"#fff"}catch(e){b.style.color="#fff"}};
  im.onload=f;if(im.complete&&im.naturalWidth)f()}
-function drawBuy(){const e=currentEntry();ST=e.st;GCUR=e;BTOOL=null;if(!ROOM){ROOM=scene(3).toDataURL("image/jpeg",.8)}$("#bimg").src=ROOM;buyBkColor();bPoster();bPanel();const bb=$("#bbar");bb.textContent="Check out · $"+bPrice(ST);bb.classList.remove("blk","go","sw");bb.style.opacity=0;later(()=>{bb.style.opacity=1;wsweep(bb)},500)}
+function drawBuy(){const e=currentEntry();ST=e.st;GCUR=e;BTOOL=null;if(!ROOM){ROOM=scene(3).toDataURL("image/jpeg",.8)}$("#bimg").src=ROOM;buyBkColor();bPoster();bPanel();const bb=$("#bbar");bb.textContent="Check out · $"+bPrice(ST);bb.classList.remove("blk","go","sw");bb.style.opacity=1;bb.classList.remove("rev2");bb.classList.add("rev");void bb.offsetWidth;later(()=>{bb.classList.remove("rev");bb.classList.add("rev2");later(()=>bb.classList.remove("rev2"),800)},120)}
 (function(){const h=$("#bpos");let d=null;h.addEventListener("pointerdown",ev=>{ev.preventDefault();d={x:ev.clientX,y:ev.clientY,px:BPOS.x,py:BPOS.y};try{h.setPointerCapture(ev.pointerId)}catch(e){}});
  h.addEventListener("pointermove",ev=>{if(!d)return;BPOS={x:d.px+(ev.clientX-d.x)/SC,y:d.py+(ev.clientY-d.y)/SC};const w=h.offsetWidth,hh=h.offsetHeight;BPOS.x=clamp(BPOS.x,w*.3,402-w*.3);BPOS.y=clamp(BPOS.y,hh*.3,874-hh*.3);h.style.left=(BPOS.x-w/2)+"px";h.style.top=(BPOS.y-hh/2)+"px"});
  h.addEventListener("pointerup",()=>{d=null});h.addEventListener("pointercancel",()=>{d=null});

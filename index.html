@@ -870,8 +870,8 @@ canvas{position:absolute;left:0;top:0;width:402px;height:874px;pointer-events:no
 #poster #roombtn svg{width:28px!important;height:28px!important;stroke-width:2!important}
 
 /* ===== round 8: no sheet handle line; buy flow; thank-you; calm button press ===== */
-#gedge{box-shadow:none!important}
 #gedge:after{display:none!important}
+#fpeek:before{display:none!important}
 /* every wide button: no colour stripes, just turns pink when pressed */
 .wbtn,.wbtn:hover{background-image:none!important}
 .wbtn.sw{animation:none!important}
@@ -901,7 +901,7 @@ canvas{position:absolute;left:0;top:0;width:402px;height:874px;pointer-events:no
 #buy #bbar{top:670px!important}
 #buy:has(#bpan:not(.off) .row) #bbar{top:626px!important}
 #buy:has(#bpan:not(.off) .swr) #bbar{top:576px!important}
-#done #dBuy,#done #dShare,#buy #bbar{background-image:repeating-linear-gradient(to bottom,#000 0 6px,#fff 6px 12px)!important;background-repeat:no-repeat!important;background-position:0 0!important;background-size:0% 100%!important;background-origin:border-box!important;background-clip:border-box!important;transition:background-size .5s cubic-bezier(.45,0,.2,1),color .15s!important}
+#done #dBuy,#done #dShare,#buy #bbar{background-image:repeating-linear-gradient(to bottom,#000 0 6px,#fff 6px 12px)!important;background-repeat:no-repeat!important;background-position:0 0!important;background-size:0% 100%!important;background-origin:border-box!important;background-clip:border-box!important;transition:background-size .5s cubic-bezier(.45,0,.2,1),color .15s,opacity .6s,transform .7s cubic-bezier(.2,.8,.2,1)!important}
 #done #dBuy:hover,#done #dShare:hover,#buy #bbar:hover{background-size:0% 100%!important}
 #done #dBuy.go,#done #dShare.go,#done #dBuy.blk,#done #dShare.blk,#buy #bbar.go,#buy #bbar.blk,#done #dBuy.go:hover,#done #dShare.go:hover,#buy #bbar.go:hover{background-size:100% 100%!important}
 #done #dBuy.go,#done #dShare.go,#buy #bbar.go,#done #dBuy.blk,#done #dShare.blk,#buy #bbar.blk{color:transparent!important}
@@ -920,15 +920,15 @@ canvas{position:absolute;left:0;top:0;width:402px;height:874px;pointer-events:no
 #thanks #tShareB.go:after,#thanks #tShareB.blk:after{display:none}
 @keyframes tshn{0%{transform:translateX(-130%) skewX(-18deg)}50%,100%{transform:translateX(330%) skewX(-18deg)}}
 
-/* ===== round 11: buy tools sit on one fixed black area (sized for Frame, the fullest) ===== */
-#buy:before,#buy:has(#bpan:not(.off) .row):before,#buy:has(#bpan:not(.off) .swr):before{top:650px!important}
-#buy #bbar,#buy:has(#bpan:not(.off) .row) #bbar,#buy:has(#bpan:not(.off) .swr) #bbar{top:576px!important}
-#buy #bpan{top:670px!important;bottom:auto!important}
+/* ===== round 11: buy tools: compact black area that grows only as much as the open category needs ===== */
+#buy:before{top:744px!important}
+#buy:has(#bpan:not(.off) .row):before{top:716px!important}
+#buy:has(#bpan:not(.off) .swr):before{top:656px!important}
+#buy #bbar{top:670px!important}
+#buy:has(#bpan:not(.off) .row) #bbar{top:642px!important}
+#buy:has(#bpan:not(.off) .swr) #bbar{top:582px!important}
+#buy #bpan{top:auto!important;bottom:96px!important}
 #buy #bpan .row.swr{margin-top:26px!important}
-
-/* checkout bar is born from the stripes of the previous button: stripes slide out to the right and reveal it */
-#buy #bbar.rev{background-position:100% 0!important;background-size:100% 100%!important;transition:none!important;color:transparent!important}
-#buy #bbar.rev2{background-position:100% 0!important;background-size:0% 100%!important;transition:background-size .6s cubic-bezier(.45,0,.2,1),color .3s .35s!important}
 </style>
 </head>
 <body>
@@ -1538,14 +1538,14 @@ const DW=["Perfect,","you have","a poster."];
 (function(){const w=$("#dW");DW.forEach(x=>{const s=document.createElement("span");s.textContent=x;w.appendChild(s)})})();
 function drawDone(){const w=$("#dW"),sp=[...w.children],q=$("#dQ"),b1=$("#dBuy"),b2=$("#dShare"),pb=$("#dPost");const st=currentEntry().st;
  pb.innerHTML="";const c=posterCanvas(st,900),r=c.width/c.height,bw=330,bh=392;let cw=bw,ch=bw/r;if(ch>bh){ch=bh;cw=bh*r}c.style.cssText="width:"+cw+"px;height:"+ch+"px;display:block;box-shadow:0 12px 34px rgba(0,0,0,.3)";pb.appendChild(c);$("#done").style.setProperty("--dbt",(230+ch+48)+"px");
- [q,pb].forEach(e=>{e.style.transition="none";e.style.opacity=0});pb.style.transform="scale(.9)";q.style.transform="translateY(14px)";[b1,b2].forEach(x=>{x.classList.remove("blk","go","sw");x.style.opacity=0});
+ [q,pb].forEach(e=>{e.style.transition="none";e.style.opacity=0});pb.style.transform="scale(.9)";q.style.transform="translateY(14px)";[b1,b2].forEach(x=>{x.classList.remove("blk","go","sw");x.style.opacity=0;x.style.transform="scale(.9)"});
  w.style.transition="none";w.style.transform="none";sp.forEach(e=>{e.style.transition="none";e.style.opacity=0;e.style.transform="translateY(14px)"});void w.offsetWidth;
  const k=1.9,W=Math.max(...sp.map(x=>x.offsetWidth)),H=w.offsetHeight,tx=201-W*k/2-38,ty=437-H*k/2-100;w.style.transform="translate("+tx+"px,"+ty+"px) scale("+k+")";
  sp.forEach((e,i)=>later(()=>{e.style.transition="opacity .35s,transform .5s cubic-bezier(.2,.8,.2,1)";e.style.opacity=1;e.style.transform="none"},150+i*260));
  later(()=>{w.style.transition="transform .9s cubic-bezier(.6,0,.2,1)";w.style.transform="none"},2000);
  later(()=>{pb.style.transition="opacity .6s,transform .7s cubic-bezier(.2,.8,.2,1)";pb.style.opacity=1;pb.style.transform="none"},2650);
  later(()=>{q.style.transition="opacity .4s,transform .5s cubic-bezier(.2,.8,.2,1)";q.style.opacity=1;q.style.transform="none"},3350);
- [b1,b2].forEach((b,i)=>later(()=>{b.style.opacity=1;wsweep(b)},3550+i*220))}
+ [b1,b2].forEach((b,i)=>later(()=>{b.style.opacity=1;b.style.transform="none"},3350+i*200))}
 wbtn($("#dBuy"),()=>{BUYFROM="done";go("buy")});
 wbtn($("#dShare"),()=>go("feed"));
 wbtn($("#tShareB"),()=>go("feed"));

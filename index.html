@@ -973,6 +973,10 @@ canvas{position:absolute;left:0;top:0;width:402px;height:874px;pointer-events:no
 
 /* Posted = option E: tiny spaced caps at the bottom */
 #feed .pst{left:50%!important;top:808px!important;font-size:11px!important;font-weight:500!important;letter-spacing:.14em!important;text-transform:uppercase;line-height:14px!important}
+
+#feed.lst>.bk svg{transform:none!important}
+#feed.lst>.bk{left:18px!important}
+#feed.lst #fl{padding-left:18px!important;padding-right:18px!important}
 </style>
 </head>
 <body>
@@ -1662,7 +1666,8 @@ function feedGrid(list,loadFirst,noName){const G=$("#fg");G.innerHTML="";const M
  if(loadFirst&&first){first.classList.add("ld");first.innerHTML='<i class="sp"></i>';const myId=feedGrid.id=(feedGrid.id||0)+1;later(()=>{if(feedGrid.id!==myId)return;setTile(list[0],first,360,!noName,"pl");first.classList.remove("ld");first.classList.add("pop");later(postedBurst,300)},1700)}
  const step=()=>{if(feedGrid.stop!==G.dataset.s)return;let c=0;while(n<list.length&&c<1){setTile(list[n],els[n],300,!noName,"pl");n++;c++}if(n<list.length)setTimeout(step,24)};G.dataset.s=String(Math.random());feedGrid.stop=G.dataset.s;
  if(!loadFirst)n=0;setTimeout(step,loadFirst?200:0)}
-function feedSet(mode){FV=mode;const f=$("#feed");f.classList.remove("edt");f.classList.remove("fp");f.classList.toggle("lst",mode==="list");f.classList.toggle("prof",mode==="mine");f.classList.remove("srch");$("#fsr").classList.remove("on")}
+const BKB=document.querySelector("#feed > .bk"),BK0=BKB.innerHTML,BKL='<svg viewBox="0 0 24 24"><path d="M20 12H4M10 5l-7 7 7 7"/></svg>';
+function feedSet(mode){BKB.innerHTML=mode==="list"?BKL:BK0;FV=mode;const f=$("#feed");f.classList.remove("edt");f.classList.remove("fp");f.classList.toggle("lst",mode==="list");f.classList.toggle("prof",mode==="mine");f.classList.remove("srch");$("#fsr").classList.remove("on")}
 let FBROWSE=false,FFROM="done";
 const CATS=["All","Black & white","Words","Framed","Arches","Leaves","Stars","Hexagons","Circles","Blobs"];let FCAT="All",FBASE=[];
 function itTags(it){const s=it.st,t=[];if(s.bw)t.push("Black & white");if(s.texts&&s.texts.length)t.push("Words");if(s.frame&&s.frame.k>0)t.push("Framed");if(it.shape)t.push(it.shape);return t}
@@ -1750,7 +1755,7 @@ function setSlides(it,b){b.innerHTML="";const mk=c=>{const d=document.createElem
 function feedOpen(list,i){FLIST=list;const L=$("#fl");L.innerHTML="";const io=new IntersectionObserver(es=>es.forEach(en=>{if(en.isIntersecting){const b=en.target;io.unobserve(b);const it=list[+b.dataset.i];setTimeout(()=>setSlides(it,b),0)}}),{root:L,rootMargin:"400px"});const cards=[];
  list.forEach((it,idx)=>{const card=document.createElement("div");card.className="fc";const hd=document.createElement("div");hd.className="fh";const lc=locOf(it);hd.innerHTML='<i style="background:'+[C.Y,C.P,C.B][idx%3]+'"></i><div class="fn"><b>'+it.n+'</b>'+(lc?'<em>'+lc+'</em>':'')+'</div><span>'+it.t+'</span>';card.appendChild(hd);
   const bx=document.createElement("div");bx.className="fi2";bx.style.aspectRatio=asp(it.st);bx.dataset.i=idx;card.appendChild(bx);const dts=document.createElement("div");dts.className="dts";dts.innerHTML="<i class=on></i><i></i>";card.appendChild(dts);bx.addEventListener("scroll",()=>{const k=Math.round(bx.scrollLeft/Math.max(1,bx.clientWidth));[...dts.children].forEach((d,j)=>d.classList.toggle("on",j===k))});[...dts.children].forEach((d,j)=>d.onclick=()=>bx.scrollTo({left:j*bx.clientWidth,behavior:"smooth"}));bx.addEventListener('pointerup',ev=>dtap(ev,bx));const ft=document.createElement("div");ft.className="ff";const hb=document.createElement("button");hb.setAttribute("aria-label","Like");hb.innerHTML='<svg viewBox="0 0 30 30"><path d="M15 25S5 18.5 5 11.5A5.5 5.5 0 0 1 15 8.5 5.5 5.5 0 0 1 25 11.5C25 18.5 15 25 15 25Z"/></svg>';const sid=it.st.id;hb.classList.toggle("on",LIKES.has(sid));hb.onclick=()=>{if(LIKES.has(sid))LIKES.delete(sid);else LIKES.set(sid,it);persist();hb.classList.toggle("on",LIKES.has(sid))};bx._hb=hb;bx._it=it;ft.appendChild(hb);const bb=document.createElement('button');bb.setAttribute('aria-label','Buy this poster');bb.className='bb';bb.innerHTML='<svg viewBox="0 0 30 30"><path d="M6 10h18l-1.5 15h-15z"/><path d="M11 13V8.5a4 4 0 0 1 8 0V13"/></svg>';bb.onclick=()=>{GCUR=it.e||{st:it.st};BUYFROM="feed";go("buy")};ft.appendChild(bb);if(it.mine){const tr=document.createElement('button');tr.setAttribute('aria-label','Delete this poster');tr.className='bb';tr.innerHTML='<svg viewBox="0 0 30 30"><path d="M7 9h16"/><path d="M12 9V6.5h6V9"/><path d="M9 9l1 15h10l1-15"/><path d="M13 13v7M17 13v7"/></svg>';tr.onclick=()=>askDelete(it,card,list);ft.appendChild(tr)}card.appendChild(ft);L.appendChild(card);cards.push(card);io.observe(bx)});
- $("#fT").innerHTML=LOGO;const prev=FV;feedSet("list");FV="list";FV_PREV=prev;$("#feed").classList.toggle("fp",prev==="mine");requestAnimationFrame(()=>{L.scrollTop=cards[i].offsetTop-6})}
+ $("#fT").innerHTML=LOGO;const prev=FV;feedSet("list");FV="list";FV_PREV=prev;$("#feed").classList.toggle("fp",prev==="mine");requestAnimationFrame(()=>{L.scrollTop=Math.max(0,cards[i].offsetTop-(i?52:74))})}
 let FV_PREV="grid",FDIRTY=false;
 (function(){const L=document.getElementById("fl");let x0=0,y0=0,ok=false;
  const st=(x,y,t)=>{x0=x;y0=y;const b=t.closest&&t.closest(".fi2");ok=!b||b.scrollLeft<4};

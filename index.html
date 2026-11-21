@@ -870,8 +870,8 @@ canvas{position:absolute;left:0;top:0;width:402px;height:874px;pointer-events:no
 #poster #roombtn svg{width:28px!important;height:28px!important;stroke-width:2!important}
 
 /* ===== round 8: no sheet handle line; buy flow; thank-you; calm button press ===== */
-#gedge:after{display:none!important}
-#fpeek:before{display:none!important}
+/* the 40px edge strip casts its shadow upward only: clipping below its bottom edge removes the straight line under the sheet top */
+#gedge{clip-path:inset(-30px -30px 0 -30px)!important}
 /* every wide button: no colour stripes, just turns pink when pressed */
 .wbtn,.wbtn:hover{background-image:none!important}
 .wbtn.sw{animation:none!important}

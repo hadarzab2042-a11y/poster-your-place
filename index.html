@@ -905,6 +905,20 @@ canvas{position:absolute;left:0;top:0;width:402px;height:874px;pointer-events:no
 #done #dBuy:hover,#done #dShare:hover,#buy #bbar:hover{background-size:0% 100%!important}
 #done #dBuy.go,#done #dShare.go,#done #dBuy.blk,#done #dShare.blk,#buy #bbar.go,#buy #bbar.blk,#done #dBuy.go:hover,#done #dShare.go:hover,#buy #bbar.go:hover{background-size:100% 100%!important}
 #done #dBuy.go,#done #dShare.go,#buy #bbar.go,#done #dBuy.blk,#done #dShare.blk,#buy #bbar.blk{color:transparent!important}
+
+/* ===== round 10: thank-you centred, Share button with a light flash ===== */
+#tt{top:128px!important}
+#thmock{top:260px!important}
+#thsum{top:608px!important}
+#thnote{top:641px!important}
+#thanks #tShareB{left:38px!important;top:697px!important;width:326px!important;height:50px!important;border-radius:25px!important;font-size:19px!important;font-weight:700!important;letter-spacing:-.02em!important;
+ background-color:var(--ink)!important;color:#fff!important;background-image:repeating-linear-gradient(to bottom,#000 0 6px,#fff 6px 12px)!important;background-repeat:no-repeat!important;background-position:0 0!important;background-size:0% 100%!important;background-origin:border-box!important;background-clip:border-box!important;
+ transition:background-size .5s cubic-bezier(.45,0,.2,1),color .15s,opacity .6s!important}
+#thanks #tShareB:hover{background-size:0% 100%!important}
+#thanks #tShareB.go,#thanks #tShareB.blk,#thanks #tShareB.go:hover{background-size:100% 100%!important;color:transparent!important}
+#thanks #tShareB:after{content:"";position:absolute;top:0;bottom:0;left:0;width:36%;background:linear-gradient(100deg,transparent 0,rgba(255,255,255,.55) 50%,transparent 100%);transform:translateX(-130%) skewX(-18deg);animation:tshn 2s ease-in-out infinite;pointer-events:none}
+#thanks #tShareB.go:after,#thanks #tShareB.blk:after{display:none}
+@keyframes tshn{0%{transform:translateX(-130%) skewX(-18deg)}50%,100%{transform:translateX(330%) skewX(-18deg)}}
 </style>
 </head>
 <body>
@@ -960,7 +974,7 @@ canvas{position:absolute;left:0;top:0;width:402px;height:874px;pointer-events:no
   <section class="scr" id="hist"><div class="tx" id="tHist">youre<br>gallery</div><div id="car"></div><div id="gcap"></div><div id="ticks"></div><button class="bar off" id="printbar">Print</button><button id="groom" aria-label="See it in your room"><svg viewBox="0 0 24 24"><path d="M2 12s3.6-6.5 10-6.5S22 12 22 12s-3.6 6.5-10 6.5S2 12 2 12z"/><circle cx="12" cy="12" r="2.8"/></svg></button></section>
   <section class="scr" id="merch"><div class="tx" id="tMerch">Pick your<br>merch</div><div id="chips"></div><div id="mock"></div><div id="mname"></div><button class="bar" id="mbar">This is it</button></section>
   <section class="scr" id="order"><div class="tx" id="tOrder">Order<br>it</div><div id="omock"></div><div id="osum"></div><div id="onote"></div><button class="bar" id="obar">Place order</button></section>
-  <section class="scr" id="thanks"><div id="tt"><span>Thank</span><span>you!</span></div><div id="thmock"></div><div id="thsum" class="fi"></div><div id="thnote" class="fi">Your order is on its way to print.</div><button class="wbtn fi" id="thbar">Create another</button><canvas id="cTh"></canvas></section>
+  <section class="scr" id="thanks"><div id="tt"><span>Thank</span><span>you!</span></div><div id="thmock"></div><div id="thsum" class="fi"></div><div id="thnote" class="fi">Your order is on its way to print.</div><button class="wbtn fi" id="thbar">Create another</button><button class="wbtn fi" id="tShareB">Share</button><canvas id="cTh"></canvas></section>
   <div id="isl"></div><div id="hind"></div><div id="toast"></div>
  </div></div>
 </div>
@@ -1524,6 +1538,7 @@ function drawDone(){const w=$("#dW"),sp=[...w.children],q=$("#dQ"),b1=$("#dBuy")
  [b1,b2].forEach((b,i)=>later(()=>{b.style.opacity=1;wsweep(b)},3550+i*220))}
 wbtn($("#dBuy"),()=>{BUYFROM="done";go("buy")});
 wbtn($("#dShare"),()=>go("feed"));
+wbtn($("#tShareB"),()=>go("feed"));
 /* ---- buy ---- */
 let BUYFROM="done",FEEDKEEP=false;
 const BPRICE=[89,59,42,32,36,24],BPPC=3.3;let BPOS={x:201,y:320},BTOOL=null;
@@ -1869,7 +1884,7 @@ function thanksStep(dt){if(!gTh)gTh=ctx($("#cTh"));gTh.clearRect(0,0,W,H);const 
   if(hit)b.ci=(b.ci+1)%3;const l=b.tr[b.tr.length-1];if(hit||Math.hypot(l.x-b.x,l.y-b.y)>=4)b.tr.push({x:b.x,y:b.y,w:1});while(b.tr.length>60)b.tr.shift();
   if(b.tr.length>3)ribbon(gTh,smoothTrail(b.tr,7),TS,14,()=>3,s=>{const r=Math.min(1,s/25);return r*r*(3-2*r)})}
  for(const b of TB){gTh.fillStyle=CS[b.ci];gTh.strokeStyle=INK;gTh.lineWidth=4;gTh.beginPath();gTh.arc(b.x,b.y,26,0,7);gTh.fill()}}
-$("#thanks").addEventListener("pointerdown",ev=>{if(editing||ev.target.closest(".bar"))return;const r=ph.getBoundingClientRect();spawnTB((ev.clientX-r.left)/SC,(ev.clientY-r.top)/SC,Math.random()*6.283,300)});
+$("#thanks").addEventListener("pointerdown",ev=>{if(editing||ev.target.closest(".bar,.wbtn"))return;const r=ph.getBoundingClientRect();spawnTB((ev.clientX-r.left)/SC,(ev.clientY-r.top)/SC,Math.random()*6.283,300)});
 document.querySelectorAll("#side [data-j]").forEach(b=>b.onclick=()=>{const j=b.dataset.j;go(j,j==="home")});
 
 /* ---------- movable buttons (edit mode) ---------- */

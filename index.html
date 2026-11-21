@@ -819,6 +819,37 @@ canvas{position:absolute;left:0;top:0;width:402px;height:874px;pointer-events:no
 #poster #spn{top:626px!important;height:164px!important;padding-top:0!important}
 #poster #spn .row{min-height:34px;margin-bottom:0}
 #poster #spn .row.swr{min-height:40px;padding:4px 8px}
+
+/* ---- edit panel, typographic layout (option C) ---- */
+#poster #spn .pmid{gap:10px;align-items:center}
+#poster #spn .row{justify-content:safe center;margin:0;padding:2px 0;min-height:30px;width:100%;overflow:visible}
+#poster #spn .row.swr{gap:16px;min-height:42px;padding:4px 0;flex:none}
+#poster #spn .swr i{width:34px;height:34px}
+#poster #spn .row .ch{height:auto;min-height:0;padding:0 0 3px;border:0!important;border-bottom:2px solid transparent!important;border-radius:0;background:transparent!important;color:#777;font:700 18px/1.15 "Helvetica Neue",Helvetica,Arial,sans-serif;letter-spacing:-.02em;text-transform:none;width:auto}
+#poster #spn .row .ch.on{color:#fff;border-bottom-color:var(--Y)!important}
+#poster #spn .row{gap:18px}
+#poster #spn .row .ch.shp{width:auto;padding:3px 6px;color:#777}
+#poster #spn .row .ch.shp.on{color:var(--Y);border-bottom-color:transparent!important}
+#poster #spn .row .ch.shp svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:2;filter:none!important}
+#poster #spn .row.two{gap:14px;align-items:center}
+#poster #spn .sl{width:100%;max-width:300px;gap:10px}
+#poster #spn .sl span{width:64px;text-align:right;font-size:10px;letter-spacing:.14em;color:#9a9a9a}
+#poster #spn .sl input::-webkit-slider-runnable-track{height:2px;background:#fff}
+#poster #spn .sl input::-webkit-slider-thumb{width:20px;height:20px;margin-top:-9px;background:var(--Y);border:0;box-shadow:0 0 0 2px #000}
+#poster #spn .inv{flex:none;width:32px;height:32px;padding:0;border:0;background:transparent;color:#fff;display:grid;place-items:center;cursor:pointer}
+#poster #spn .inv svg{width:26px;height:26px;fill:none;stroke:currentColor;stroke-width:2;stroke-linejoin:round}
+
+#poster #spn .row .ch{font-size:18px!important;line-height:1.15!important;letter-spacing:-.02em!important;text-transform:none!important}
+#poster #spn .row .ch.shp{padding:2px 6px!important}
+#poster #spn .pmid{gap:4px}
+#poster #spn .row{min-height:28px}
+#poster #spn .row.two .sl{flex:1;min-width:0;max-width:none;width:auto}
+#poster #spn .row.two .sl span{width:56px}
+#poster #spn .row.two{width:100%}
+#poster #spn .row.two .inv,#poster #spn .row.two .ch{flex:none}
+
+#poster #spn .row .ch{border-radius:0!important}
+#poster #spn .row.two .sl span,#poster #spn .sl span{width:auto;min-width:72px;white-space:nowrap}
 </style>
 </head>
 <body>
@@ -1293,11 +1324,13 @@ function buildPanel2(P,st){
   P.appendChild(colRow(st.col.shape.l,c=>{st.bw=false;st.col.shape.l=c}));
   {const r=mkRow(),IC=['<circle cx="12" cy="12" r="9"/>','<rect x="3.5" y="3.5" width="17" height="17"/>','<path d="M12 3L22 20H2z"/>','<path d="M12 2.5L20.5 7.2V16.8L12 21.5L3.5 16.8V7.2z"/>'];
    IC.forEach((d,i)=>r.appendChild(ib(d,PRM[i],i===cp,()=>{if(SELL==="shape")st.prim=i;else so.prim=i;touch();rb()})));
+   if(SELL!=="shape")r.appendChild(mkBtn("Remove",false,()=>{st.extra.splice(+SELL.slice(1),1);SELL="shape";touch();rb();selBox()}));
    r.appendChild(ib('<path d="M12 5v14M5 12h14"/>',"Add shape",false,()=>{st.extra=st.extra||[];if(st.extra.length>=5){toast("Up to 6 shapes");return}{const PL=[[.3,.2],[.72,.22],[.5,.1],[.2,.38],[.8,.4]],pp=PL[st.extra.length%5];st.extra.push({prim:cp,x:pp[0],y:pp[1],s:.3,r:0})}SELL="e"+(st.extra.length-1);touch();rb()}));
    P.appendChild(r)}
   P.appendChild(mkChips(EFX,st.efx,i=>{st.efx=i;touch();rb()}));
-  {const r=mkRow("two");r.appendChild(mkSl("Strength",Math.round(st.depth*100),0,100,v=>{st.depth=v/100;ST.rev++;lowRender()}));r.appendChild(mkBtn("Invert inside",st.inv,()=>{st.inv=!st.inv;touch();rb()}));P.appendChild(r)}
-  if(SELL!=="shape"){const r2=mkRow();r2.appendChild(mkBtn("Remove shape",false,()=>{st.extra.splice(+SELL.slice(1),1);SELL="shape";touch();rb();selBox()}));P.appendChild(r2)}}
+  {const r=mkRow("two");r.appendChild(mkSl("Strength",Math.round(st.depth*100),0,100,v=>{st.depth=v/100;ST.rev++;lowRender()}));{const b=document.createElement("button");b.className="inv"+(st.inv?" on":"");b.setAttribute("aria-label","Invert inside");b.setAttribute("aria-pressed",!!st.inv);
+   b.innerHTML=st.inv?'<svg viewBox="0 0 24 24"><path fill="currentColor" stroke="none" fill-rule="evenodd" d="M2 2h20v20H2z M12 6.5a5.5 5.5 0 1 0 .001 0z"/></svg>':'<svg viewBox="0 0 24 24"><rect x="2.5" y="2.5" width="19" height="19"/><circle cx="12" cy="12" r="5.5" fill="currentColor" stroke="none"/></svg>';
+   b.onclick=()=>{st.inv=!st.inv;touch();rb()};r.appendChild(b)}P.appendChild(r)}}
  else if(TOOL==="pat"){
   P.appendChild(colRow(st.col.ground.d,c=>{st.bw=false;st.col.ground.d=c;st.col.halo.d=c;st.col.shape.d=c}));
   {const ok=[0,1,2,5,6];P.appendChild(mkChips(ok.map(i=>FLD[i]),ok.indexOf(st.field),i=>{st.field=ok[i];touch();rb()}))}

@@ -977,6 +977,10 @@ canvas{position:absolute;left:0;top:0;width:402px;height:874px;pointer-events:no
 #feed.lst>.bk svg{transform:none!important}
 #feed.lst>.bk{left:18px!important}
 #feed.lst #fl{padding-left:18px!important;padding-right:18px!important}
+
+/* someone else's / already posted poster: no Share, frame centred, auto-return */
+#thanks.nosh #tShareB{display:none!important}
+#thanks.nosh #tt{top:171px!important}#thanks.nosh #thmock{top:303px!important}#thanks.nosh #thsum{top:651px!important}#thanks.nosh #thnote{top:684px!important}
 </style>
 </head>
 <body>
@@ -1949,14 +1953,15 @@ $("#obar").onclick=()=>go("thanks");
 wbtn($("#thbar"),()=>go("home"));
 let TB=[],gTh=null;
 function spawnTB(x,y,a,sp){TB.length<14&&TB.push({x,y,a,v:sp,t:0,ci:Math.floor(Math.random()*3),tr:[{x,y,w:1}]})}
-function initThanks(){{const sb=$("#tShareB");if(sb){sb.classList.remove("go","blk","sw");sb.style.opacity=""}}TB=[];const s=$("#thanks");s.classList.remove("done");const e=GAL[Math.min(GAL.length-1,Math.max(0,MIDX))];
+function initThanks(){{const sb=$("#tShareB");if(sb){sb.classList.remove("go","blk","sw");sb.style.opacity=""}}TB=[];const s=$("#thanks");s.classList.remove("done");const nosh=!(GCUR&&GAL.includes(GCUR)&&!GCUR.shared&&!GCUR.seed);s.classList.toggle("nosh",nosh);const e=GAL[Math.min(GAL.length-1,Math.max(0,MIDX))];
  thFill();
  const tt=$("#tt"),sp=[...tt.children],W=Math.max(...sp.map(x=>x.offsetWidth)),H=tt.offsetHeight,k=1.9,tx=201-W*k/2-38,ty=437-H*k/2-tt.offsetTop;
  tt.style.transition="none";tt.style.opacity=0;sp.forEach(x=>{x.style.transition="none";x.style.transform="translateX("+(W-x.offsetWidth)/2+"px)"});tt.style.transform="translate("+tx+"px,"+ty+"px) scale("+k*.3+")";void tt.offsetWidth;
  later(()=>{tt.style.transition="transform .5s cubic-bezier(.3,1.6,.5,1),opacity .2s";tt.style.opacity=1;tt.style.transform="translate("+tx+"px,"+ty+"px) scale("+k+")"},80);
  later(()=>{for(let i=0;i<3;i++)spawnTB(201,437,i*2.0944+.6+Math.random()*.5,430)},650);
  later(()=>{const q="transform .9s cubic-bezier(.5,0,.2,1)";tt.style.transition=q;tt.style.transform="translate(0,0) scale(1)";sp.forEach(x=>{x.style.transition=q;x.style.transform="translateX(0)"})},3400);
- later(()=>s.classList.add("done"),4200)}
+ later(()=>s.classList.add("done"),4200);
+ if(nosh)later(()=>go("home"),4200+3500)}
 function thanksStep(dt){if(!gTh)gTh=ctx($("#cTh"));gTh.clearRect(0,0,W,H);const M=28,CS=[C.Y,C.P,C.B];
  for(const b of TB){b.t+=dt;const v=215+(b.v-215)*Math.exp(-b.t*3.5);b.x+=Math.cos(b.a)*v*dt;b.y+=Math.sin(b.a)*v*dt;let hit=false;
   if(b.x<M){b.x=2*M-b.x;b.a=Math.PI-b.a;hit=true}else if(b.x>W-M){b.x=2*(W-M)-b.x;b.a=Math.PI-b.a;hit=true}

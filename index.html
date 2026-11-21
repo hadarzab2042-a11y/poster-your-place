@@ -889,6 +889,16 @@ canvas{position:absolute;left:0;top:0;width:402px;height:874px;pointer-events:no
 #thsum{top:582px!important}
 #thnote{top:614px!important}
 #thanks .fi{transition:opacity .6s!important}
+
+/* ===== round 9: Perfect screen buttons (option B) ===== */
+#dPost{top:230px!important;height:392px!important;align-items:flex-start!important}
+#done #dBuy,#done #dShare{left:38px!important;width:326px!important;height:50px!important;border-radius:25px!important;font-size:19px!important;font-weight:700!important;letter-spacing:-.02em!important;
+ background-image:repeating-linear-gradient(to bottom,#000 0 7px,#fff 7px 10px)!important;background-repeat:no-repeat!important;background-position:100% 0!important;background-size:0% 100%!important;
+ transition:background-size .5s cubic-bezier(.4,0,.2,1),color .15s!important}
+#done #dBuy{top:var(--dbt,670px)!important;background-color:var(--P)!important}
+#done #dShare{top:calc(var(--dbt,670px) + 60px)!important;background-color:var(--ink)!important}
+#done #dBuy:hover,#done #dShare:hover{background-size:0% 100%!important}
+#done #dBuy.go,#done #dShare.go,#done #dBuy.blk,#done #dShare.blk,#done #dBuy.go:hover,#done #dShare.go:hover{background-size:100% 100%!important;background-image:repeating-linear-gradient(to bottom,#000 0 7px,#fff 7px 10px)!important;color:transparent!important}
 </style>
 </head>
 <body>
@@ -934,7 +944,7 @@ canvas{position:absolute;left:0;top:0;width:402px;height:874px;pointer-events:no
    <div id="spn"></div><div id="tcol"></div><textarea id="tin" aria-label="Edit text" rows="2"></textarea>
    <button id="nextbtn" aria-label="Next"><svg viewBox="0 0 30 30"><path d="M4 15H25"/><path d="M17 7L25 15L17 23"/></svg></button><canvas id="pglassA" class="pgl"></canvas><canvas id="pglassB" class="pgl"></canvas><div id="trash"><svg viewBox="0 0 30 30"><path d="M5 8h20"/><path d="M11 8V5h8v3"/><path d="M8 8l1 17h12l1-17"/><path d="M12.5 12v9M17.5 12v9"/></svg></div>
    <button id="roombtn" aria-label="Preview in your room"><svg viewBox="0 0 24 24"><path d="M2 12s3.6-6.5 10-6.5S22 12 22 12s-3.6 6.5-10 6.5S2 12 2 12z"/><circle cx="12" cy="12" r="2.8"/></svg></button></section>
-  <section class="scr" id="done"><div id="dW"></div><div id="dPost"></div><div id="dQ">What do you want to do with it?</div><button class="wbtn" id="dBuy" style="top:652px">Buy it</button><button class="wbtn" id="dShare" style="top:728px">Share with friends</button></section>
+  <section class="scr" id="done"><div id="dW"></div><div id="dPost"></div><div id="dQ">What do you want to do with it?</div><button class="wbtn" id="dBuy" style="top:652px">Poster your place</button><button class="wbtn" id="dShare" style="top:728px">Share</button></section>
   <section class="scr" id="buy"><div id="bRoom"><img id="bimg" alt="Your room"><div id="bpos"></div></div><div id="btcol"></div><div id="bpan" class="off"></div><button class="wbtn" id="bbar">Buy it</button></section>
   <section class="scr" id="feed"><canvas id="fring" width="402" height="874"></canvas><button id="fringb" aria-label="Back to start"></button><div id="fW">Welcome back,</div><div id="fT">Poster<br>your<br>place</div><button id="pedit" aria-label="Edit my wall"><svg viewBox="0 0 30 30"><path d="M6 24l1-5L19.5 6.5l4 4L11 23z"/><path d="M17 9l4 4"/></svg></button><div id="pep"></div><input type="file" id="pcf" accept="image/*" hidden><div id="fcats" role="tablist" aria-label="Categories"></div><div id="fg"></div><div id="fl"></div>
    <div id="fbar"><button id="fprof" aria-label="Your profile"><svg viewBox="0 0 30 30"><circle cx="15" cy="10.5" r="5"/><path d="M5.5 25c1-5.5 4.8-8 9.5-8s8.5 2.5 9.5 8"/></svg></button></div>
@@ -1497,7 +1507,7 @@ function wbtn(b,cb){b.onclick=()=>{if(b.classList.contains("go"))return;b.classL
 const DW=["Perfect,","you have","a poster."];
 (function(){const w=$("#dW");DW.forEach(x=>{const s=document.createElement("span");s.textContent=x;w.appendChild(s)})})();
 function drawDone(){const w=$("#dW"),sp=[...w.children],q=$("#dQ"),b1=$("#dBuy"),b2=$("#dShare"),pb=$("#dPost");const st=currentEntry().st;
- pb.innerHTML="";const c=posterCanvas(st,900),r=c.width/c.height,bw=330,bh=392;let cw=bw,ch=bw/r;if(ch>bh){ch=bh;cw=bh*r}c.style.cssText="width:"+cw+"px;height:"+ch+"px;display:block;box-shadow:0 12px 34px rgba(0,0,0,.3)";pb.appendChild(c);
+ pb.innerHTML="";const c=posterCanvas(st,900),r=c.width/c.height,bw=330,bh=392;let cw=bw,ch=bw/r;if(ch>bh){ch=bh;cw=bh*r}c.style.cssText="width:"+cw+"px;height:"+ch+"px;display:block;box-shadow:0 12px 34px rgba(0,0,0,.3)";pb.appendChild(c);$("#done").style.setProperty("--dbt",(230+ch+48)+"px");
  [q,pb].forEach(e=>{e.style.transition="none";e.style.opacity=0});pb.style.transform="scale(.9)";q.style.transform="translateY(14px)";[b1,b2].forEach(x=>{x.classList.remove("blk","go","sw");x.style.opacity=0});
  w.style.transition="none";w.style.transform="none";sp.forEach(e=>{e.style.transition="none";e.style.opacity=0;e.style.transform="translateY(14px)"});void w.offsetWidth;
  const k=1.9,W=Math.max(...sp.map(x=>x.offsetWidth)),H=w.offsetHeight,tx=201-W*k/2-38,ty=437-H*k/2-100;w.style.transform="translate("+tx+"px,"+ty+"px) scale("+k+")";

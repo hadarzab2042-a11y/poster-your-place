@@ -932,6 +932,10 @@ canvas{position:absolute;left:0;top:0;width:402px;height:874px;pointer-events:no
 
 /* thank-you is a sheet too: it stays until Share is tapped or the sheet is pulled down by its handle */
 #thanks{clip-path:inset(var(--ds-sheet-top) 0 0 0 round var(--ds-sheet-r) var(--ds-sheet-r) 0 0)!important;background:#fff}
+
+/* checkout bar: no button at first; stripes run left to right to fill it, then keep going and uncover the pink */
+#buy #bbar.rev0{background-color:transparent!important;background-size:0% 100%!important;background-position:0 0!important;transition:none!important;color:transparent!important}
+#buy #bbar.rev1{background-color:transparent!important;background-size:100% 100%!important;background-position:0 0!important;transition:background-size .5s cubic-bezier(.45,0,.2,1)!important;color:transparent!important}
 </style>
 </head>
 <body>
@@ -1575,7 +1579,7 @@ function buyBkColor(){const im=$("#bimg"),b=document.querySelector("#buy>.bk");i
  if(!b.dataset.arrow){b.dataset.arrow=1;b.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12H4M10 6l-6 6 6 6"/></svg>'}
  const f=()=>{try{const c=document.createElement("canvas");c.width=c.height=16;const x=c.getContext("2d"),w=im.naturalWidth,h=im.naturalHeight;x.drawImage(im,0,0,w*.35,h*.14,0,0,16,16);const d=x.getImageData(0,0,16,16).data;let l=0;for(let i=0;i<d.length;i+=4)l+=.299*d[i]+.587*d[i+1]+.114*d[i+2];l/=256;b.style.color=l>145?"#000":"#fff"}catch(e){b.style.color="#fff"}};
  im.onload=f;if(im.complete&&im.naturalWidth)f()}
-function drawBuy(){const e=currentEntry();ST=e.st;GCUR=e;BTOOL=null;if(!ROOM){ROOM=scene(3).toDataURL("image/jpeg",.8)}$("#bimg").src=ROOM;buyBkColor();bPoster();bPanel();const bb=$("#bbar");bb.textContent="Check out · $"+bPrice(ST);bb.classList.remove("blk","go","sw");bb.style.opacity=1;bb.classList.remove("rev2");bb.classList.add("rev");void bb.offsetWidth;later(()=>{bb.classList.remove("rev");bb.classList.add("rev2");later(()=>bb.classList.remove("rev2"),800)},120)}
+function drawBuy(){const e=currentEntry();ST=e.st;GCUR=e;BTOOL=null;if(!ROOM){ROOM=scene(3).toDataURL("image/jpeg",.8)}$("#bimg").src=ROOM;buyBkColor();bPoster();bPanel();const bb=$("#bbar");bb.textContent="Check out · $"+bPrice(ST);bb.classList.remove("blk","go","sw");bb.style.opacity=1;bb.classList.remove("rev","rev1","rev2");bb.classList.add("rev0");void bb.offsetWidth;later(()=>{bb.classList.remove("rev0");bb.classList.add("rev1");later(()=>{bb.classList.remove("rev1");bb.classList.add("rev");void bb.offsetWidth;later(()=>{bb.classList.remove("rev");bb.classList.add("rev2");later(()=>bb.classList.remove("rev2"),800)},40)},560)},60)}
 (function(){const h=$("#bpos");let d=null;h.addEventListener("pointerdown",ev=>{ev.preventDefault();d={x:ev.clientX,y:ev.clientY,px:BPOS.x,py:BPOS.y};try{h.setPointerCapture(ev.pointerId)}catch(e){}});
  h.addEventListener("pointermove",ev=>{if(!d)return;BPOS={x:d.px+(ev.clientX-d.x)/SC,y:d.py+(ev.clientY-d.y)/SC};const w=h.offsetWidth,hh=h.offsetHeight;BPOS.x=clamp(BPOS.x,w*.3,402-w*.3);BPOS.y=clamp(BPOS.y,hh*.3,874-hh*.3);h.style.left=(BPOS.x-w/2)+"px";h.style.top=(BPOS.y-hh/2)+"px"});
  h.addEventListener("pointerup",()=>{d=null});h.addEventListener("pointercancel",()=>{d=null});

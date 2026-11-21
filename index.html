@@ -853,6 +853,12 @@ canvas{position:absolute;left:0;top:0;width:402px;height:874px;pointer-events:no
 
 #poster #spn .row .ch.shp{color:#a0a0a0}
 #poster #spn .row .ch.shp.on{color:var(--Y)}
+
+/* panel: equal breathing room above the palette and above the category row */
+#poster #spn{top:637px!important;height:140px!important}
+
+#poster #spn{top:643px!important;height:164px!important}
+#poster #spn .pmid{justify-content:space-evenly!important;gap:0!important}
 </style>
 </head>
 <body>
@@ -1297,7 +1303,7 @@ function captureMeta(forSt){const M=META={time:hhmm(new Date()),lat:null,lon:nul
  if(!navigator.geolocation){M.denied=true;applyMeta(M);return M}
  try{navigator.geolocation.getCurrentPosition(p=>{M.lat=p.coords.latitude;M.lon=p.coords.longitude;applyMeta(M);geocode(M)},()=>{M.denied=true;applyMeta(M)},{timeout:8000,maximumAge:60000})}catch(e){M.denied=true;applyMeta(M)}
  return M}
-function makePoster(){const st=newState(SHAPE||SHP.circle);if(META){st.texts.push(metaText(META,st));META.sts.push(st)}GCUR={st};GAL.push(GCUR);ST=st;SELL="shape";TOOL="shape"}
+function makePoster(){const st=newState(SHAPE||SHP.circle);if(META){st.texts.push(metaText(META,st));META.sts.push(st)}GCUR={st};GAL.push(GCUR);ST=st;SELL=st.texts.length?st.texts.length-1:"shape";TOOL="text"}
 function touch(low){ST.rev++;refresh(low)}
 const ART={cw:402,ch:621,pad:0};
 function refresh(low){if(!ST||cur!=="poster")return;const box=$("#stagebox"),pf=$("#pframe"),pm=$("#pmat"),art=$("#art");let cw,ch,pad=0;
@@ -1330,14 +1336,17 @@ function buildPanel2(P,st){
    if(SELL!=="shape")r.appendChild(mkBtn("Remove",false,()=>{st.extra.splice(+SELL.slice(1),1);SELL="shape";touch();rb();selBox()}));
    r.appendChild(ib('<path d="M12 5v14M5 12h14"/>',"Add shape",false,()=>{st.extra=st.extra||[];if(st.extra.length>=5){toast("Up to 6 shapes");return}{const PL=[[.3,.2],[.72,.22],[.5,.1],[.2,.38],[.8,.4]],pp=PL[st.extra.length%5];st.extra.push({prim:cp,x:pp[0],y:pp[1],s:.3,r:0})}SELL="e"+(st.extra.length-1);touch();rb()}));
    P.appendChild(r)}
-  P.appendChild(mkChips(EFX,st.efx,i=>{st.efx=i;touch();rb()}));
-  {const r=mkRow("two");r.appendChild(mkSl("Strength",Math.round(st.depth*100),0,100,v=>{st.depth=v/100;ST.rev++;lowRender()}));{const b=document.createElement("button");b.className="inv"+(st.inv?" on":"");b.setAttribute("aria-label","Invert inside");b.setAttribute("aria-pressed",!!st.inv);
+  {const r=mkRow(),eff=mkChips(EFX,st.efx,i=>{st.efx=i;touch();rb()});while(eff.firstChild)r.appendChild(eff.firstChild);
+   const b=document.createElement("button");b.className="inv"+(st.inv?" on":"");b.setAttribute("aria-label","Invert inside");b.setAttribute("aria-pressed",!!st.inv);
    b.innerHTML=st.inv?'<svg viewBox="0 0 24 24"><path fill="currentColor" stroke="none" fill-rule="evenodd" d="M2 2h20v20H2z M12 6.5a5.5 5.5 0 1 0 .001 0z"/></svg>':'<svg viewBox="0 0 24 24"><rect x="2.5" y="2.5" width="19" height="19"/><circle cx="12" cy="12" r="5.5" fill="currentColor" stroke="none"/></svg>';
-   b.onclick=()=>{st.inv=!st.inv;touch();rb()};r.appendChild(b)}P.appendChild(r)}}
+   b.onclick=()=>{st.inv=!st.inv;touch();rb()};r.appendChild(b);P.appendChild(r)}}
  else if(TOOL==="pat"){
   P.appendChild(colRow(st.col.ground.d,c=>{st.bw=false;st.col.ground.d=c;st.col.halo.d=c;st.col.shape.d=c}));
   {const ok=[0,1,2,5,6];P.appendChild(mkChips(ok.map(i=>FLD[i]),ok.indexOf(st.field),i=>{st.field=ok[i];touch();rb()}))}
-  {const r=mkRow("two");r.appendChild(mkSl("Variety",Math.round(st.vari*100),0,100,v=>{st.vari=v/100;ST.rev++;lowRender()}));r.appendChild(mkBtn("Checker",st.alt,()=>{st.alt=!st.alt;touch();rb()}));P.appendChild(r)}}
+  {const r=mkRow("two");r.appendChild(mkSl("Variety",Math.round(st.vari*100),0,100,v=>{st.vari=v/100;ST.rev++;lowRender()}));{const b=document.createElement("button");b.className="inv"+(st.alt?" on":"");b.setAttribute("aria-label","Checker");b.setAttribute("aria-pressed",!!st.alt);
+   const cells=[];for(let y=0;y<4;y++)for(let x=0;x<4;x++){if(((x+y)%2===0)===!!st.alt)cells.push('<rect x="'+(2+x*5)+'" y="'+(2+y*5)+'" width="5" height="5"/>')}
+   b.innerHTML='<svg viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" fill="none"/><g fill="currentColor" stroke="none">'+cells.join("")+'</g></svg>';
+   b.onclick=()=>{st.alt=!st.alt;touch();rb()};r.appendChild(b)}P.appendChild(r)}}
  else if(TOOL==="bg"){
   P.appendChild(colRow(st.col.ground.l,c=>{st.bw=false;st.col.ground.l=c;st.col.halo.l=c}));
   {const r=mkRow();
@@ -1345,7 +1354,6 @@ function buildPanel2(P,st){
    r.appendChild(ib('<circle cx="7.5" cy="7.5" r="4.5" fill="currentColor"/><circle cx="16.5" cy="7.5" r="4.5"/><path d="M5 16.5h14M8 13.5l-3 3 3 3M16 13.5l3 3-3 3"/>',"Swap colours",false,()=>{const g=st.col.ground,l=g.l,d=g.d;g.l=d;g.d=l;st.col.halo.l=g.l;st.col.halo.d=g.d;st.col.shape.d=g.d;st.bw=false;touch();rb()}));
    r.appendChild(ib(dots([[5,5,1],[11,4,1.1],[18,6,1],[8,10,1.2],[15,11,1],[20,14,1.1],[4,15,1],[10,16,1.1],[16,19,1],[7,21,1],[13,12,.9],[20,20,.9]]),"Grain",st.filter==="Grain",()=>{st.filter=st.filter==="Grain"?"None":"Grain";touch();rb()}));
    r.appendChild(ib(dots([[5,5,1.2],[12,5,2],[19,5,2.8],[5,12,2],[12,12,2.8],[19,12,2],[5,19,2.8],[12,19,2],[19,19,1.2]]),"Halftone",st.filter==="Halftone",()=>{st.filter=st.filter==="Halftone"?"None":"Halftone";touch();rb()}));
-   r.appendChild(ib('<rect x="3.5" y="3.5" width="17" height="17" rx="3.5"/>'+dots([[8.5,8.5,1.5],[15.5,8.5,1.5],[12,12,1.5],[8.5,15.5,1.5],[15.5,15.5,1.5]]),"Surprise me",false,()=>{const keep={texts:st.texts,fmt:st.fmt,land:st.land,frame:st.frame,mat:st.mat};roll(st);Object.assign(st,keep);delete st.po;st.filter=pick(["None","None","None","Grain","Halftone"]);st.famt=.35+rnd()*.4;SELL="shape";touch();rb();selBox()}));
    P.appendChild(r)}
   if(st.filter==="Grain"||st.filter==="Halftone"){const r=mkRow("two");r.appendChild(mkSl("Amount",Math.round(st.famt*100),0,100,v=>{st.famt=v/100;ST.rev++;lowRender()}));P.appendChild(r)}}
  else if(TOOL==="text"){

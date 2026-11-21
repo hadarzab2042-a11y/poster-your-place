@@ -811,6 +811,14 @@ canvas{position:absolute;left:0;top:0;width:402px;height:874px;pointer-events:no
 #poster #spn{top:632px!important;height:156px!important}
 #poster #spn .swr{margin-top:0!important}
 #poster #spn .row{margin-bottom:2px}
+
+/* colour palette stays put; everything else is centred in the black area below it */
+#poster #spn{display:flex!important;flex-direction:column}
+#poster #spn .pmid{flex:1;display:flex;flex-direction:column;justify-content:center}
+
+#poster #spn{top:626px!important;height:164px!important;padding-top:0!important}
+#poster #spn .row{min-height:34px;margin-bottom:0}
+#poster #spn .row.swr{min-height:40px;padding:4px 8px}
 </style>
 </head>
 <body>
@@ -1275,10 +1283,10 @@ function mkSw(cols,cur,cb){const r=mkRow("swr");cols.forEach((c,i)=>{const e=doc
 function mkSl(label,v,min,max,cb,step){const d=document.createElement("label");d.className="sl";d.innerHTML="<span>"+label+"</span>";const i=document.createElement("input");i.type="range";i.min=min;i.max=max;i.step=step||1;i.value=v;i.oninput=()=>cb(+i.value);d.appendChild(i);return d}
 function mkBtn(l,on,cb){const b=document.createElement("button");b.className="ch"+(on?" on":"");b.textContent=l;b.onclick=cb;return b}
 function lowRender(){cancelAnimationFrame(lowRender.r);lowRender.r=requestAnimationFrame(()=>{refresh(true);clearTimeout(lowRender.t);lowRender.t=setTimeout(()=>refresh(false),240)})}
-function buildPanel(){const P=$("#spn"),sl=[...P.children].map(r=>r.scrollLeft),st=ST;document.querySelectorAll("#tcol button").forEach(b=>b.classList.toggle("on",b.dataset.k===TOOL));if(!st||!TOOL||pvw){P.classList.add("off");return}P.classList.remove("off");P.innerHTML="";try{buildPanel2(P,st)}finally{[...P.children].forEach((r,i)=>{if(sl[i])r.scrollLeft=sl[i]})}}
+function buildPanel(){const P=$("#spn"),sl=[...P.querySelectorAll(".row")].map(r=>r.scrollLeft),st=ST;document.querySelectorAll("#tcol button").forEach(b=>b.classList.toggle("on",b.dataset.k===TOOL));if(!st||!TOOL||pvw){P.classList.add("off");return}P.classList.remove("off");P.innerHTML="";try{buildPanel2(P,st);const kids=[...P.children];if(kids.length>1){const m=document.createElement("div");m.className="pmid";kids.slice(1).forEach(k=>m.appendChild(k));P.appendChild(m)}}finally{[...P.querySelectorAll(".row")].forEach((r,i)=>{if(sl[i])r.scrollLeft=sl[i]})}}
 function buildPanel2(P,st){
  const rb=()=>buildPanel();
- const colRow=(cur,set)=>{const sw=mkSw(SWT.map(x=>x[1]),cur,c=>{set(c);touch();rb()});const ci=document.createElement("input");ci.type="color";ci.className="mcus";ci.setAttribute("aria-label","Custom colour");ci.value=/^#[0-9a-f]{6}$/i.test(cur)?cur:"#1E1C1D";ci.oninput=e=>{set(e.target.value);ST.rev++;lowRender()};ci.onchange=()=>{touch();rb()};sw.appendChild(ci);return sw};
+ const colRow=(cur,set)=>mkSw(SWT.map(x=>x[1]),cur,c=>{set(c);touch();rb()});
  const ib=(svg,label,on,cb)=>{const b=document.createElement("button");b.className="ch shp"+(on?" on":"");b.setAttribute("aria-label",label);b.innerHTML='<svg viewBox="0 0 24 24">'+svg+'</svg>';b.onclick=cb;return b};
  if(TOOL==="shape"){
   if(!isSh(SELL))SELL="shape";const so=shObj(SELL),cp=SELL==="shape"?st.prim:so.prim;
@@ -1292,7 +1300,7 @@ function buildPanel2(P,st){
   if(SELL!=="shape"){const r2=mkRow();r2.appendChild(mkBtn("Remove shape",false,()=>{st.extra.splice(+SELL.slice(1),1);SELL="shape";touch();rb();selBox()}));P.appendChild(r2)}}
  else if(TOOL==="pat"){
   P.appendChild(colRow(st.col.ground.d,c=>{st.bw=false;st.col.ground.d=c;st.col.halo.d=c;st.col.shape.d=c}));
-  P.appendChild(mkChips(FLD,st.field,i=>{st.field=i;touch();rb()}));
+  {const ok=[0,1,2,5,6];P.appendChild(mkChips(ok.map(i=>FLD[i]),ok.indexOf(st.field),i=>{st.field=ok[i];touch();rb()}))}
   {const r=mkRow("two");r.appendChild(mkSl("Variety",Math.round(st.vari*100),0,100,v=>{st.vari=v/100;ST.rev++;lowRender()}));r.appendChild(mkBtn("Checker",st.alt,()=>{st.alt=!st.alt;touch();rb()}));P.appendChild(r)}}
  else if(TOOL==="bg"){
   P.appendChild(colRow(st.col.ground.l,c=>{st.bw=false;st.col.ground.l=c;st.col.halo.l=c}))}
@@ -1303,20 +1311,15 @@ function buildPanel2(P,st){
   {const r=mkRow();
    if(t){r.appendChild(ib('<path d="M4 6h16M4 12h10M4 18h14"/>',"Align left",t.al!=="right",()=>{t.al="left";touch();rb()}));r.appendChild(ib('<path d="M4 6h16M10 12h10M6 18h14"/>',"Align right",t.al==="right",()=>{t.al="right";touch();rb()}))}
    r.appendChild(ib('<path d="M12 5v14M5 12h14"/>',"Add text",false,()=>addText()));
-   if(!st.texts.some(x=>x.meta))r.appendChild(mkBtn("Info line",false,()=>{const M=captureMeta(st);const nt=metaText(M,st);st.texts.push(nt);M.sts=[st];SELL=st.texts.length-1;touch();rb()}));
-   if(t&&t.meta)r.appendChild(mkBtn("Locate",false,()=>{t.manual=false;captureMeta(st);toast("Locating…")}));
-   if(t)r.appendChild(mkBtn("Plate",t.plate!==false&&!!t.plate,()=>{t.plate=!t.plate;touch();rb()}));
    P.appendChild(r)}
-  if(t){const r3=mkRow("two");r3.appendChild(mkSl("Spacing",Math.round((t.lh||1.05)*100),70,220,v=>{t.lh=v/100;ST.rev++;lowRender()}));P.appendChild(r3)}
-  if(t&&t.meta){const r=mkRow(),inp=document.createElement("input");inp.type="text";inp.className="minp";inp.value=t.t.replace(/\n/g," / ");inp.setAttribute("aria-label","Edit info lines (separate with /)");inp.setAttribute("autocomplete","off");
-   inp.oninput=e=>{t.t=(e.target.value.toUpperCase().split(/\s*\/\s*/).join("\n"))||" ";t.manual=true;st.rev++;lowRender()};inp.onchange=()=>{touch()};r.appendChild(inp);P.appendChild(r)}}
+  if(t){const r3=mkRow("two");r3.appendChild(mkSl("Spacing",Math.round((t.lh||1.05)*100),70,220,v=>{t.lh=v/100;ST.rev++;lowRender()}));P.appendChild(r3)}}
  else if(TOOL==="more"){P.appendChild(mkChips(["Size","Frame","Passe-partout","Filter"],["size","frame","mat","fil"].indexOf(MORE),i=>{MORE=["size","frame","mat","fil"][i];rb()}));
   if(MORE==="size"){P.appendChild(mkChips(FMT.map(f=>f[0]),st.fmt,i=>{st.fmt=i;touch();rb()}));P.appendChild(mkChips(["Portrait","Landscape"],st.land?1:0,i=>{st.land=!!i;touch();rb()}));const n=document.createElement("div");n.className="note";n.textContent="See the exact size with the eye button";P.appendChild(n)}
   else if(MORE==="frame"){P.appendChild(mkChips(["None","Thin","Thick"],st.frame.k,i=>{st.frame.k=i;touch();rb()}));P.appendChild(mkSw(FRC.map(c=>c[0]),st.frame.c,c=>{st.frame.c=c;if(!st.frame.k)st.frame.k=1;touch();rb()}))}
   else if(MORE==="mat"){P.appendChild(mkChips(["None","Thin","Wide"],st.mat.k,i=>{st.mat.k=i;touch();rb()}));P.appendChild(mkSw(MTC.map(c=>c[0]),st.mat.c,c=>{st.mat.c=c;if(!st.mat.k)st.mat.k=1;touch();rb()}))}
   else{P.appendChild(mkChips(FIL,FIL.indexOf(st.filter),i=>{st.filter=FIL[i];touch();rb()}));const r=mkRow("two");r.appendChild(mkSl("Amount",Math.round(st.famt*100),0,100,v=>{st.famt=v/100;ST.rev++;lowRender()}));P.appendChild(r)}}}
 /* poster pointer handling: drag, pinch, wheel, tap-to-type, long-press-to-delete */
-function addText(){ST.texts.push({t:"Text",x:.5,y:.5,s:.1,c:INK,al:"left",plate:true});SELL=ST.texts.length-1;touch();setTimeout(openKb,60)}
+function addText(){ST.texts.push({t:"Text",x:.5,y:.5,s:.1,c:INK,al:"left",plate:false});SELL=ST.texts.length-1;touch();setTimeout(openKb,60)}
 function openKb(){const t=ST&&ST.texts[SELL];if(!t)return;if(t.meta){TOOL="text";buildPanel();return}const ta=$("#tin");ta.value=t.t;ta.focus();try{ta.select()}catch(e){}}
 $("#tin").oninput=e=>{const t=ST&&ST.texts[SELL];if(!t)return;let v=e.target.value.replace(/[ \t]+/g,"\n").replace(/^\n+/,"");if(v!==e.target.value)e.target.value=v;t.t=v.replace(/\n+$/,"")||" ";ST.rev++;lowRender()};
 (function(){const art=$("#art"),PT=new Map(),pz=$("#poster");let DR=null,LP=0,del=false;
@@ -1364,7 +1367,7 @@ $("#tin").oninput=e=>{const t=ST&&ST.texts[SELL];if(!t)return;let v=e.target.val
  text:'<path d="M3.5 23L10 7l6.5 16M6 17.5h8"/><circle cx="22" cy="18.5" r="3.5"/><path d="M25.5 14.5V23"/>',
  bg:'<rect x="4" y="4" width="9" height="9" rx="2"/><rect x="17" y="4" width="9" height="9" rx="2"/><rect x="4" y="17" width="9" height="9" rx="2"/><rect x="17" y="17" width="9" height="9" rx="2"/>',
  shape:'<path d="M11 4.5L20 20H2z"/><circle cx="20" cy="19" r="6"/>'};
- [["text","Text"],["pat","Pattern"],["shape","Shape"],["bg","Background"]].forEach(([k,l])=>{const b=document.createElement("button");b.dataset.k=k;b.setAttribute("aria-label",l);b.textContent=l;
+ [["text","Text"],["pat","Pattern"],["shape","Shape"],["bg","Background"]].forEach(([k,l])=>{const b=document.createElement("button");b.dataset.k=k;b.setAttribute("aria-label",l);b.textContent=k==="text"?"Aa":l;
  b.onclick=()=>{TOOL=TOOL===k?null:k;if(TOOL==="text"&&(typeof SELL!=="number"||!ST.texts[SELL])&&ST.texts.length)SELL=ST.texts.length-1;if(TOOL==="shape"&&typeof SELL==="number")SELL="shape";if(TOOL===null)$("#tin").blur();buildPanel();selBox()};tb.appendChild(b)})})();
 $("#roombtn").onclick=()=>openRoom(currentEntry(),"poster");
 (function(){const b=document.querySelector("#poster .bk");if(!b)return;b.setAttribute("aria-label","Try again");b.innerHTML='<svg viewBox="0 0 30 30"><path d="M25 15a10 10 0 1 1-3.2-7.3"/><path d="M23.5 3.5v6h-6"/></svg>'})();

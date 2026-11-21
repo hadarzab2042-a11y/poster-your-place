@@ -850,6 +850,9 @@ canvas{position:absolute;left:0;top:0;width:402px;height:874px;pointer-events:no
 
 #poster #spn .row .ch{border-radius:0!important}
 #poster #spn .row.two .sl span,#poster #spn .sl span{width:auto;min-width:72px;white-space:nowrap}
+
+#poster #spn .row .ch.shp{color:#a0a0a0}
+#poster #spn .row .ch.shp.on{color:var(--Y)}
 </style>
 </head>
 <body>
@@ -1336,7 +1339,15 @@ function buildPanel2(P,st){
   {const ok=[0,1,2,5,6];P.appendChild(mkChips(ok.map(i=>FLD[i]),ok.indexOf(st.field),i=>{st.field=ok[i];touch();rb()}))}
   {const r=mkRow("two");r.appendChild(mkSl("Variety",Math.round(st.vari*100),0,100,v=>{st.vari=v/100;ST.rev++;lowRender()}));r.appendChild(mkBtn("Checker",st.alt,()=>{st.alt=!st.alt;touch();rb()}));P.appendChild(r)}}
  else if(TOOL==="bg"){
-  P.appendChild(colRow(st.col.ground.l,c=>{st.bw=false;st.col.ground.l=c;st.col.halo.l=c}))}
+  P.appendChild(colRow(st.col.ground.l,c=>{st.bw=false;st.col.ground.l=c;st.col.halo.l=c}));
+  {const r=mkRow();
+   const dots=(a)=>a.map(d=>'<circle cx="'+d[0]+'" cy="'+d[1]+'" r="'+d[2]+'" fill="currentColor" stroke="none"/>').join("");
+   r.appendChild(ib('<circle cx="7.5" cy="7.5" r="4.5" fill="currentColor"/><circle cx="16.5" cy="7.5" r="4.5"/><path d="M5 16.5h14M8 13.5l-3 3 3 3M16 13.5l3 3-3 3"/>',"Swap colours",false,()=>{const g=st.col.ground,l=g.l,d=g.d;g.l=d;g.d=l;st.col.halo.l=g.l;st.col.halo.d=g.d;st.col.shape.d=g.d;st.bw=false;touch();rb()}));
+   r.appendChild(ib(dots([[5,5,1],[11,4,1.1],[18,6,1],[8,10,1.2],[15,11,1],[20,14,1.1],[4,15,1],[10,16,1.1],[16,19,1],[7,21,1],[13,12,.9],[20,20,.9]]),"Grain",st.filter==="Grain",()=>{st.filter=st.filter==="Grain"?"None":"Grain";touch();rb()}));
+   r.appendChild(ib(dots([[5,5,1.2],[12,5,2],[19,5,2.8],[5,12,2],[12,12,2.8],[19,12,2],[5,19,2.8],[12,19,2],[19,19,1.2]]),"Halftone",st.filter==="Halftone",()=>{st.filter=st.filter==="Halftone"?"None":"Halftone";touch();rb()}));
+   r.appendChild(ib('<rect x="3.5" y="3.5" width="17" height="17" rx="3.5"/>'+dots([[8.5,8.5,1.5],[15.5,8.5,1.5],[12,12,1.5],[8.5,15.5,1.5],[15.5,15.5,1.5]]),"Surprise me",false,()=>{const keep={texts:st.texts,fmt:st.fmt,land:st.land,frame:st.frame,mat:st.mat};roll(st);Object.assign(st,keep);delete st.po;st.filter=pick(["None","None","None","Grain","Halftone"]);st.famt=.35+rnd()*.4;SELL="shape";touch();rb();selBox()}));
+   P.appendChild(r)}
+  if(st.filter==="Grain"||st.filter==="Halftone"){const r=mkRow("two");r.appendChild(mkSl("Amount",Math.round(st.famt*100),0,100,v=>{st.famt=v/100;ST.rev++;lowRender()}));P.appendChild(r)}}
  else if(TOOL==="text"){
   if(typeof SELL!=="number"||!st.texts[SELL])SELL=st.texts.length?st.texts.length-1:"shape";
   const t=typeof SELL==="number"?st.texts[SELL]:null;

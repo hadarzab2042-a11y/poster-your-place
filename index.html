@@ -929,6 +929,9 @@ canvas{position:absolute;left:0;top:0;width:402px;height:874px;pointer-events:no
 #buy:has(#bpan:not(.off) .swr) #bbar{top:582px!important}
 #buy #bpan{top:auto!important;bottom:96px!important}
 #buy #bpan .row.swr{margin-top:26px!important}
+
+/* thank-you is a sheet too: it stays until Share is tapped or the sheet is pulled down by its handle */
+#thanks{clip-path:inset(var(--ds-sheet-top) 0 0 0 round var(--ds-sheet-r) var(--ds-sheet-r) 0 0)!important;background:#fff}
 </style>
 </head>
 <body>
@@ -1879,7 +1882,7 @@ $("#obar").onclick=()=>go("thanks");
 wbtn($("#thbar"),()=>go("home"));
 let TB=[],gTh=null;
 function spawnTB(x,y,a,sp){TB.length<14&&TB.push({x,y,a,v:sp,t:0,ci:Math.floor(Math.random()*3),tr:[{x,y,w:1}]})}
-function initThanks(){later(()=>{if(cur==="thanks")go("home",true)},10500);TB=[];const s=$("#thanks");s.classList.remove("done");const e=GAL[Math.min(GAL.length-1,Math.max(0,MIDX))];
+function initThanks(){TB=[];const s=$("#thanks");s.classList.remove("done");const e=GAL[Math.min(GAL.length-1,Math.max(0,MIDX))];
  thFill();
  const tt=$("#tt"),sp=[...tt.children],W=Math.max(...sp.map(x=>x.offsetWidth)),H=tt.offsetHeight,k=1.9,tx=201-W*k/2-38,ty=437-H*k/2-tt.offsetTop;
  tt.style.transition="none";tt.style.opacity=0;sp.forEach(x=>{x.style.transition="none";x.style.transform="translateX("+(W-x.offsetWidth)/2+"px)"});tt.style.transform="translate("+tx+"px,"+ty+"px) scale("+k*.3+")";void tt.offsetWidth;
@@ -2000,7 +2003,7 @@ function feedQ(Y){const p=1-Math.min(1,Math.max(0,Y/PK)),t=Math.min(1,Math.max(0
 function feedRise(on,Y){const f=$("#feed");if(!on){f.classList.remove("rising","settle");f.style.removeProperty("--q");return}
  if(!f.classList.contains("rising")){f.style.setProperty("--D",Math.max(0,$("#fg").offsetTop-66));f.classList.add("rising")}
  f.style.setProperty("--q",feedQ(Y))}
-(function(){const IDS=["cam","done","buy","feed","room","share","hist","merch","order"],hm=$("#home");
+(function(){const IDS=["cam","done","buy","feed","room","share","hist","merch","order","thanks"],hm=$("#home");
  const gt=document.createElement("div");gt.id="gtab";$("#isl").parentNode.appendChild(gt);
  const ge=document.createElement("div");ge.id="gedge";$("#isl").parentNode.appendChild(ge);window.GE=ge;
  let s=null,y0=null,dy=0,act=false;

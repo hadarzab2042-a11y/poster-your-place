@@ -1814,7 +1814,7 @@ function postedBurst(){const f=$("#feed"),t=document.createElement("div");t.clas
    if(b.y<M){b.y=2*M-b.y;b.a=-b.a;hit=true}else if(b.y>H-M){b.y=2*(H-M)-b.y;b.a=-b.a;hit=true}
    if(hit)b.ci=(b.ci+1)%3;const l=b.tr[b.tr.length-1];if(hit||Math.hypot(l.x-b.x,l.y-b.y)>=4)b.tr.push({x:b.x,y:b.y,w:1});while(b.tr.length>60)b.tr.shift();
    if(b.tr.length>3)ribbon(g,smoothTrail(b.tr,7),TS,14,()=>3,q=>{const r=Math.min(1,q/25);return r*r*(3-2*r)})}
-  for(const b of B){g.fillStyle=CS[b.ci];g.strokeStyle=INK;g.lineWidth=4;g.beginPath();g.arc(b.x,b.y,26,0,7);g.fill();g.stroke()}
+  for(const b of B){g.fillStyle=CS[b.ci];g.beginPath();g.arc(b.x,b.y,26,0,7);g.fill()}
   requestAnimationFrame(fr)};requestAnimationFrame(fr)}
 
 function buyBack(){if(BUYFROM==="feed"){FEEDKEEP=true;go("feed")}else go("done")}

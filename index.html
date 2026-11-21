@@ -901,8 +901,10 @@ canvas{position:absolute;left:0;top:0;width:402px;height:874px;pointer-events:no
 #buy #bbar{top:670px!important}
 #buy:has(#bpan:not(.off) .row) #bbar{top:626px!important}
 #buy:has(#bpan:not(.off) .swr) #bbar{top:576px!important}
-#done #dBuy:hover,#done #dShare:hover,#buy #bbar:hover{background-image:none!important}
-#done #dBuy.go,#done #dShare.go,#done #dBuy.blk,#done #dShare.blk,#buy #bbar.go,#buy #bbar.blk{background-image:repeating-linear-gradient(to right,#000 0 10px,#fff 10px 20px)!important;background-size:auto 100%!important;background-repeat:repeat!important;background-origin:border-box!important;background-clip:border-box!important;animation:bstr .35s linear infinite!important;color:transparent!important}
+#done #dBuy,#done #dShare,#buy #bbar{background-image:repeating-linear-gradient(to bottom,#000 0 6px,#fff 6px 12px)!important;background-repeat:no-repeat!important;background-position:0 0!important;background-size:0% 100%!important;background-origin:border-box!important;background-clip:border-box!important;transition:background-size .5s cubic-bezier(.45,0,.2,1),color .15s!important}
+#done #dBuy:hover,#done #dShare:hover,#buy #bbar:hover{background-size:0% 100%!important}
+#done #dBuy.go,#done #dShare.go,#done #dBuy.blk,#done #dShare.blk,#buy #bbar.go,#buy #bbar.blk,#done #dBuy.go:hover,#done #dShare.go:hover,#buy #bbar.go:hover{background-size:100% 100%!important}
+#done #dBuy.go,#done #dShare.go,#buy #bbar.go,#done #dBuy.blk,#done #dShare.blk,#buy #bbar.blk{color:transparent!important}
 </style>
 </head>
 <body>

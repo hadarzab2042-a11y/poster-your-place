@@ -993,6 +993,11 @@ canvas{position:absolute;left:0;top:0;width:402px;height:874px;pointer-events:no
 
 /* phone: keep the status bar (time / battery) readable on top of the poster */
 @media (max-width:500px){#poster:before{content:"";position:absolute;left:0;right:0;top:0;height:60px;background:linear-gradient(#fff 0,rgba(255,255,255,.85) 45%,rgba(255,255,255,0) 100%);z-index:30;pointer-events:none}}
+
+/* real phone: the app fills the whole screen, no frame / empty edges */
+html.pm{padding:0!important}html.pm body{background:#fff!important}
+html.pm #ph{border-radius:0!important;clip-path:none!important}
+html.pm #isl{display:none!important}
 </style>
 </head>
 <body>
@@ -1057,7 +1062,7 @@ canvas{position:absolute;left:0;top:0;width:402px;height:874px;pointer-events:no
 const $=s=>document.querySelector(s),INK="#1E1C1D",C={Y:"#F0E810",P:"#E81878",B:"#40A0D8"},NS="http://www.w3.org/2000/svg";
 const ph=$("#ph"),wrap=$("#wrap");
 let SC=1;
-function fit(){const side=0,sq=false;SC=Math.min((innerHeight-28)/874,(innerWidth-side-28)/402,1.15);if(!sq)document.body.style.background='';else if(!document.body.style.background)document.body.style.background='#fff';wrap.style.width=402*SC+"px";wrap.style.height=874*SC+"px";ph.style.transform="scale("+SC+")";ph.classList.toggle("sq",sq)}
+function fit(){const side=0,sq=false;const pm=innerWidth<=500;document.documentElement.classList.toggle("pm",pm);SC=pm?Math.max(innerWidth/402,innerHeight/874):Math.min((innerHeight-28)/874,(innerWidth-side-28)/402,1.15);if(!sq)document.body.style.background='';else if(!document.body.style.background)document.body.style.background='#fff';wrap.style.width=402*SC+"px";wrap.style.height=874*SC+"px";ph.style.transform="scale("+SC+")";ph.classList.toggle("sq",sq)}
 addEventListener("resize",fit);fit();
 const mk=(src,alt)=>{const i=new Image();i.src=src;i.alt=alt;return i};
 

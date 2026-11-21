@@ -890,15 +890,19 @@ canvas{position:absolute;left:0;top:0;width:402px;height:874px;pointer-events:no
 #thnote{top:614px!important}
 #thanks .fi{transition:opacity .6s!important}
 
-/* ===== round 9: Perfect screen buttons (option B) ===== */
+/* ===== round 9: Perfect screen buttons (option B) + checkout bar, splash-style vertical stripes ===== */
+@keyframes bstr{from{background-position:0 0}to{background-position:-20px 0}}
 #dPost{top:230px!important;height:392px!important;align-items:flex-start!important}
-#done #dBuy,#done #dShare{left:38px!important;width:326px!important;height:50px!important;border-radius:25px!important;font-size:19px!important;font-weight:700!important;letter-spacing:-.02em!important;
- background-image:repeating-linear-gradient(to bottom,#000 0 7px,#fff 7px 10px)!important;background-repeat:no-repeat!important;background-position:100% 0!important;background-size:0% 100%!important;
- transition:background-size .5s cubic-bezier(.4,0,.2,1),color .15s!important}
-#done #dBuy{top:var(--dbt,670px)!important;background-color:var(--P)!important}
-#done #dShare{top:calc(var(--dbt,670px) + 60px)!important;background-color:var(--ink)!important}
-#done #dBuy:hover,#done #dShare:hover{background-size:0% 100%!important}
-#done #dBuy.go,#done #dShare.go,#done #dBuy.blk,#done #dShare.blk,#done #dBuy.go:hover,#done #dShare.go:hover{background-size:100% 100%!important;background-image:repeating-linear-gradient(to bottom,#000 0 7px,#fff 7px 10px)!important;color:transparent!important}
+#done #dBuy,#done #dShare,#buy #bbar{left:38px!important;width:326px!important;height:50px!important;border-radius:25px!important;font-size:19px!important;font-weight:700!important;letter-spacing:-.02em!important;
+ background-image:none!important;transition:color .15s!important}
+#done #dBuy,#buy #bbar{background-color:var(--P)!important;color:#fff!important}
+#done #dBuy{top:var(--dbt,670px)!important}
+#done #dShare{top:calc(var(--dbt,670px) + 60px)!important;background-color:var(--ink)!important;color:#fff!important}
+#buy #bbar{top:670px!important}
+#buy:has(#bpan:not(.off) .row) #bbar{top:626px!important}
+#buy:has(#bpan:not(.off) .swr) #bbar{top:576px!important}
+#done #dBuy:hover,#done #dShare:hover,#buy #bbar:hover{background-image:none!important}
+#done #dBuy.go,#done #dShare.go,#done #dBuy.blk,#done #dShare.blk,#buy #bbar.go,#buy #bbar.blk{background-image:repeating-linear-gradient(to right,#000 0 10px,#fff 10px 20px)!important;background-size:auto 100%!important;background-repeat:repeat!important;background-origin:border-box!important;background-clip:border-box!important;animation:bstr .35s linear infinite!important;color:transparent!important}
 </style>
 </head>
 <body>
@@ -1528,7 +1532,7 @@ function bPoster(){const st=ST,g=geom(st),f=buildFrame(st,BPPC),a=document.creat
  const h=$("#bpos");h.innerHTML="";h.appendChild(f.root);h.style.filter="drop-shadow(0 12px 18px rgba(0,0,0,.4))";const w=f.root.offsetWidth||g.W*BPPC,hh=f.root.offsetHeight||g.H*BPPC;
  BPOS.x=clamp(BPOS.x,w*.3,402-w*.3);BPOS.y=clamp(BPOS.y,hh*.3,874-hh*.3);h.style.left=(BPOS.x-w/2)+"px";h.style.top=(BPOS.y-hh/2)+"px"}
 function bPanel(){const P=$("#bpan"),st=ST;document.querySelectorAll("#btcol button").forEach(b=>b.classList.toggle("on",b.dataset.k===BTOOL));P.innerHTML="";if(!BTOOL){P.classList.add("off");return}P.classList.remove("off");
- const rb=()=>{bPoster();bPanel();$("#bbar").textContent="Buy it · $"+bPrice(st)};
+ const rb=()=>{bPoster();bPanel();$("#bbar").textContent="Check out · $"+bPrice(st)};
  if(BTOOL==="size")P.appendChild(mkChips(FMT.map(x=>x[0].replace("×"," × ")),st.fmt,i=>{st.fmt=i;touch();rb()}));
  if(BTOOL==="frame"){P.appendChild(mkChips(["None","Thin","Thick"],st.frame.k,i=>{st.frame.k=i;touch();rb()}));if(st.frame.k)P.appendChild(mkSw(FRC.map(c=>c[0]),st.frame.c,c=>{st.frame.c=c;touch();rb()}))}
  if(BTOOL==="room"){const opts=[];if(ROOM_OWN)opts.push(["Your room",ROOM_OWN]);[["Sofa",3],["Window",1],["Table",0],["Plant",2]].forEach(o=>opts.push(o));if(BROOMN==="Photo")opts.push(["Photo",ROOM]);
@@ -1541,7 +1545,7 @@ function buyBkColor(){const im=$("#bimg"),b=document.querySelector("#buy>.bk");i
  if(!b.dataset.arrow){b.dataset.arrow=1;b.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12H4M10 6l-6 6 6 6"/></svg>'}
  const f=()=>{try{const c=document.createElement("canvas");c.width=c.height=16;const x=c.getContext("2d"),w=im.naturalWidth,h=im.naturalHeight;x.drawImage(im,0,0,w*.35,h*.14,0,0,16,16);const d=x.getImageData(0,0,16,16).data;let l=0;for(let i=0;i<d.length;i+=4)l+=.299*d[i]+.587*d[i+1]+.114*d[i+2];l/=256;b.style.color=l>145?"#000":"#fff"}catch(e){b.style.color="#fff"}};
  im.onload=f;if(im.complete&&im.naturalWidth)f()}
-function drawBuy(){const e=currentEntry();ST=e.st;GCUR=e;BTOOL=null;if(!ROOM){ROOM=scene(3).toDataURL("image/jpeg",.8)}$("#bimg").src=ROOM;buyBkColor();bPoster();bPanel();const bb=$("#bbar");bb.textContent="Buy it · $"+bPrice(ST);bb.classList.remove("blk","go","sw");bb.style.opacity=0;later(()=>{bb.style.opacity=1;wsweep(bb)},500)}
+function drawBuy(){const e=currentEntry();ST=e.st;GCUR=e;BTOOL=null;if(!ROOM){ROOM=scene(3).toDataURL("image/jpeg",.8)}$("#bimg").src=ROOM;buyBkColor();bPoster();bPanel();const bb=$("#bbar");bb.textContent="Check out · $"+bPrice(ST);bb.classList.remove("blk","go","sw");bb.style.opacity=0;later(()=>{bb.style.opacity=1;wsweep(bb)},500)}
 (function(){const h=$("#bpos");let d=null;h.addEventListener("pointerdown",ev=>{ev.preventDefault();d={x:ev.clientX,y:ev.clientY,px:BPOS.x,py:BPOS.y};try{h.setPointerCapture(ev.pointerId)}catch(e){}});
  h.addEventListener("pointermove",ev=>{if(!d)return;BPOS={x:d.px+(ev.clientX-d.x)/SC,y:d.py+(ev.clientY-d.y)/SC};const w=h.offsetWidth,hh=h.offsetHeight;BPOS.x=clamp(BPOS.x,w*.3,402-w*.3);BPOS.y=clamp(BPOS.y,hh*.3,874-hh*.3);h.style.left=(BPOS.x-w/2)+"px";h.style.top=(BPOS.y-hh/2)+"px"});
  h.addEventListener("pointerup",()=>{d=null});h.addEventListener("pointercancel",()=>{d=null});

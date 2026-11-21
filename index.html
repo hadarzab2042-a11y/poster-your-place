@@ -2035,7 +2035,8 @@ function frame(now){const dt=Math.min(.05,(now-last)/1000);last=now;
  if(cur==="home"||PULL){const t=(now-h0)/1000;ribHome(t)}
  else if(cur==="splash")drawSplash((now-sS)/1000);
  else if(cur==="share")shareStep(dt);
- else if(cur==="thanks")thanksStep(dt);else if(cur==="feed")feedRing(dt);
+ else if(cur==="feed")feedRing(dt);
+ if(cur==="thanks")thanksStep(dt);
  requestAnimationFrame(frame)}
 requestAnimationFrame(frame);go("spring");
 try{if(innerWidth<=500||navigator.standalone||matchMedia("(display-mode: standalone)").matches)go("splash")}catch(e){}

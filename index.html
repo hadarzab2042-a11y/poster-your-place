@@ -990,6 +990,9 @@ canvas{position:absolute;left:0;top:0;width:402px;height:874px;pointer-events:no
 #room.lt #rtop{text-shadow:none}
 #room .bk svg *{stroke:currentColor!important}
 #room .bk.lt{filter:none!important}
+
+/* phone: keep the status bar (time / battery) readable on top of the poster */
+@media (max-width:500px){#poster:before{content:"";position:absolute;left:0;right:0;top:0;height:60px;background:linear-gradient(#fff 0,rgba(255,255,255,.85) 45%,rgba(255,255,255,0) 100%);z-index:30;pointer-events:none}}
 </style>
 </head>
 <body>

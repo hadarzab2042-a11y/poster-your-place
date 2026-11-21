@@ -1062,7 +1062,7 @@ html.pm #isl{display:none!important}
 const $=s=>document.querySelector(s),INK="#1E1C1D",C={Y:"#F0E810",P:"#E81878",B:"#40A0D8"},NS="http://www.w3.org/2000/svg";
 const ph=$("#ph"),wrap=$("#wrap");
 let SC=1;
-function fit(){const side=0,sq=false;const pm=innerWidth<=500;document.documentElement.classList.toggle("pm",pm);const VH=pm?Math.max(innerHeight,screen.height||0):innerHeight;SC=pm?Math.max(innerWidth/402,VH/874):Math.min((innerHeight-28)/874,(innerWidth-side-28)/402,1.15);if(!sq)document.body.style.background='';else if(!document.body.style.background)document.body.style.background='#fff';wrap.style.width=402*SC+"px";wrap.style.height=874*SC+"px";ph.style.transform="scale("+SC+")";if(pm){wrap.style.position="fixed";wrap.style.left=(innerWidth-402*SC)/2+"px";wrap.style.top=(VH-874*SC)/2+"px"}else{wrap.style.position="";wrap.style.left="";wrap.style.top=""}ph.classList.toggle("sq",sq)}
+function fit(){const side=0,sq=false;const pm=innerWidth<=500;document.documentElement.classList.toggle("pm",pm);const VH=innerHeight;SC=pm?Math.max(innerWidth/402,VH/874):Math.min((innerHeight-28)/874,(innerWidth-side-28)/402,1.15);if(!sq)document.body.style.background='';else if(!document.body.style.background)document.body.style.background='#fff';wrap.style.width=402*SC+"px";wrap.style.height=874*SC+"px";ph.style.transform="scale("+SC+")";if(pm){wrap.style.position="fixed";wrap.style.left=(innerWidth-402*SC)/2+"px";wrap.style.top="0px"}else{wrap.style.position="";wrap.style.left="";wrap.style.top=""}ph.classList.toggle("sq",sq)}
 addEventListener("resize",fit);fit();
 const mk=(src,alt)=>{const i=new Image();i.src=src;i.alt=alt;return i};
 

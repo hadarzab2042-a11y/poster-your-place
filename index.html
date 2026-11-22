@@ -1006,6 +1006,8 @@ html.pm #isl{display:none!important}
 #poster #nextbtn::before{content:none!important}
 #poster #nextbtn::after{content:"";position:absolute;inset:0;border-radius:50%;z-index:2;pointer-events:none;background:#000 url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3E%3Cpath d='M4 15H25M17 7L25 15L17 23' fill='none' stroke='%23fff' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center/28px 28px no-repeat;-webkit-mask-image:linear-gradient(100deg,transparent 0 40%,#000 46% 54%,transparent 60% 100%);mask-image:linear-gradient(100deg,transparent 0 40%,#000 46% 54%,transparent 60% 100%);-webkit-mask-size:250% 100%;mask-size:250% 100%;-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat;-webkit-mask-position:100% 0;mask-position:100% 0;animation:nxn 10s ease-in-out infinite}
 @keyframes nxn{0%{-webkit-mask-position:100% 0;mask-position:100% 0}12%,100%{-webkit-mask-position:0% 0;mask-position:0% 0}}
+#poster .bk{left:var(--rbl,319px)!important;top:var(--rbt,699px)!important;right:auto!important}
+#poster #roombtn{left:var(--rbl,319px)!important;top:var(--ret,655px)!important;right:auto!important}
 .ff .buynow{background:transparent;border:2.4px solid var(--ink);color:var(--ink);box-sizing:border-box;line-height:1;display:inline-flex;align-items:center;justify-content:center}
 </style>
 </head>
@@ -1454,7 +1456,7 @@ function captureMeta(forSt){const M=META={time:hhmm(new Date()),lat:null,lon:nul
 function makePoster(){const st=newState(SHAPE||SHP.circle);if(META){st.texts.push(metaText(META,st));META.sts.push(st)}GCUR={st};GAL.push(GCUR);ST=st;SELL=st.texts.length?st.texts.length-1:"shape";TOOL="text"}
 function touch(low){ST.rev++;refresh(low)}
 const ART={cw:402,ch:621,pad:0};
-function placeNext(){try{const p=$("#poster"),a=$("#art"),n=$("#nextbtn");if(!p||!a||!n)return;const pr=p.getBoundingClientRect(),ar=a.getBoundingClientRect(),k=pr.width/p.offsetWidth||1;if(!ar.width)return;p.style.setProperty("--nxl",((ar.right-pr.left)/k-52-24)+"px");p.style.setProperty("--nxt",((ar.bottom-pr.top)/k-52-24)+"px")}catch(e){}}
+function placeNext(){try{const p=$("#poster"),a=$("#art"),n=$("#nextbtn");if(!p||!a||!n)return;const pr=p.getBoundingClientRect(),ar=a.getBoundingClientRect(),k=pr.width/p.offsetWidth||1;if(!ar.width)return;p.style.setProperty("--nxl",((ar.right-pr.left)/k-52-24)+"px");const nt=(ar.bottom-pr.top)/k-52-24,nl=(ar.right-pr.left)/k-52-24;p.style.setProperty("--nxt",nt+"px");p.style.setProperty("--rbl",(nl+9)+"px");p.style.setProperty("--rbt",(nt-46)+"px");p.style.setProperty("--ret",(nt-90)+"px")}catch(e){}}
 function refresh(low){if(!ST||cur!=="poster")return;const box=$("#stagebox"),pf=$("#pframe"),pm=$("#pmat"),art=$("#art");let cw,ch,pad=0;
  if(!pvw){pf.style.border="0";pf.style.width="402px";pm.style.padding="0";pm.style.background="#fff";cw=402;ch=621}
  else{const bw=box.clientWidth,bh=box.clientHeight,g=geom(ST),sc=Math.min((bw-34)/g.W,(bh-34)/g.H);

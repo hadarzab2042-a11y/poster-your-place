@@ -1860,7 +1860,7 @@ function feedRing(dt){if(FV==="mine")return;const g=cvg("#fring");FRT+=dt;if(!FR
  if(FRHID===null)FRHID=getComputedStyle(g.canvas).display==="none";if(FRHID)return;
  g.setTransform(dpr,0,0,dpr,0,0);g.clearRect(0,0,402,874);const ps=RPS0+FRT*.9,al=RAL+.18*Math.sin(FRT*.9),F=ringFrames(ps,al);
  g.setTransform(FRS*dpr,0,0,FRS*dpr,(FRX-RC[0]*FRS)*dpr,(FRY-RC[1]*FRS)*dpr);drawSnake(g,F,0,F[F.length-1].s,s=>RHW,false,FRG?(2*Math.round(lerp(10,6,eIO(Math.min(1,(performance.now()-FRG.t0)/950))))+1):21);g.setTransform(dpr,0,0,dpr,0,0)}
-$("#fringb").onclick=()=>{if(FRG)return;$("#feed").classList.add("leaving");feedLogoPose();FRG={t0:performance.now(),s0:FRS,x0:FRX,y0:FRY}};
+$("#fringb").onclick=()=>{if(FRG)return;if(window.pullHome)window.pullHome();else{$("#feed").classList.add("leaving");feedLogoPose();FRG={t0:performance.now(),s0:FRS,x0:FRX,y0:FRY}}};
 /* ---- persistence ---- */
 const PKEY="pyp.v2";let PT_T=0;
 function persist(){clearTimeout(PT_T);PT_T=setTimeout(persistNow,250)}
@@ -2170,6 +2170,9 @@ function feedRise(on,Y){const f=$("#feed");if(!on){f.classList.remove("rising","
  const sheeted=()=>IDS.includes(cur)&&cur!=="cam";
  ph.addEventListener("pointerdown",ev=>{if(!IDS.includes(cur))return;const r=ph.getBoundingClientRect();const y=(ev.clientY-r.top)/SC;if(y>(cur==="feed"?230:120))return;s=document.getElementById(cur);y0=ev.clientY;dy=0;act=false});
  addEventListener("pointermove",ev=>{if(y0===null)return;dy=Math.max(0,(ev.clientY-y0)/SC);if(dy>8&&!act){act=true;PULL=true;homeInit(true);hm.classList.add("on");s.style.zIndex=40}if(act){s.style.transition="none";s.style.transform="translateY("+(s.id==="feed"?Math.min(dy,PK):dy)+"px)";gsync(s);if(s.id==="feed"){s.classList.remove("settle");feedRise(true,Math.min(dy,PK))}}});
+ window.pullHome=()=>{if(cur!=="feed"||act)return;const el=$("#feed");act=true;PULL=true;homeInit(true);hm.classList.add("on");el.style.zIndex=40;el.style.transition="none";el.style.transform="translateY(0)";gsync(el);feedRise(true,0);void el.offsetWidth;
+  requestAnimationFrame(()=>{el.style.transition="transform .4s cubic-bezier(.65,0,.25,1)";el.style.transform="translateY("+PK+"px)";gsync(el);el.classList.add("settle");el.style.setProperty("--q",0);
+   later(()=>{act=false;PULL=false;feedRise(false);el.style.transition="";el.style.transform="";gsync(el);el.style.zIndex="";go("home",true)},430)})};
  const end=()=>{if(y0===null)return;y0=null;if(!act)return;act=false;const el=s,id=el.id;
   if(dy>140){const toPeek=id!=="cam";el.style.transition="transform .4s cubic-bezier(.65,0,.25,1)";el.style.transform=toPeek?"translateY("+PK+"px)":"translateY(104%)";gsync(el);if(toPeek&&id==="feed"){el.classList.add("settle");el.style.setProperty("--q",0)}
    later(()=>{PULL=false;feedRise(false);el.style.transition="";el.style.transform="";gsync(el);el.style.zIndex="";go("home",true)},430)}

@@ -2191,10 +2191,10 @@ function feedRise(on,Y){const f=$("#feed");if(!on){f.classList.remove("rising","
  addEventListener("pointermove",ev=>{if(y0===null)return;dy=Math.max(0,(ev.clientY-y0)/SC);if(dy>8&&!act){act=true;PULL=true;homeInit(true);hm.classList.add("on");s.style.zIndex=40}if(act){s.style.transition="none";s.style.transform="translateY("+(s.id==="feed"?Math.min(dy,PK):dy)+"px)";gsync(s);if(s.id==="feed"){s.classList.remove("settle");feedRise(true,Math.min(dy,PK))}}});
  window.pullHome=()=>{if(cur!=="feed"||act)return;const el=$("#feed");act=true;PULL=true;homeInit(true);hm.classList.add("on");el.style.zIndex=40;el.style.transition="none";el.style.transform="translateY(0)";gsync(el);feedRise(true,0);void el.offsetWidth;
   requestAnimationFrame(()=>{el.style.transition="transform .4s cubic-bezier(.65,0,.25,1)";el.style.transform="translateY("+PK+"px)";gsync(el);el.classList.add("settle");el.style.setProperty("--q",0);
-   later(()=>{act=false;PULL=false;feedRise(false);el.style.transition="";el.style.transform="";gsync(el);el.style.zIndex="";go("home",true)},430)})};
+   later(()=>{act=false;PULL=false;el.style.transition="none";el.style.opacity="0";feedRise(false);el.style.transform="";gsync(el);el.style.zIndex="";go("home",true);later(()=>{el.style.opacity="";el.style.transition=""},120)},430)})};
  const end=()=>{if(y0===null)return;y0=null;if(!act)return;act=false;const el=s,id=el.id;
   if(dy>140){const toPeek=id!=="cam";el.style.transition="transform .4s cubic-bezier(.65,0,.25,1)";el.style.transform=toPeek?"translateY("+PK+"px)":"translateY(104%)";gsync(el);if(toPeek&&id==="feed"){el.classList.add("settle");el.style.setProperty("--q",0)}
-   later(()=>{PULL=false;feedRise(false);el.style.transition="";el.style.transform="";gsync(el);el.style.zIndex="";go("home",true)},430)}
+   later(()=>{PULL=false;el.style.transition="none";el.style.opacity="0";feedRise(false);el.style.transform="";gsync(el);el.style.zIndex="";go("home",true);later(()=>{el.style.opacity="";el.style.transition=""},120)},430)}
   else{el.style.transition="transform .35s cubic-bezier(.22,1,.36,1)";el.style.transform="none";gsync(el);if(id==="feed"){el.classList.add("settle");el.style.setProperty("--q",1)}
    later(()=>{PULL=false;if(cur===id&&id==="cam")hm.classList.remove("on");feedRise(false);el.style.transition="";el.style.transform="";gsync(el);el.style.zIndex=""},360)}};
  addEventListener("pointerup",end);addEventListener("pointercancel",end);

@@ -2136,7 +2136,7 @@ addEventListener("pointerup",()=>{sw=null});
  function syncLogo(){const sv=home.querySelector("#ptt svg");if(!sv){logoImg=null;logoKey="";return null}
   const k=new XMLSerializer().serializeToString(sv);if(k!==logoKey){logoKey=k;const im=new Image();im.onload=()=>{if(logoKey===k)logoImg=im};im.src="data:image/svg+xml;charset=utf-8,"+encodeURIComponent(k)}
   return sv}
- let hh=124,by=-200,last=0,vis=0,bd=null,bUp=0,anim=null,wasShow=false,restY=90;
+ let introDone=false,hh=124,by=-200,last=0,vis=0,bd=null,bUp=0,anim=null,wasShow=false,restY=90;
  const bpp=ev=>{const r=ph.getBoundingClientRect();return[(ev.clientX-r.left)/SC,(ev.clientY-r.top)/SC]};
  ph.addEventListener("pointerdown",ev=>{if(editing||cur!=="home"||!on||vis<.5)return;const p=bpp(ev);if(Math.abs(p[1]-by)<=hh/2&&by>0)bd={dy:p[1]-by,sy:p[1],drag:false,id:ev.pointerId}},true);
  ph.addEventListener("pointermove",ev=>{if(!bd)return;const p=bpp(ev);if(!bd.drag&&Math.abs(p[1]-bd.sy)>8){bd.drag=true;anim=null;try{ph.setPointerCapture(bd.id)}catch(e){}}if(bd.drag)by=Math.max(hh/2,Math.min(H-hh/2,p[1]-bd.dy))});
@@ -2145,8 +2145,8 @@ addEventListener("pointerup",()=>{sw=null});
  ph.addEventListener("click",ev=>{if(performance.now()-bUp<400){ev.stopPropagation();ev.preventDefault()}},true);
  function loop(ts){requestAnimationFrame(loop);
   const dt=Math.min(.05,(ts-last)/1000||0);last=ts;
-  const showing=on&&cur==="home"&&(performance.now()-h0)/1000>2.0;
-  if(showing&&!wasShow){anim={t:0};by=-hh}wasShow=showing;
+  const showing=on&&((cur==="home"&&(performance.now()-h0)/1000>2.0)||(introDone&&PULL&&home.classList.contains("on")));
+  if(showing&&!wasShow&&!introDone){introDone=true;anim={t:0};by=-hh}wasShow=showing;
   vis=Math.max(0,Math.min(1,vis+(showing?dt*2.5:-dt*6)));
   if(vis<=0){if(oc._d){og.clearRect(0,0,oc.width,oc.height);oc._d=0}return}
   oc._d=1;

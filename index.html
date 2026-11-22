@@ -2068,7 +2068,7 @@ function drawSplash(t){gS.clearRect(0,0,W,H);{const ba=E(0,.4,t)*(1-E(3.2,3.9,t)
  drawSnake(gS,FA,tail,head,s=>SHW,false,13);
  if(t>4.0&&cur==="splash"){fromSp=true;go("home")}}
 /* ---- path B (home): enters at the top left and coils into the ring ---- */
-const RC=[207,536,0],RR=112,RHW=40,RAL=-.55,RPS0=.75;
+const RC=[207,496,0],RR=112,RHW=40,RAL=-.55,RPS0=.75;
 const ringBasis=(ps,al)=>{const cy=Math.cos(ps),sy=Math.sin(ps),ca=Math.cos(al),sa=Math.sin(al);
  const rot=v=>{let x=v[0],y=v[1]*ca-v[2]*sa,z=v[1]*sa+v[2]*ca;return[x*cy+z*sy,y,-x*sy+z*cy]};return{u:rot([1,0,0]),v:rot([0,1,0]),a:rot([0,0,1])}};
 function ringPts(ps,al,th0,th1,n){const B=ringBasis(ps,al),o=[];for(let i=0;i<=n;i++){const th=th0+(th1-th0)*i/n,c=Math.cos(th)*RR,s=Math.sin(th)*RR;o.push([RC[0]+B.u[0]*c+B.v[0]*s,RC[1]+B.u[1]*c+B.v[1]*s,RC[2]+B.u[2]*c+B.v[2]*s])}return o}

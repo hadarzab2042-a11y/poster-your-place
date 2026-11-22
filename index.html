@@ -1001,9 +1001,8 @@ html.pm #isl{display:none!important}
 #feed #fprof{background:#fff!important;box-shadow:0 2px 14px rgba(0,0,0,.2)}#feed #fprof svg *{stroke:var(--ink)!important}
 
 /* Next: black bold word + double arrow; a white pill is born with a flash every few seconds and disappears */
-#poster #nextbtn{position:absolute;background:none!important;-webkit-background-clip:border-box!important;background-clip:border-box!important;color:#000!important;-webkit-text-fill-color:#000!important;filter:none!important;animation:none!important;text-shadow:none!important;font:900 27px/38px "Helvetica Neue",Helvetica,"Liberation Sans",Arial,sans-serif!important;letter-spacing:-.01em;height:38px!important;line-height:38px!important;padding:0 20px 0 22px!important;top:64px!important;display:flex!important;align-items:center;gap:7px;isolation:isolate}
+#poster #nextbtn{position:absolute;background:none!important;-webkit-background-clip:border-box!important;background-clip:border-box!important;color:#000!important;-webkit-text-fill-color:#000!important;filter:none!important;animation:none!important;text-shadow:none!important;font:900 27px/38px "Helvetica Neue",Helvetica,"Liberation Sans",Arial,sans-serif!important;letter-spacing:-.01em;height:38px!important;line-height:38px!important;padding:0 22px!important;top:64px!important;display:flex!important;align-items:center;isolation:isolate}
 #poster #nextbtn::before{content:"";position:absolute;inset:0;border-radius:19px;background:#fff;z-index:-1;opacity:0;clip-path:inset(0 100% 0 0 round 19px);animation:nxp 3.6s ease-in-out infinite}
-#poster #nextbtn::after{content:"";width:24px;height:20px;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 20'%3E%3Cpath d='M3 3l7 7-7 7M12 3l7 7-7 7' fill='none' stroke='%23000' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center/contain no-repeat}
 @keyframes nxp{0%,58%{opacity:0;clip-path:inset(0 100% 0 0 round 19px);box-shadow:none}
 66%{opacity:1;clip-path:inset(0 0 0 0 round 19px);box-shadow:0 0 18px 4px rgba(255,255,255,.95)}
 74%{box-shadow:0 0 0 0 rgba(255,255,255,0)}
@@ -1573,7 +1572,7 @@ $("#tin").oninput=e=>{const t=ST&&ST.texts[SELL];if(!t)return;let v=e.target.val
  [["text","Text"],["pat","Pattern"],["shape","Shape"],["bg","Background"]].forEach(([k,l])=>{const b=document.createElement("button");b.dataset.k=k;b.setAttribute("aria-label",l);b.textContent=k==="text"?"Aa":l;
  b.onclick=()=>{TOOL=TOOL===k?null:k;if(TOOL==="text"&&(typeof SELL!=="number"||!ST.texts[SELL])&&ST.texts.length)SELL=ST.texts.length-1;if(TOOL==="shape"&&typeof SELL==="number")SELL="shape";if(TOOL===null)$("#tin").blur();buildPanel();selBox()};tb.appendChild(b)})})();
 $("#roombtn").onclick=()=>openRoom(currentEntry(),"poster");
-(function(){const b=document.querySelector("#poster .bk");if(!b)return;b.setAttribute("aria-label","Try again");b.innerHTML='<svg viewBox="0 0 30 30"><path d="M25 15a10 10 0 1 1-3.2-7.3"/><path d="M23.5 3.5v6h-6"/></svg>'})();
+(function(){const b=document.querySelector("#poster .bk");if(!b)return;b.setAttribute("aria-label","Try again");b.innerHTML='<svg viewBox="0 0 24 24"><path d="M20 11a8.1 8.1 0 0 0-15.5-2M4 5v4h4"/><path d="M4 13a8.1 8.1 0 0 0 15.5 2M20 19v-4h-4"/></svg>'})();
 
 /* ---- room preview ---- */
 function openRoom(e,from){RENT=e;roomFrom=from;go("room")}

@@ -2096,7 +2096,8 @@ function typeHead(t){const n=Math.max(0,Math.min(PT.length,Math.floor((t-.5)*11)
  ptEl.innerHTML=logoSVG(vis,cur)}}
 
 let h0=0;
-function homeInit(skip){if(skip&&(performance.now()-h0)/1000>TF+1.5)return;h0=performance.now()-(skip?30000:0)}
+let homeSeen=false;
+function homeInit(skip){if(!skip){if(homeSeen){h0=performance.now()-30000;return}homeSeen=true;h0=performance.now();return}if((performance.now()-h0)/1000>TF+1.5)return;h0=performance.now()-30000}
 function smoothTrail(P,sg){const n=P.length,R=Math.ceil(sg*2.5),o=[];
  for(let i=0;i<n;i++){let sx=0,sy=0,sw=0;for(let j=-R;j<=R;j++){const k=i+j;if(k<0||k>=n)continue;const w=Math.exp(-j*j/(2*sg*sg));sx+=P[k].x*w;sy+=P[k].y*w;sw+=w}o.push({x:sx/sw,y:sy/sw,w:1})}
  if(n>1){const dx=P[n-1].x-o[n-1].x,dy=P[n-1].y-o[n-1].y,M=Math.min(n,R+1);for(let i=0;i<M;i++){const r=1-i/M,q=n-1-i;o[q].x+=dx*r*r;o[q].y+=dy*r*r}

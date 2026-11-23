@@ -1015,6 +1015,20 @@ html.pm #isl{display:none!important}
 #poster #nextbtn{transition:background .15s}
 #poster #nextbtn.hit{background:#F0E810!important}
 #poster #nextbtn.hit::after{display:none!important}
+
+/* welcome bubble (shown once after the camera opens) */
+#welc{position:absolute;left:38px;width:326px;top:270px;z-index:70;box-sizing:border-box;padding:26px 24px 22px;border-radius:34px;background:rgba(255,255,255,.58);-webkit-backdrop-filter:blur(22px) saturate(1.15);backdrop-filter:blur(22px) saturate(1.15);border:1.5px solid rgba(255,255,255,.75);box-shadow:0 14px 44px rgba(0,0,0,.22);color:var(--ink);opacity:0;pointer-events:none;transform:scale(.82) translateY(18px)}
+#welc.on{pointer-events:auto;animation:welcIn .55s cubic-bezier(.2,1.3,.4,1) forwards}
+#welc.off{pointer-events:none;animation:welcOut .32s cubic-bezier(.5,0,.8,.4) forwards}
+@keyframes welcIn{from{opacity:0;transform:scale(.82) translateY(18px)}to{opacity:1;transform:none}}
+@keyframes welcOut{from{opacity:1;transform:none}to{opacity:0;transform:scale(.92) translateY(10px)}}
+#welc h2{margin:0 0 12px;font-family:inherit;font-weight:700;font-size:40px;line-height:.95;letter-spacing:-.035em}
+#welc p{margin:0 0 20px;font-family:inherit;font-weight:500;font-size:16px;line-height:1.3;letter-spacing:-.01em}
+#welc button{position:relative;display:block;width:100%;height:50px;border:3px solid var(--ink);border-radius:22px;background:var(--Y);color:var(--ink);font-family:inherit;font-weight:700;font-size:20px;letter-spacing:-.02em;cursor:pointer;overflow:hidden;padding:0}
+#welc button i{position:absolute;left:0;top:0;bottom:0;width:0;background:#D2C90A;z-index:0}
+#welc.on button i{animation:welcFill 10s linear forwards}
+@keyframes welcFill{from{width:0}to{width:100%}}
+#welc button span{position:relative;z-index:1}
 </style>
 </head>
 <body>
@@ -1052,6 +1066,7 @@ html.pm #isl{display:none!important}
    <div id="cmsg"></div>
    <svg id="ring" viewBox="0 0 100 100"><circle class="bgc" cx="50" cy="50" r="47"/><circle class="rb" cx="50" cy="50" r="44"/><circle class="rp" id="rp" cx="50" cy="50" r="44" pathLength="1"/></svg>
    <div id="csel"><button id="cno" aria-label="Choose again"><svg viewBox="0 0 30 30"><path d="M8 8L22 22M22 8L8 22"/></svg></button><button id="cok" aria-label="Confirm"><svg viewBox="0 0 30 30"><path d="M6 16L12.5 22.5L24 9"/></svg></button></div><div id="cnt"></div>
+   <div id="welc"><h2>Hey,<br>welcome!</h2><p>We're glad to meet you. This is your time to shine and be your own designer. Let's poster your place.</p><button id="welcGo"><i></i><span>Let's go</span></button></div>
    <div id="cbtns"><button id="cup">Upload</button><input type="file" id="cfile" accept="image/*" hidden></div>
    <div id="flash"></div></section>
   <section class="scr" id="wait"><div class="tx" id="tWait"></div><canvas id="cWt"></canvas></section>
@@ -1264,6 +1279,11 @@ function scene(k){const c=document.createElement("canvas");c.width=600;c.height=
  const im=g.getImageData(0,0,600,1300),d=im.data;let s=7;for(let i=0;i<d.length;i+=4){s=(s*1103515245+12345)&0x7fffffff;const n=((s>>16)&15)-7;d[i]+=n;d[i+1]+=n;d[i+2]+=n}g.putImageData(im,0,0);
  const v=g.createRadialGradient(300,650,300,300,650,900);v.addColorStop(0,"rgba(0,0,0,0)");v.addColorStop(1,"rgba(0,0,0,.22)");g.fillStyle=v;g.fillRect(0,0,600,1300);return c}
 /* ---- camera screen ---- */
+let WELC=0,WELT=0;
+function welcClose(){const w=$("#welc");if(!w||!w.classList.contains("on"))return;clearTimeout(WELT);w.classList.remove("on");w.classList.add("off");setTimeout(()=>w.classList.remove("off"),360)}
+function welcShow(){if(WELC)return;WELC=1;const w=$("#welc");if(!w)return;w.classList.remove("off","on");void w.offsetWidth;w.classList.add("on");clearTimeout(WELT);WELT=setTimeout(welcClose,10000)}
+document.addEventListener("click",e=>{if(e.target.closest&&e.target.closest("#welcGo"))welcClose()});
+
 const CAMS={mode:"idle",stream:null,src:null,sw:0,sh:0,prev:null,acc:0,last:0,timer:0,locked:false,det:null};
 const HOLD=2.6;
 function setHint(t){$("#chint").textContent=t}
@@ -1273,7 +1293,7 @@ function camStart(){camStop();camSel(false);CAMS.froze=false;$("#cam").classList
  cvg("#cov").clearRect(0,0,402,874);setProg(0);$("#cmsg").style.display="none";setHint("Starting camera…");
  const md=navigator.mediaDevices;if(!md||!md.getUserMedia){camFail("unsupported");return}
  let p;try{p=md.getUserMedia({video:{facingMode:{ideal:"environment"},width:{ideal:1280},height:{ideal:720}},audio:false})}catch(e){camFail(e&&e.name);return}
- p.then(s=>{if(cur!=="cam"||CAMS.locked){s.getTracks().forEach(t=>t.stop());return}CAMS.stream=s;const v=$("#cvid");v.srcObject=s;const pl=v.play();if(pl&&pl.catch)pl.catch(()=>{});CAMS.mode="video";setHint("Tap the shape you want, or move closer");CAMS.timer=setInterval(camTick,350)}).catch(e=>camFail(e&&e.name))}
+ p.then(s=>{if(cur!=="cam"||CAMS.locked){s.getTracks().forEach(t=>t.stop());return}CAMS.stream=s;const v=$("#cvid");v.srcObject=s;const pl=v.play();if(pl&&pl.catch)pl.catch(()=>{});CAMS.mode="video";setHint("Tap the shape you want, or move closer");CAMS.timer=setInterval(camTick,350);welcShow()}).catch(e=>camFail(e&&e.name))}
 function camFail(n){CAMS.mode="idle";setHint("The camera didn't open");const m=$("#cmsg");m.style.display="block";
  m.textContent=(n==="NotAllowedError"||n==="SecurityError")?"This viewer doesn't allow live camera. Tap Upload to choose a photo of your spot.":"No camera found. Tap Upload to choose a photo."}
 function useStatic(cv){camStop();camSel(false);CAMS.froze=false;CAMS.locked=false;if(!CAMS.manual)CAMS.alt=false;CAMS.miss=0;CAMS.acc=0;CAMS.prev=null;CAMS.src=cv;CAMS.sw=cv.width;CAMS.sh=cv.height;CAMS.mode="static";

@@ -1,6 +1,6 @@
 {
  "name": "Poster your place",
- "short_name": "Poster",
+ "short_name": "Poster your place",
  "start_url": "./",
  "display": "standalone",
  "orientation": "portrait",

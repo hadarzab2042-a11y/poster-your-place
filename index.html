@@ -1290,10 +1290,10 @@ function setHint(t){$("#chint").textContent=t}
 function setProg(p){$("#rp").style.strokeDashoffset=1-clamp(p,0,1);$("#cnt").textContent=p>.02?Math.max(1,Math.ceil((1-p)*HOLD)):""}
 function camStop(){clearInterval(CAMS.timer);CAMS.timer=0;if(CAMS.stream){CAMS.stream.getTracks().forEach(t=>t.stop());CAMS.stream=null}const v=$("#cvid");if(v)try{v.pause();v.srcObject=null}catch(e){}CAMS.mode="idle"}
 function camStart(){camStop();camSel(false);CAMS.froze=false;$("#cam").classList.remove("stat");const c=$("#cam");c.className="scr on";CAMS.locked=false;CAMS.manual=false;CAMS.alt=false;CAMS.auto=null;CAMS.miss=0;CAMS.acc=0;CAMS.prev=null;CAMS.det=null;CAMS.src=null;
- cvg("#cov").clearRect(0,0,402,874);setProg(0);$("#cmsg").style.display="none";setHint("Starting camera…");
+ cvg("#cov").clearRect(0,0,402,874);setProg(0);$("#cmsg").style.display="none";setHint("Starting camera…");welcShow();
  const md=navigator.mediaDevices;if(!md||!md.getUserMedia){camFail("unsupported");return}
  let p;try{p=md.getUserMedia({video:{facingMode:{ideal:"environment"},width:{ideal:1280},height:{ideal:720}},audio:false})}catch(e){camFail(e&&e.name);return}
- p.then(s=>{if(cur!=="cam"||CAMS.locked){s.getTracks().forEach(t=>t.stop());return}CAMS.stream=s;const v=$("#cvid");v.srcObject=s;const pl=v.play();if(pl&&pl.catch)pl.catch(()=>{});CAMS.mode="video";setHint("Tap the shape you want, or move closer");CAMS.timer=setInterval(camTick,350);welcShow()}).catch(e=>camFail(e&&e.name))}
+ p.then(s=>{if(cur!=="cam"||CAMS.locked){s.getTracks().forEach(t=>t.stop());return}CAMS.stream=s;const v=$("#cvid");v.srcObject=s;const pl=v.play();if(pl&&pl.catch)pl.catch(()=>{});CAMS.mode="video";setHint("Tap the shape you want, or move closer");CAMS.timer=setInterval(camTick,350)}).catch(e=>camFail(e&&e.name))}
 function camFail(n){CAMS.mode="idle";setHint("The camera didn't open");const m=$("#cmsg");m.style.display="block";
  m.textContent=(n==="NotAllowedError"||n==="SecurityError")?"This viewer doesn't allow live camera. Tap Upload to choose a photo of your spot.":"No camera found. Tap Upload to choose a photo."}
 function useStatic(cv){camStop();camSel(false);CAMS.froze=false;CAMS.locked=false;if(!CAMS.manual)CAMS.alt=false;CAMS.miss=0;CAMS.acc=0;CAMS.prev=null;CAMS.src=cv;CAMS.sw=cv.width;CAMS.sh=cv.height;CAMS.mode="static";
